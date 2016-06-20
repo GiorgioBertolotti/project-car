@@ -1,0 +1,26 @@
+L'applicazione permette a chi la usa di richiedere o offrire un passaggio.
+Chi la usa può essere un "autostoppista", ovvero chi ha bisogno di un passaggio, o un "autista", che si mette a disposizione per dare un passaggio.
+L'autostoppista definisce una destinazione verso la quale deve andare e invia periodicamente la sua posizione.
+L'autista può scegliere di chiamare uno degli autostoppisti che vede in elenco per mettersi d'accordo sul passaggio.
+Il progetto è diviso in tre parti:
+-Database, contenente 5 tabelle:
+	-User, che contiene tutti gli utenti registrati;
+	-Type, che contiene l'elenco di tutti i tipi con cui un utente può essere loggato (autista o autostoppista);
+	-City, contiene l'elenco di tutte le principali Città verso cui viaggiare;
+	-User_City, tabella "temporanea" che associa all'User_id (l'identificativo di un utente sulla tabella User) un City_id (dalla tabella City) verso cui viaggiare;
+	-User_Position, tabella "temporanea" che associa all'User_id la sua ultima posizione(Latitudine e longitudine) registrata.
+-Lato server, che permette all'applicazione di interfacciarsi con il database e ottenere informazioni sugli utenti tramite delle funzioni:
+	-Registrazione: Riceve dall'applicazione i dati dell'utente (nome,cognome,numero di telefono(U),password), controlla che il numero di telefono sia univoco e li inserisce nella tabella degli utenti sul db;
+	-Login: Riceve dall'applicazione il numero di telefono e la password dell'utente e se esiste in elenco un utente con quel numero di telefono controlla che la password coincida;
+	-Logout: Riceve dall'applicazione il numero di telefono(U) dell'utente che vuole fare il logout, controlla che esista un utente registrato con quel numero, ottiene l'id di tale utente, controlla se quell'utente è inserito nelle tabelle "User_Position", "User_City" e se c'è lo elimina;
+	-Controllare l'univocità del numero di telefono di un utente prima che si registri;
+	-Modifica: Riceve i dati attuali dell'utente del quale si vogliono modificare le informazioni e i nuovi dati che dovranno sostituire quelli vecchi, controlla che i nuovi dati siano validi (univocità del numero di telefono) e li sovrascrive ai vecchi;
+	-Ottieni città: richiede al database tutte le città della tabella "City" e le restituisce all'applicazione android;
+	-Destinazione: Ottiene il numero di telefono dell'utente e il City_id, ricava l'User_id dalla tabella User tramite il numero di telefono e aggiunge il record alla tabella "User_City";
+	-Posizione: Ottiene il numero di telefono dell'utente e la posizione (latitudine e longitudine), ricava l'User_id dalla tabella User tramite il numero di telefono e aggiunge il record a "User_Position";
+	-Tipo: Ottiene il numero di telefono dell'utente e il Type (autista o autostoppista) con cui vuole essere associato e modifica il record dell'utente nella tabella User aggiungendo al campo Type_id l'id ricavato da Type;
+	-Rimuovi destinazione: Ottiene il numero di telefono dell'utente, ricava l'User_id dalla tabella User, e rimuove il record dalla tabella User_City;
+	-Autostoppisti: Richiede al database tutti gli User_id con type "autostoppista", per ognuno di questi richiede alla tabella User i dati degli utenti e alla tabella User_City le destinazioni dove gli autostoppisti vogliono andare;
+-Interfaccia utente (applicazione android) con un menu laterale con queste funzioni:
+	-Login: aspetta che l'utente inserisca i dati (nome, cognome, numero di telefono, password e conferma password) per poi inviare allo script php le informazioni;
+	
