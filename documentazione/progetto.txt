@@ -4,23 +4,29 @@ L'autostoppista definisce una destinazione verso la quale deve andare e invia pe
 L'autista può scegliere di chiamare uno degli autostoppisti che vede in elenco per mettersi d'accordo sul passaggio.
 Il progetto è diviso in tre parti:
 -Database, contenente 5 tabelle:
-	-User, che contiene tutti gli utenti registrati;
+	-User, che contiene i dati di tutti gli utenti registrati (nome, cognome, numero di telefono, password, tipo);
 	-Type, che contiene l'elenco di tutti i tipi con cui un utente può essere loggato (autista o autostoppista);
-	-City, contiene l'elenco di tutte le principali Città verso cui viaggiare;
-	-User_City, tabella "temporanea" che associa all'User_id (l'identificativo di un utente sulla tabella User) un City_id (dalla tabella City) verso cui viaggiare;
-	-User_Position, tabella "temporanea" che associa all'User_id la sua ultima posizione(Latitudine e longitudine) registrata.
+	-City, contiene l'elenco di tutte le principali Città verso cui viaggiare (nome e provincia);
+	-User_City, tabella che associa all'User_id (l'identificativo di un utente sulla tabella User) un City_id (dalla tabella City) verso cui viaggiare;
+	-User_Position, tabella che associa all'User_id la sua ultima posizione(Latitudine e longitudine) registrata.
 -Lato server, che permette all'applicazione di interfacciarsi con il database e ottenere informazioni sugli utenti tramite delle funzioni:
-	-Registrazione: Riceve dall'applicazione i dati dell'utente (nome,cognome,numero di telefono(U),password), controlla che il numero di telefono sia univoco e li inserisce nella tabella degli utenti sul db;
-	-Login: Riceve dall'applicazione il numero di telefono e la password dell'utente e se esiste in elenco un utente con quel numero di telefono controlla che la password coincida;
-	-Logout: Riceve dall'applicazione il numero di telefono(U) dell'utente che vuole fare il logout, controlla che esista un utente registrato con quel numero, ottiene l'id di tale utente, controlla se quell'utente è inserito nelle tabelle "User_Position", "User_City" e se c'è lo elimina;
+	-Registrazione: Riceve dall'applicazione i dati dell'utente (nome,cognome,numero di telefono,password), controlla che il numero di telefono sia univoco e li inserisce nella tabella degli utenti sul db;
+	-Login: Riceve dall'applicazione il numero di telefono e la password dell'utente e se esiste in elenco un utente con quel numero di telefono controlla che la password coincida; restituisce i dati dell'utente;
+	-Logout: Riceve dall'applicazione il numero di telefono dell'utente, controlla che esista un utente registrato con quel numero, ottiene l'id di tale utente, controlla se quell'utente è inserito nelle tabelle "User_Position", "User_City" e se c'è lo elimina;
 	-Controllare l'univocità del numero di telefono di un utente prima che si registri;
 	-Modifica: Riceve i dati attuali dell'utente del quale si vogliono modificare le informazioni e i nuovi dati che dovranno sostituire quelli vecchi, controlla che i nuovi dati siano validi (univocità del numero di telefono) e li sovrascrive ai vecchi;
-	-Ottieni città: richiede al database tutte le città della tabella "City" e le restituisce all'applicazione android;
-	-Destinazione: Ottiene il numero di telefono dell'utente e il City_id, ricava l'User_id dalla tabella User tramite il numero di telefono e aggiunge il record alla tabella "User_City";
-	-Posizione: Ottiene il numero di telefono dell'utente e la posizione (latitudine e longitudine), ricava l'User_id dalla tabella User tramite il numero di telefono e aggiunge il record a "User_Position";
-	-Tipo: Ottiene il numero di telefono dell'utente e il Type (autista o autostoppista) con cui vuole essere associato e modifica il record dell'utente nella tabella User aggiungendo al campo Type_id l'id ricavato da Type;
+	-Imposta destinazione: Ottiene il numero di telefono dell'utente e il City_id, ricava l'User_id dalla tabella User tramite il numero di telefono e aggiunge il record alla tabella "User_City";
+	-Imposta tipo: Ottiene il numero di telefono dell'utente e il Type (autista o autostoppista) con cui vuole essere associato e modifica il record dell'utente nella tabella User aggiungendo al campo Type_id l'id ricavato da Type;
+	-Ottieni città: richiede al database tutte le città e i relativi dati della tabella City e le restituisce all'applicazione android;
+	-Ottieni autostoppisti: Richiede al database tutti gli User_id con type "autostoppista", per ognuno di questi richiede alla tabella User i dati degli utenti e alla tabella User_City le destinazioni dove gli autostoppisti vogliono andare; restituisce all'applicazione i dati degli autostoppisti;
+	-Ottieni utenti: Richiede al db tutti gli utenti attivi (quelli che hanno type != null) e la loro posizione dalla tabella User_Position, li restituisce poi all'applicazione;
 	-Rimuovi destinazione: Ottiene il numero di telefono dell'utente, ricava l'User_id dalla tabella User, e rimuove il record dalla tabella User_City;
-	-Autostoppisti: Richiede al database tutti gli User_id con type "autostoppista", per ognuno di questi richiede alla tabella User i dati degli utenti e alla tabella User_City le destinazioni dove gli autostoppisti vogliono andare;
+	-Rimuovi tipo: Ottiene il numero dell'utente e imposta il Type sulla tabella User a null, rimuove poi il record dell'utente dalla tabella User_Position;
+	-Ci sarà un server in ascolto che riceve i dati (latitudine e longitudine) di un utente e li carica sulla tabella User_Position del db.
 -Interfaccia utente (applicazione android) con un menu laterale con queste funzioni:
-	-Login: aspetta che l'utente inserisca i dati (nome, cognome, numero di telefono, password e conferma password) per poi inviare allo script php le informazioni;
-	
+	-Login: dopo che l'utente ha inserito i dati (nome, cognome, numero di telefono, password) invia allo script php le informazioni;
+	-Registrazione: invia allo script php i dati del nuovo utente da registrare (nome, cognome, numero di telefono, password);
+	-Chiedi passaggio: scelta destinazione tra le città scaricate dal db, all'avvio lo script php associa all'utente la destinazione;
+	-Offri passaggio: scarica dal db l'elenco degli autostoppisti, le loro informazioni e la destinazione, al click su uno di loro chiama il numero associato;
+	-Mappa: mostra tutti gli utenti attivi sulla mappa identificandoli con dei puntini, al click su uno di essi mostra il profilo pubblico.
+	-Inviare in background la posizione dell'utente al server;
