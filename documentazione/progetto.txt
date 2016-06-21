@@ -13,13 +13,12 @@ Il progetto è diviso in tre parti:
 	-Registrazione: Riceve dall'applicazione i dati dell'utente (nome,cognome,numero di telefono,password), controlla che il numero di telefono sia univoco e li inserisce nella tabella degli utenti sul db;
 	-Login: Riceve dall'applicazione il numero di telefono e la password dell'utente e se esiste in elenco un utente con quel numero di telefono controlla che la password coincida; restituisce i dati dell'utente;
 	-Logout: Riceve dall'applicazione il numero di telefono dell'utente, controlla che esista un utente registrato con quel numero, ottiene l'id di tale utente, controlla se quell'utente è inserito nelle tabelle "User_Position", "User_City" e se c'è lo elimina;
-	-Controllare l'univocità del numero di telefono di un utente prima che si registri;
 	-Modifica: Riceve i dati attuali dell'utente del quale si vogliono modificare le informazioni e i nuovi dati che dovranno sostituire quelli vecchi, controlla che i nuovi dati siano validi (univocità del numero di telefono) e li sovrascrive ai vecchi;
 	-Imposta destinazione: Ottiene il numero di telefono dell'utente e il City_id, ricava l'User_id dalla tabella User tramite il numero di telefono e aggiunge il record alla tabella "User_City";
 	-Imposta tipo: Ottiene il numero di telefono dell'utente e il Type (autista o autostoppista) con cui vuole essere associato e modifica il record dell'utente nella tabella User aggiungendo al campo Type_id l'id ricavato da Type;
 	-Ottieni città: richiede al database tutte le città e i relativi dati della tabella City e le restituisce all'applicazione android;
 	-Ottieni autostoppisti: Richiede al database tutti gli User_id con type "autostoppista", per ognuno di questi richiede alla tabella User i dati degli utenti e alla tabella User_City le destinazioni dove gli autostoppisti vogliono andare; restituisce all'applicazione i dati degli autostoppisti;
-	-Ottieni utenti: Richiede al db tutti gli utenti attivi (quelli che hanno type != null) e la loro posizione dalla tabella User_Position, li restituisce poi all'applicazione;
+	-Ottieni utenti attivi: Richiede al db tutti gli utenti attivi (quelli che hanno type != null) e la loro posizione dalla tabella User_Position, li restituisce poi all'applicazione;
 	-Rimuovi destinazione: Ottiene il numero di telefono dell'utente, ricava l'User_id dalla tabella User, e rimuove il record dalla tabella User_City;
 	-Rimuovi tipo: Ottiene il numero dell'utente e imposta il Type sulla tabella User a null, rimuove poi il record dell'utente dalla tabella User_Position;
 	-Ci sarà un server in ascolto che riceve i dati (latitudine e longitudine) di un utente e li carica sulla tabella User_Position del db.
