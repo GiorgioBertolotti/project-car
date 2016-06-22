@@ -11,6 +11,10 @@
             android:id="@+id/register"
             android:icon="@drawable/ic_register"
             android:title="Registrati" />
+        <item
+            android:id="@+id/logout"
+            android:icon="@drawable/ic_login"
+            android:title="Logout" />
     </group>
 
     <group android:id="@+id/transport"
@@ -26,7 +30,7 @@
         <item
             android:id="@+id/mappa"
             android:icon="@drawable/ic_map"
-            android:title="Offri passaggio" />
+            android:title="Mappa" />
     </group>
 
 </menu>

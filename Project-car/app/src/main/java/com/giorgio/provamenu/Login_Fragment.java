@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,13 +43,14 @@ public class Login_Fragment extends Fragment {
      * @return A new instance of fragment Login_Fragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static Login_Fragment newInstance(String param1, String param2) {
-        Login_Fragment fragment = new Login_Fragment();
+    public static Login_Fragment newInstance(int someInt) {
+        Login_Fragment myFragment = new Login_Fragment();
+
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+        args.putInt("someInt", someInt);
+        myFragment.setArguments(args);
+
+        return myFragment;
     }
 
     @Override
@@ -64,7 +66,9 @@ public class Login_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_login_, container, false);
+        View view = null;
+        view = inflater.inflate(R.layout.fragment_login_, container, false);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

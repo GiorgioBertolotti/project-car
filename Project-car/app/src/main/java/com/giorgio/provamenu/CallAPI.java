@@ -1,6 +1,7 @@
 package com.giorgio.provamenu;
 
 import android.os.AsyncTask;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import org.apache.commons.io.IOUtils;
@@ -32,45 +33,38 @@ public class CallAPI extends AsyncTask<String, String, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        /*String urlString = params[0]; // URL to call
-        String resultToDisplay = "";
-        InputStream in = null;
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedInputStream(urlConnection.getInputStream());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
-        }
-        try {
-            resultToDisplay = IOUtils.toString(in, "UTF-8");
-            //to [convert][1] byte stream to a string
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return resultToDisplay;*/
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(params[0]);
-        List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
-        nameValuePair.add(new BasicNameValuePair("api_method", "loginUser"));
-        nameValuePair.add(new BasicNameValuePair("api_data", "{\"mobile\":\"444\",\"password\":\"ppp\"}"));
-        try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
-        } catch (UnsupportedEncodingException e)
-        {
-            return e.getMessage();
-        }
-        try {
-            HttpResponse response = httpClient.execute(httpPost);
-            // write response to log
-            return EntityUtils.toString(response.getEntity());
-        } catch (Exception e) {
-            // Log exception
-            return e.getMessage();
+        switch(params[1]) {
+            case "registerUser": {
+                return execRequest(params);
+            }
+            case "loginUser":{
+                return execRequest(params);
+            }
+            case "logoutUser":{
+                return execRequest(params);
+            }
+            default: return "";
         }
     }
 
+    private String execRequest(String[] params){
+        String result= "";
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpPost httpPost = new HttpPost(params[0]);
+        List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
+        nameValuePair.add(new BasicNameValuePair("api_method", params[1]));
+        nameValuePair.add(new BasicNameValuePair("api_data", params[2]));
+        try {
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
+        } catch (UnsupportedEncodingException e) {}
+        try {
+            HttpResponse response = httpClient.execute(httpPost);
+            result = EntityUtils.toString(response.getEntity());
+        } catch (Exception e) {
+            result = e.getMessage();
+        }
+        return result;
+    }
 
     @Override
     protected void onPostExecute(String result) {
