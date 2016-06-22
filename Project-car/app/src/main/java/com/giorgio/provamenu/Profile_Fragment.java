@@ -4,21 +4,21 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link Login_Fragment.OnFragmentInteractionListener} interface
+ * {@link Profile_Fragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link Login_Fragment#newInstance} factory method to
+ * Use the {@link Profile_Fragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Login_Fragment extends Fragment {
+public class Profile_Fragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -30,13 +30,13 @@ public class Login_Fragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public Login_Fragment() {
+    public Profile_Fragment() {
         // Required empty public constructor
     }
 
     // TODO: Rename and change types and number of parameters
-    public static Login_Fragment newInstance(int someInt) {
-        Login_Fragment myFragment = new Login_Fragment();
+    public static Profile_Fragment newInstance(int someInt) {
+        Profile_Fragment myFragment = new Profile_Fragment();
 
         Bundle args = new Bundle();
         args.putInt("someInt", someInt);
@@ -48,10 +48,10 @@ public class Login_Fragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+        /*if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        }*/
     }
 
     @Override
@@ -59,7 +59,10 @@ public class Login_Fragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = null;
-        view = inflater.inflate(R.layout.fragment_login_, container, false);
+        view = inflater.inflate(R.layout.fragment_profile_, container, false);
+        ((TextView) getView().findViewById(R.id.textView10)).setText(MainActivity.loggato.getName());
+        ((TextView) getView().findViewById(R.id.textView11)).setText(MainActivity.loggato.getSurname());
+        ((TextView) getView().findViewById(R.id.textView12)).setText(MainActivity.loggato.getMobile());
         return view;
     }
 

@@ -29,9 +29,9 @@ import java.sql.Date;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, AsyncResponse {
+        implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, AsyncResponse {
     RelativeLayout rl;
-    User loggato;
+    public static User loggato;
     NavigationView navigationView;
     ArrayList<City> cities;
     ArrayList<User> ActiveUsers;
@@ -45,18 +45,37 @@ public class MainActivity extends AppCompatActivity
     public void changeUI(int stato){
         switch (stato){
             case 0:{
+                getSupportActionBar().setTitle("Passaggi");
+                setContentView(R.layout.activity_main);
+                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                setSupportActionBar(toolbar);
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                drawer.setDrawerListener(toggle);
+                toggle.syncState();
+
+                navigationView = (NavigationView) findViewById(R.id.nav_view);
+                navigationView.setNavigationItemSelectedListener(this);
                 navigationView.getMenu().findItem(R.id.logout).setVisible(false);
                 navigationView.getMenu().findItem(R.id.login).setVisible(true);
                 navigationView.getMenu().findItem(R.id.register).setVisible(true);
                 break;
             }
             case 20:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Profile_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Profile");
                 navigationView.getMenu().findItem(R.id.logout).setVisible(true);
                 navigationView.getMenu().findItem(R.id.login).setVisible(false);
                 navigationView.getMenu().findItem(R.id.register).setVisible(false);
+                ((TextView) findViewById(R.id.textView10)).setText(loggato.getName());
+                ((TextView) findViewById(R.id.textView11)).setText(loggato.getSurname());
+                ((TextView) findViewById(R.id.textView12)).setText(loggato.getMobile());
                 break;
             }
-
         }
     }
 
@@ -81,11 +100,14 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.getMenu().findItem(R.id.logout).setVisible(false);
 
         rl = (RelativeLayout) findViewById(R.id.RelativeLayout);
+
         client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
         cities = new ArrayList<City>();
         ActiveUsers = new ArrayList<User>();
+
     }
 
     @Override
@@ -94,7 +116,45 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            switch (stato){
+                case 0: {
+                    super.onBackPressed();
+                    break;
+                }
+                case 10:{
+                    getSupportActionBar().setTitle("Passaggi");
+                    setContentView(R.layout.activity_main);
+                    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                    setSupportActionBar(toolbar);
+                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                    drawer.setDrawerListener(toggle);
+                    toggle.syncState();
+
+                    navigationView = (NavigationView) findViewById(R.id.nav_view);
+                    navigationView.setNavigationItemSelectedListener(this);
+                    navigationView.getMenu().findItem(R.id.logout).setVisible(false);
+                    stato= 0;
+                    break;
+                }
+                case 15:{
+                    getSupportActionBar().setTitle("Passaggi");
+                    setContentView(R.layout.activity_main);
+                    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                    setSupportActionBar(toolbar);
+                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                    drawer.setDrawerListener(toggle);
+                    toggle.syncState();
+
+                    navigationView = (NavigationView) findViewById(R.id.nav_view);
+                    navigationView.setNavigationItemSelectedListener(this);
+                    navigationView.getMenu().findItem(R.id.logout).setVisible(false);
+                    stato= 0;
+                    break;
+                }
+            }
+            //super.onBackPressed();
         }
     }
 
@@ -210,8 +270,8 @@ public class MainActivity extends AppCompatActivity
                 case "loginUser": {
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     loggato = new User(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"));
-                    ((TextView) findViewById(R.id.textView)).setText(String.format("Benvenuto %s %s, %s",loggato.getName(), loggato.getSurname(), loggato.getMobile()));
                     Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_LONG).show();
+                    ((TextView) findViewById(R.id.textView)).setText(String.format("Benvenuto %s %s",loggato.getName(), loggato.getSurname()));
                     stato = 20;
                     changeUI(stato);
                     break;
