@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/authentication"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/login"
+            android:icon="@drawable/ic_login"
+            android:title="Login" />
+        <item
+            android:id="@+id/register"
+            android:icon="@drawable/ic_register"
+            android:title="Registrati" />
+    </group>
+
+    <group android:id="@+id/transport"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/autostoppista"
+            android:icon="@drawable/ic_thumb_up"
+            android:title="Chiedi passaggio" />
+        <item
+            android:id="@+id/autista"
+            android:icon="@drawable/ic_transport"
+            android:title="Offri passaggio" />
+        <item
+            android:id="@+id/mappa"
+            android:icon="@drawable/ic_map"
+            android:title="Offri passaggio" />
+    </group>
+
+</menu>
