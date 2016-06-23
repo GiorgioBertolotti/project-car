@@ -37,7 +37,7 @@ public class User {
         mobile = value;
         return "ok";
     }
-    public String setType_id(int value){
+    public String setType_id(Integer value){
         type_id = value;
         return "ok";
     }

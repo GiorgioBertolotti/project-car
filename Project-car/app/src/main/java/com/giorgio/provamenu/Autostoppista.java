@@ -6,19 +6,16 @@ package com.giorgio.provamenu;
 public class Autostoppista extends User {
     private String city;
     private String province;
-    private String setCity(String value){
-        if(value.isEmpty()||value.equals(""))
-            return "";
+    public String setCity(String value){
         if(value.length()>20)
             return "";
         city = value;
         return "ok";
     }
-    private String setProvince(String value){
-        if(value.isEmpty()||value.equals(""))
-            return "";
-        if(value.length()>2)
-            return "";
+    public String setProvince(String value){
+        if(value != null)
+            if(value.length()>2)
+                return "";
         province = value;
         return "ok";
     }
@@ -32,6 +29,9 @@ public class Autostoppista extends User {
         super(n,s,m);
         if(setCity(c).equals("")||setProvince(p).equals(""))
             return;
+    }
+    public Autostoppista(String n,String s,String m){
+        super(n,s,m);
     }
     @Override
     public String toString(){

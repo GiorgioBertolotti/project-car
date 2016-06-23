@@ -18,4 +18,5 @@
     <string name="cognome">Cognome</string>
     <string name="conferma">Conferma</string>
     <string name="registrati">REGISTRATI</string>
+    <string name="please_wait">Attendi che un autista ti contatti</string>
 </resources>

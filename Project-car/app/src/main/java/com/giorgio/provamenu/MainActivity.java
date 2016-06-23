@@ -34,10 +34,9 @@ import org.json.JSONObject;
 import java.sql.Date;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, AsyncResponse {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, Wait_Fragment.OnFragmentInteractionListener, AsyncResponse {
     RelativeLayout rl;
-    public static User loggato;
+    public static Autostoppista loggato;
     NavigationView navigationView;
     ArrayList<City> cities;
     public static ArrayAdapter<City> citiesAdapter;
@@ -46,12 +45,7 @@ public class MainActivity extends AppCompatActivity
     ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
     int stato = 0;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
     private GoogleApiClient client2;
-
     public void changeUI(){
         switch (stato){
             case 0:{
@@ -60,8 +54,7 @@ public class MainActivity extends AppCompatActivity
                 Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
                 drawer.setDrawerListener(toggle);
                 toggle.syncState();
                 getSupportActionBar().setTitle("Passaggi");
@@ -126,52 +119,24 @@ public class MainActivity extends AppCompatActivity
                 getSupportActionBar().setTitle("Scegli un autostoppista");
                 break;
             }
-        }
-    }
-
-    public void hideKeyboard(){
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
-
-    public void onFragmentInteraction(Uri uri) {
-        switch (loggato.getType_id()){
-            case 1:{
-                final ListView listView = (ListView) findViewById(R.id.listView);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Object listItem = listView.getItemAtPosition(position);
-                        setCity(((City)listItem).getName());
-                    }
-                });
+            case 50:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Map_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Mappa");
                 break;
             }
-            case 2:{
-                final ListView listView = (ListView) findViewById(R.id.listView2);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Object listItem = listView.getItemAtPosition(position);
-                        Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+ ((Autostoppista)listItem).getMobile()));
-                        startActivity(i);
-                    }
-                });
+            case 60:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Wait_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Attesa");
                 break;
             }
         }
     }
-
-    public void setCity(String name){
-        CallAPI asyncTask = new CallAPI();
-        asyncTask.delegate = this;
-        String json = String.format("{\"mobile\":\"%s\",\"city\":\"%s\"}",loggato.getMobile(),name);
-        asyncTask.execute("http://192.168.147.40/pcws/index.php","User_City",json);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -207,33 +172,42 @@ public class MainActivity extends AppCompatActivity
                     changeUI();
                     break;
                 }
+                case 30:{
+                    loggato.setType_id(null);
+                    funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    stato = 20;
+                    changeUI();
+                    break;
+                }
+                case 40:{
+                    loggato.setType_id(null);
+                    funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    stato = 20;
+                    changeUI();
+                    break;
+                }
+                case 50:{
+                    stato = 20;
+                    changeUI();
+                    break;
+                }
+                case 60:{
+                    loggato.setCity(null);
+                    loggato.setProvince(null);
+                    funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    stato = 30;
+                    changeUI();
+                    break;
+                }
+                case 80:{
+                    stato = 50;
+                    changeUI();
+                    break;
+                }
                 default: break;
             }
         }
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -252,69 +226,27 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.autista: {
                 loggato.setType_id(2);
-                CallAPI asyncTask = new CallAPI();
-                asyncTask.delegate = this;
-                String json = String.format("{\"mobile\":\"%s\",\"type\":\"autista\"}",loggato.getMobile());
-                asyncTask.execute("http://192.168.147.40/pcws/index.php","User_Type",json);
+                funcPHP("User_Type",String.format("{\"mobile\":\"%s\",\"type\":\"autista\"}",loggato.getMobile()));
                 break;
             }
             case R.id.autostoppista: {
                 loggato.setType_id(1);
-                CallAPI asyncTask = new CallAPI();
-                asyncTask.delegate = this;
-                String json = String.format("{\"mobile\":\"%s\",\"type\":\"autostoppista\"}",loggato.getMobile());
-                asyncTask.execute("http://192.168.147.40/pcws/index.php","User_Type",json);
+                funcPHP("User_Type",String.format("{\"mobile\":\"%s\",\"type\":\"autostoppista\"}",loggato.getMobile()));
                 break;
             }
-            case R.id.mappa:
+            case R.id.mappa: {
+                funcPHP("getActiveUsers","{}");
                 break;
+            }
             case R.id.logout: {
-                CallAPI asyncTask = new CallAPI();
-                asyncTask.delegate = this;
-                String json = String.format("{\"mobile\":\"%s\"}",loggato.getMobile());
-                asyncTask.execute("http://192.168.147.40/pcws/index.php","logoutUser",json);
+                funcPHP("logoutUser",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                 break;
             }
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    public void onClickRegister(View v) {
-        CallAPI asyncTask = new CallAPI();
-        asyncTask.delegate = this;
-        String Name = ((EditText)findViewById(R.id.etname)).getText().toString();
-        String Surname = ((EditText)findViewById(R.id.etsurname)).getText().toString();
-        String Mobile = ((EditText)findViewById(R.id.etmobile)).getText().toString();
-        String Password = ((EditText)findViewById(R.id.etpassword)).getText().toString();
-        String Confirm = ((EditText)findViewById(R.id.etconfirm)).getText().toString();
-        if(Name.isEmpty()||Surname.isEmpty()|| Mobile.isEmpty()|| Password.isEmpty()|| Confirm.isEmpty()) {
-            Toast.makeText(this,"Compilare tutti i campi",Toast.LENGTH_LONG).show();
-            return;
-        }
-        if(!Password.equals(Confirm)) {
-            Toast.makeText(this,"Password e conferma non coincidono", Toast.LENGTH_LONG).show();
-            return;
-        }
-        String json = String.format("{\"name\":\"%s\",\"surname\":\"%s\",\"mobile\":\"%s\",\"password\":\"%s\"}",Name,Surname,Mobile,Password);
-        asyncTask.execute("http://192.168.147.40/pcws/index.php","registerUser",json);
-    }
-
-    public void onClickLogin(View v) {
-        CallAPI asyncTask = new CallAPI();
-        asyncTask.delegate = this;
-        String Mobile = ((EditText)findViewById(R.id.etmobile2)).getText().toString();
-        String Password = ((EditText)findViewById(R.id.etpassword2)).getText().toString();
-        if(Mobile.isEmpty()|| Password.isEmpty()) {
-            Toast.makeText(this,"Compilare tutti i campi",Toast.LENGTH_LONG).show();
-            return;
-        }
-        String json = String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",Mobile,Password);
-        asyncTask.execute("http://192.168.147.40/pcws/index.php","loginUser",json);
-    }
-
     @Override
     public void processFinish(String output){
         try {
@@ -329,7 +261,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 case "loginUser": {
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
-                    loggato = new User(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"));
+                    loggato = new Autostoppista(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"));
                     Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_LONG).show();
                     ((TextView) findViewById(R.id.textView)).setText(String.format("Benvenuto %s %s",loggato.getName(), loggato.getSurname()));
                     stato = 20;
@@ -343,21 +275,16 @@ public class MainActivity extends AppCompatActivity
                     break;
                 }
                 case "User_City": {
-                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
+                    stato = 60;
+                    changeUI();
                     break;
                 }
                 case "User_Type": {
                     if(loggato.getType_id()==1) {
-                        CallAPI asyncTask = new CallAPI();
-                        asyncTask.delegate = this;
-                        String json = String.format("{}");
-                        asyncTask.execute("http://192.168.147.40/pcws/index.php", "getCities", json);
+                        funcPHP("getCities","{}");
                     }
                     else{
-                        CallAPI asyncTask = new CallAPI();
-                        asyncTask.delegate = this;
-                        String json = String.format("{}");
-                        asyncTask.execute("http://192.168.147.40/pcws/index.php", "getAS", json);
+                        funcPHP("getAS","{}");
                     }
                     break;
                 }
@@ -388,6 +315,8 @@ public class MainActivity extends AppCompatActivity
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
                         ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), Date.valueOf(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude"))));
                     }
+                    stato = 50;
+                    changeUI();
                     break;
                 }
                 case "removeUser_City": {
@@ -404,7 +333,84 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this,e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
-
+    public void onClickRegister(View v) {
+        String Name = ((EditText)findViewById(R.id.etname)).getText().toString();
+        String Surname = ((EditText)findViewById(R.id.etsurname)).getText().toString();
+        String Mobile = ((EditText)findViewById(R.id.etmobile)).getText().toString();
+        String Password = ((EditText)findViewById(R.id.etpassword)).getText().toString();
+        String Confirm = ((EditText)findViewById(R.id.etconfirm)).getText().toString();
+        if(Name.isEmpty()||Surname.isEmpty()|| Mobile.isEmpty()|| Password.isEmpty()|| Confirm.isEmpty()) {
+            Toast.makeText(this,"Compilare tutti i campi",Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(!Password.equals(Confirm)) {
+            Toast.makeText(this,"Password e conferma non coincidono", Toast.LENGTH_LONG).show();
+            return;
+        }
+        funcPHP("registerUser",String.format("{\"name\":\"%s\",\"surname\":\"%s\",\"mobile\":\"%s\",\"password\":\"%s\"}",Name,Surname,Mobile,Password));
+    }
+    public void onClickLogin(View v) {
+        String Mobile = ((EditText)findViewById(R.id.etmobile2)).getText().toString();
+        String Password = ((EditText)findViewById(R.id.etpassword2)).getText().toString();
+        if(Mobile.isEmpty()|| Password.isEmpty()) {
+            Toast.makeText(this,"Compilare tutti i campi",Toast.LENGTH_LONG).show();
+            return;
+        }
+        funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",Mobile,Password));
+    }
+    public void onFragmentInteraction(Uri uri) {
+        switch (loggato.getType_id()){
+            case 1:{
+                final ListView listView = (ListView) findViewById(R.id.listView);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Object listItem = listView.getItemAtPosition(position);
+                        funcPHP("User_City",String.format("{\"mobile\":\"%s\",\"city\":\"%s\"}",loggato.getMobile(),((City)listItem).getName()));
+                    }
+                });
+                break;
+            }
+            case 2:{
+                final ListView listView = (ListView) findViewById(R.id.listView2);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Object listItem = listView.getItemAtPosition(position);
+                        Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+ ((Autostoppista)listItem).getMobile()));
+                        startActivity(i);
+                    }
+                });
+                break;
+            }
+        }
+    }
+    public void hideKeyboard(){
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+    public void funcPHP(String function,String json){
+        CallAPI asyncTask = new CallAPI();
+        asyncTask.delegate = this;
+        asyncTask.execute("http://192.168.147.40/pcws/index.php",function,json);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
     @Override
     public void onStart() {
         super.onStart();
@@ -424,7 +430,6 @@ public class MainActivity extends AppCompatActivity
         );
         AppIndex.AppIndexApi.start(client2, viewAction);
     }
-
     @Override
     public void onStop() {
         super.onStop();
