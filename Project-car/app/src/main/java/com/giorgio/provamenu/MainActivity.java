@@ -1,5 +1,7 @@
 package com.giorgio.provamenu;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.support.v4.app.FragmentManager;
@@ -13,7 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,12 +35,16 @@ import java.sql.Date;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, AsyncResponse {
+        implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, AsyncResponse {
     RelativeLayout rl;
     public static User loggato;
     NavigationView navigationView;
     ArrayList<City> cities;
+    public static ArrayAdapter<City> citiesAdapter;
     ArrayList<User> ActiveUsers;
+    public static ArrayAdapter<User> usersAdapter;
+    ArrayList<Autostoppista> Autostoppisti;
+    public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
     int stato = 0;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -42,10 +52,10 @@ public class MainActivity extends AppCompatActivity
      */
     private GoogleApiClient client2;
 
-    public void changeUI(int stato){
+    public void changeUI(){
         switch (stato){
             case 0:{
-                getSupportActionBar().setTitle("Passaggi");
+                hideKeyboard();
                 setContentView(R.layout.activity_main);
                 Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
@@ -54,60 +64,125 @@ public class MainActivity extends AppCompatActivity
                         this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
                 drawer.setDrawerListener(toggle);
                 toggle.syncState();
-
+                getSupportActionBar().setTitle("Passaggi");
                 navigationView = (NavigationView) findViewById(R.id.nav_view);
                 navigationView.setNavigationItemSelectedListener(this);
                 navigationView.getMenu().findItem(R.id.logout).setVisible(false);
                 navigationView.getMenu().findItem(R.id.login).setVisible(true);
                 navigationView.getMenu().findItem(R.id.register).setVisible(true);
+                navigationView.getMenu().findItem(R.id.autostoppista).setEnabled(false);
+                navigationView.getMenu().findItem(R.id.autista).setEnabled(false);
+                navigationView.getMenu().findItem(R.id.mappa).setEnabled(false);
+                rl = (RelativeLayout) findViewById(R.id.RelativeLayout);
+                break;
+            }
+            case 10:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Register_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Register");
+                break;
+            }
+            case 15:{
+                hideKeyboard();
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Login_Fragment())
+                        .addToBackStack(null)
+                        .commit();
+                getSupportActionBar().setTitle("Login");
                 break;
             }
             case 20:{
+                hideKeyboard();
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Profile_Fragment())
+                        .addToBackStack(null)
                         .commit();
-                getSupportActionBar().setTitle("Profile");
                 navigationView.getMenu().findItem(R.id.logout).setVisible(true);
                 navigationView.getMenu().findItem(R.id.login).setVisible(false);
                 navigationView.getMenu().findItem(R.id.register).setVisible(false);
-                ((TextView) findViewById(R.id.textView10)).setText(loggato.getName());
-                ((TextView) findViewById(R.id.textView11)).setText(loggato.getSurname());
-                ((TextView) findViewById(R.id.textView12)).setText(loggato.getMobile());
+                navigationView.getMenu().findItem(R.id.autostoppista).setEnabled(true);
+                navigationView.getMenu().findItem(R.id.autista).setEnabled(true);
+                navigationView.getMenu().findItem(R.id.mappa).setEnabled(true);
+
+                break;
+            }
+            case 30:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new City_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Scegli destinazione");
+                break;
+            }
+            case 40:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new User_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Scegli un autostoppista");
                 break;
             }
         }
     }
 
+    public void hideKeyboard(){
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
     public void onFragmentInteraction(Uri uri) {
-        Toast toast = Toast.makeText(this, "Wheeee!", Toast.LENGTH_SHORT);
-        toast.show();
+        switch (loggato.getType_id()){
+            case 1:{
+                final ListView listView = (ListView) findViewById(R.id.listView);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Object listItem = listView.getItemAtPosition(position);
+                        setCity(((City)listItem).getName());
+                    }
+                });
+                break;
+            }
+            case 2:{
+                final ListView listView = (ListView) findViewById(R.id.listView2);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Object listItem = listView.getItemAtPosition(position);
+                        Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+ ((Autostoppista)listItem).getMobile()));
+                        startActivity(i);
+                    }
+                });
+                break;
+            }
+        }
+    }
+
+    public void setCity(String name){
+        CallAPI asyncTask = new CallAPI();
+        asyncTask.delegate = this;
+        String json = String.format("{\"mobile\":\"%s\",\"city\":\"%s\"}",loggato.getMobile(),name);
+        asyncTask.execute("http://192.168.147.40/pcws/index.php","User_City",json);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.getMenu().findItem(R.id.logout).setVisible(false);
-
-        rl = (RelativeLayout) findViewById(R.id.RelativeLayout);
-
+        changeUI();
         client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
         cities = new ArrayList<City>();
+        citiesAdapter = new ArrayAdapter<City>(this, android.R.layout.simple_list_item_1, cities);
         ActiveUsers = new ArrayList<User>();
-
+        usersAdapter = new ArrayAdapter<User>(this, android.R.layout.simple_list_item_1, ActiveUsers);
+        Autostoppisti = new ArrayList<Autostoppista>();
+        autostoppistiAdapter = new ArrayAdapter<Autostoppista>(this, android.R.layout.simple_list_item_1, Autostoppisti);
     }
 
     @Override
@@ -118,43 +193,22 @@ public class MainActivity extends AppCompatActivity
         } else {
             switch (stato){
                 case 0: {
-                    super.onBackPressed();
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                    System.exit(1);
                     break;
                 }
                 case 10:{
-                    getSupportActionBar().setTitle("Passaggi");
-                    setContentView(R.layout.activity_main);
-                    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-                    setSupportActionBar(toolbar);
-                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-                    drawer.setDrawerListener(toggle);
-                    toggle.syncState();
-
-                    navigationView = (NavigationView) findViewById(R.id.nav_view);
-                    navigationView.setNavigationItemSelectedListener(this);
-                    navigationView.getMenu().findItem(R.id.logout).setVisible(false);
                     stato= 0;
+                    changeUI();
                     break;
                 }
                 case 15:{
-                    getSupportActionBar().setTitle("Passaggi");
-                    setContentView(R.layout.activity_main);
-                    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-                    setSupportActionBar(toolbar);
-                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-                    drawer.setDrawerListener(toggle);
-                    toggle.syncState();
-
-                    navigationView = (NavigationView) findViewById(R.id.nav_view);
-                    navigationView.setNavigationItemSelectedListener(this);
-                    navigationView.getMenu().findItem(R.id.logout).setVisible(false);
                     stato= 0;
+                    changeUI();
                     break;
                 }
+                default: break;
             }
-            //super.onBackPressed();
         }
     }
 
@@ -187,27 +241,31 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.register: {
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Register_Fragment())
-                        .commit();
-                getSupportActionBar().setTitle("Register");
                 stato = 10;
+                changeUI();
                 break;
             }
             case R.id.login: {
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Login_Fragment())
-                        .commit();
-                getSupportActionBar().setTitle("Login");
                 stato = 15;
+                changeUI();
                 break;
             }
-            case R.id.autista:
+            case R.id.autista: {
+                loggato.setType_id(2);
+                CallAPI asyncTask = new CallAPI();
+                asyncTask.delegate = this;
+                String json = String.format("{\"mobile\":\"%s\",\"type\":\"autista\"}",loggato.getMobile());
+                asyncTask.execute("http://192.168.147.40/pcws/index.php","User_Type",json);
                 break;
-            case R.id.autostoppista:
+            }
+            case R.id.autostoppista: {
+                loggato.setType_id(1);
+                CallAPI asyncTask = new CallAPI();
+                asyncTask.delegate = this;
+                String json = String.format("{\"mobile\":\"%s\",\"type\":\"autostoppista\"}",loggato.getMobile());
+                asyncTask.execute("http://192.168.147.40/pcws/index.php","User_Type",json);
                 break;
+            }
             case R.id.mappa:
                 break;
             case R.id.logout: {
@@ -265,6 +323,8 @@ public class MainActivity extends AppCompatActivity
             {
                 case "registerUser": {
                     Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
+                    stato = 0;
+                    changeUI();
                     break;
                 }
                 case "loginUser": {
@@ -273,13 +333,13 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_LONG).show();
                     ((TextView) findViewById(R.id.textView)).setText(String.format("Benvenuto %s %s",loggato.getName(), loggato.getSurname()));
                     stato = 20;
-                    changeUI(stato);
+                    changeUI();
                     break;
                 }
                 case "logoutUser": {
                     Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
                     stato = 0;
-                    changeUI(stato);
+                    changeUI();
                     break;
                 }
                 case "User_City": {
@@ -287,7 +347,18 @@ public class MainActivity extends AppCompatActivity
                     break;
                 }
                 case "User_Type": {
-                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
+                    if(loggato.getType_id()==1) {
+                        CallAPI asyncTask = new CallAPI();
+                        asyncTask.delegate = this;
+                        String json = String.format("{}");
+                        asyncTask.execute("http://192.168.147.40/pcws/index.php", "getCities", json);
+                    }
+                    else{
+                        CallAPI asyncTask = new CallAPI();
+                        asyncTask.delegate = this;
+                        String json = String.format("{}");
+                        asyncTask.execute("http://192.168.147.40/pcws/index.php", "getAS", json);
+                    }
                     break;
                 }
                 case "getCities": {
@@ -295,13 +366,21 @@ public class MainActivity extends AppCompatActivity
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
                         cities.add(new City(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Province")));
                     }
+                    stato = 30;
+                    changeUI();
                     break;
                 }
                 case "getAS": {
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
-                        ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id"))));
+                        Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province")));
                     }
+                    stato = 40;
+                    changeUI();
                     break;
                 }
                 case "getActiveUsers": {

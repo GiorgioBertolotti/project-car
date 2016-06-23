@@ -28,4 +28,8 @@ public class City {
         if(setName(n).equals("")||setProvince(p).equals(""))
             return;
     }
+    @Override
+    public String toString(){
+        return this.getName()+", "+this.getProvince();
+    }
 }

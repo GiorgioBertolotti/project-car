@@ -33,18 +33,7 @@ public class CallAPI extends AsyncTask<String, String, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        switch(params[1]) {
-            case "registerUser": {
-                return execRequest(params);
-            }
-            case "loginUser":{
-                return execRequest(params);
-            }
-            case "logoutUser":{
-                return execRequest(params);
-            }
-            default: return "";
-        }
+        return execRequest(params);
     }
 
     private String execRequest(String[] params){

@@ -31,10 +31,14 @@
         android:layout_centerHorizontal="true" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:id="@+id/imageView2"
-        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_user"
+        android:layout_marginBottom="53dp"
+        android:layout_above="@+id/textView10"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp" />
+        android:layout_margin="75dp"
+        android:contentDescription="immagine profilo utente" />
+
 </RelativeLayout>
