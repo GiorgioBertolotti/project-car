@@ -283,23 +283,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void processFinish(String output){
         try {
             JSONObject obj = new JSONObject(output);
+            if(obj.getBoolean("IsError")==true) {
+                Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                return;
+            }
             switch (obj.getString("Function"))
             {
                 case "registerUser": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
                     stato = 0;
                     changeUI();
                     break;
                 }
                 case "loginUser": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     loggato = new Autostoppista(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"));
                     Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_LONG).show();
@@ -309,41 +305,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "logoutUser": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     stato = 0;
                     changeUI();
                     break;
                 }
                 case "User_City": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     stato = 60;
                     changeUI();
                     break;
                 }
                 case "User_Type": {
-                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                    /*final Handler myHandler = new Handler();
-                    myHandler.postDelayed(new Runnable() {
-                        public void run() {
-                            GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
-                        }},10000);*/
-                    boolean flag = displayGpsStatus();
-                    if (flag) {
-                        GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
-                    }
-                    else{
-                        Toast.makeText(this,"Attiva il GPS",Toast.LENGTH_LONG).show();
-                    }
+                    GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
                     if(loggato.getType_id()==1) {
                         funcPHP("getCities","{}");
                     }
@@ -353,10 +325,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getCities": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     cities.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
@@ -367,10 +335,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getAS": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     Autostoppisti.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
@@ -381,10 +345,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getActiveUsers": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     ActiveUsers.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
@@ -395,19 +355,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "removeUser_City": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     loggato.setCity(null);
                     loggato.setProvince(null);
                     break;
                 }
                 case "removeUser_Type": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     loggato.setType_id(null);
                     break;
                 }
@@ -522,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
-        asyncTask.execute("http://192.168.147.40/pcws/index.php",function,json);
+        asyncTask.execute("http://192.168.200.70:8080/pcws/index.php",function,json);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
