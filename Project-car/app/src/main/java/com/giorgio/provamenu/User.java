@@ -61,6 +61,8 @@ public class User {
     }
     public String getMobile(){ return mobile; }
     public int getType_id(){return type_id;}
+    public double getLatitude(){return latitude;}
+    public double getLongitude(){return longitude;}
     public User(String n,String s,String m){
         if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals(""))
             return;

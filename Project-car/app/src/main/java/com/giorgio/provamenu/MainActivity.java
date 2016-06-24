@@ -1,10 +1,23 @@
 package com.giorgio.provamenu;
 
+import android.*;
+import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.support.v4.app.FragmentManager;
+import android.os.Handler;
+import android.provider.Settings;
+import android.support.multidex.MultiDex;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -28,11 +41,23 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, Wait_Fragment.OnFragmentInteractionListener, AsyncResponse {
     RelativeLayout rl;
@@ -236,6 +261,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.mappa: {
+                if(stato == 60){
+                    loggato.setCity(null);
+                    loggato.setProvince(null);
+                    funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                }
+                loggato.setType_id(null);
                 funcPHP("getActiveUsers","{}");
                 break;
             }
@@ -296,9 +327,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "User_Type": {
+                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
                     if(obj.getBoolean("IsError")==true) {
                         Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
                         break;
+                    }
+                    /*final Handler myHandler = new Handler();
+                    myHandler.postDelayed(new Runnable() {
+                        public void run() {
+                            GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
+                        }},10000);*/
+                    boolean flag = displayGpsStatus();
+                    if (flag) {
+                        GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
+                    }
+                    else{
+                        Toast.makeText(this,"Attiva il GPS",Toast.LENGTH_LONG).show();
                     }
                     if(loggato.getType_id()==1) {
                         funcPHP("getCities","{}");
@@ -367,10 +411,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     loggato.setType_id(null);
                     break;
                 }
+                case "setGPSLocation": {
+                    break;
+                }
             }
         }
         catch (Exception e){
             Toast.makeText(this,e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+    private Boolean displayGpsStatus() {
+        ContentResolver contentResolver = getBaseContext().getContentResolver();
+        boolean gpsStatus = Settings.Secure.isLocationProviderEnabled(contentResolver,LocationManager.GPS_PROVIDER);
+        if (gpsStatus) {
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+    public boolean GPSLoc(String u,String f,String j){
+        // Get the location manager
+        LocationManager locationManager = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = new MyLocationListener();
+        try {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,10,locationListener);
+            double lat = 0;
+            double lon = 0;
+            if (locationManager != null) {
+                Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if (location != null) {
+                    lat = location.getLatitude();
+                    lon = location.getLongitude();
+                }
+            }
+            java.util.Date dt = new java.util.Date();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String finaldate = sdf.format(dt);
+            funcPHP("setGPSLocation", "{\"mobile\":\"" + j + "\",\"lat\":\"" + lat + "\",\"lon\":\"" + lon + "\",\"date\":\"" + finaldate + "\"}");
+            return true;
+        } catch (SecurityException e){
+            return false;
+        } catch (Exception e) {
+            return false;
         }
     }
     public void onClickRegister(View v) {
@@ -491,5 +575,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
         AppIndex.AppIndexApi.end(client2, viewAction);
         client2.disconnect();
+    }
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+        MultiDex.install(this);
     }
 }

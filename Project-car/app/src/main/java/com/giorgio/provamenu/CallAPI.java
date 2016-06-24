@@ -25,9 +25,7 @@ import java.util.List;
 
 public class CallAPI extends AsyncTask<String, String, String> {
     public AsyncResponse delegate = null;
-    public CallAPI() {
-        //set context variables if required
-    }
+    public CallAPI() {}
     @Override
     protected String doInBackground(String... params) {
         return execRequest(params);
