@@ -7,8 +7,9 @@ public class Autostoppista extends User {
     private String city;
     private String province;
     public String setCity(String value){
-        if(value.length()>20)
-            return "";
+        if(value != null)
+            if(value.length()>20)
+                return "";
         city = value;
         return "ok";
     }

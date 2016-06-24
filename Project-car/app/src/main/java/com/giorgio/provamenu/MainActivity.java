@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Autostoppisti = new ArrayList<Autostoppista>();
         autostoppistiAdapter = new ArrayAdapter<Autostoppista>(this, android.R.layout.simple_list_item_1, Autostoppisti);
     }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -180,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case 40:{
-                    loggato.setType_id(null);
                     funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                     stato = 20;
                     changeUI();
@@ -192,8 +190,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case 60:{
-                    loggato.setCity(null);
-                    loggato.setProvince(null);
                     funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                     stato = 30;
                     changeUI();
@@ -226,6 +222,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             case R.id.autista: {
                 loggato.setType_id(2);
+                if(stato == 60){
+                    loggato.setCity(null);
+                    loggato.setProvince(null);
+                    funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                }
                 funcPHP("User_Type",String.format("{\"mobile\":\"%s\",\"type\":\"autista\"}",loggato.getMobile()));
                 break;
             }
@@ -254,12 +255,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             switch (obj.getString("Function"))
             {
                 case "registerUser": {
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
                     Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
                     stato = 0;
                     changeUI();
                     break;
                 }
                 case "loginUser": {
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     loggato = new Autostoppista(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"));
                     Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_LONG).show();
@@ -269,17 +278,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "logoutUser": {
-                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
                     stato = 0;
                     changeUI();
                     break;
                 }
                 case "User_City": {
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
                     stato = 60;
                     changeUI();
                     break;
                 }
                 case "User_Type": {
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
                     if(loggato.getType_id()==1) {
                         funcPHP("getCities","{}");
                     }
@@ -289,7 +309,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getCities": {
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
+                    cities.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
                         cities.add(new City(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Province")));
                     }
@@ -303,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         break;
                     }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
+                    Autostoppisti.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
                         Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province")));
                     }
@@ -311,7 +337,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getActiveUsers": {
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
+                    ActiveUsers.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
                         ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), Date.valueOf(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude"))));
                     }
@@ -320,11 +351,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "removeUser_City": {
-                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
+                    loggato.setCity(null);
+                    loggato.setProvince(null);
                     break;
                 }
                 case "removeUser_Type": {
-                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
+                    if(obj.getBoolean("IsError")==true) {
+                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                        break;
+                    }
+                    loggato.setType_id(null);
                     break;
                 }
             }
@@ -362,6 +402,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (loggato.getType_id()){
             case 1:{
                 final ListView listView = (ListView) findViewById(R.id.listView);
+                listView.setAdapter(MainActivity.citiesAdapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -373,6 +414,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             case 2:{
                 final ListView listView = (ListView) findViewById(R.id.listView2);
+                listView.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,new ArrayList<String>()));
+                listView.setAdapter(autostoppistiAdapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

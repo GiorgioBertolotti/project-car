@@ -24,18 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CallAPI extends AsyncTask<String, String, String> {
-
     public AsyncResponse delegate = null;
-
     public CallAPI() {
         //set context variables if required
     }
-
     @Override
     protected String doInBackground(String... params) {
         return execRequest(params);
     }
-
     private String execRequest(String[] params){
         String result= "";
         HttpClient httpClient = new DefaultHttpClient();
@@ -54,7 +50,6 @@ public class CallAPI extends AsyncTask<String, String, String> {
         }
         return result;
     }
-
     @Override
     protected void onPostExecute(String result) {
         delegate.processFinish(result);

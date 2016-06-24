@@ -34,8 +34,8 @@ public class User_Fragment extends Fragment {
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        final ListView listView = (ListView) view.findViewById(R.id.listView2);
-        listView.setAdapter(MainActivity.autostoppistiAdapter);
+        /*final ListView listView = (ListView) view.findViewById(R.id.listView2);
+        listView.setAdapter(MainActivity.autostoppistiAdapter);*/
         mListener.onFragmentInteraction(null);
     }
     @Override

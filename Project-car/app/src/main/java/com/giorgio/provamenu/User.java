@@ -9,7 +9,7 @@ public class User {
     private String name;
     private String surname;
     private String mobile;
-    private int type_id;
+    private Integer type_id;
     private double latitude;
     private double longitude;
     private Date date;
