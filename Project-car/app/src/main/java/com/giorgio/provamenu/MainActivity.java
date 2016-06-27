@@ -40,16 +40,17 @@ import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONObject;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, Wait_Fragment.OnFragmentInteractionListener, AsyncResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, Wait_Fragment.OnFragmentInteractionListener, Map_Fragment.OnFragmentInteractionListener, AsyncResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     RelativeLayout rl;
     public static Autostoppista loggato;
     NavigationView navigationView;
     ArrayList<City> cities;
     public static ArrayAdapter<City> citiesAdapter;
-    ArrayList<User> ActiveUsers;
+    public static ArrayList<User> ActiveUsers;
     public static ArrayAdapter<User> usersAdapter;
     ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Register_Fragment())
                         .commit();
-                getSupportActionBar().setTitle("Register");
+                getSupportActionBar().setTitle("Registrati");
                 break;
             }
             case 15:{
@@ -303,11 +304,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "User_Type": {
-<<<<<<< HEAD
                     buildGoogleApiClient();
-=======
-                    GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
->>>>>>> 45e010924638e202b5e7ce9eb20ba47f833fe66b
                     if(loggato.getType_id()==1) {
                         funcPHP("getCities","{}");
                     }
@@ -340,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     ActiveUsers.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
-                        ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), Date.valueOf(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude"))));
+                        ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
                     }
                     stato = 50;
                     changeUI();
@@ -430,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
-        asyncTask.execute("http://192.168.200.70:8080/pcws/index.php",function,json);
+        asyncTask.execute("http://192.168.147.40/pcws/index.php",function,json);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -454,6 +451,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(loggato!=null&&!loggato.getMobile().isEmpty())
+            funcPHP("logoutUser",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
         mGoogleApiClient.disconnect();
     }
     @Override
@@ -465,7 +464,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onConnected(@Nullable Bundle bundle) {
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(5000);
+        mLocationRequest.setInterval(10000);
 
         try{LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);}
         catch (SecurityException e){return;}
