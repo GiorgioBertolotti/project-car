@@ -303,7 +303,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "User_Type": {
+<<<<<<< HEAD
                     buildGoogleApiClient();
+=======
+                    GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
+>>>>>>> 45e010924638e202b5e7ce9eb20ba47f833fe66b
                     if(loggato.getType_id()==1) {
                         funcPHP("getCities","{}");
                     }
@@ -426,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
-        asyncTask.execute("http://192.168.147.40/pcws/index.php",function,json);
+        asyncTask.execute("http://192.168.200.70:8080/pcws/index.php",function,json);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
