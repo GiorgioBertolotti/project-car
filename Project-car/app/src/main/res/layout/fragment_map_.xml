@@ -2,8 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.giorgio.provamenu.Map_Fragment">
-
-
-
+    tools:context="com.giorgio.provamenu.Map_Fragment"
+    android:id="@+id/Map_Layout">
+        <fragment android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </RelativeLayout>

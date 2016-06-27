@@ -5,20 +5,14 @@ import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
+//import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-//import android.support.v4.app.FragmentManager;
-import android.os.Handler;
-import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -36,30 +30,20 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, Wait_Fragment.OnFragmentInteractionListener, AsyncResponse {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, Wait_Fragment.OnFragmentInteractionListener, AsyncResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     RelativeLayout rl;
     public static Autostoppista loggato;
     NavigationView navigationView;
@@ -70,7 +54,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
     int stato = 0;
-    private GoogleApiClient client2;
+    String lat,lon;
+    private GoogleApiClient mGoogleApiClient;
+    Location mLastLocation;
+    private LocationRequest mLocationRequest;
     public void changeUI(){
         switch (stato){
             case 0:{
@@ -166,7 +153,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         changeUI();
-        client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        //mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        buildGoogleApiClient();
         cities = new ArrayList<City>();
         citiesAdapter = new ArrayAdapter<City>(this, android.R.layout.simple_list_item_1, cities);
         ActiveUsers = new ArrayList<User>();
@@ -283,23 +271,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void processFinish(String output){
         try {
             JSONObject obj = new JSONObject(output);
+            if(obj.getBoolean("IsError")==true) {
+                Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                return;
+            }
             switch (obj.getString("Function"))
             {
                 case "registerUser": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
                     stato = 0;
                     changeUI();
                     break;
                 }
                 case "loginUser": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     loggato = new Autostoppista(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"));
                     Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_LONG).show();
@@ -309,41 +293,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "logoutUser": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     stato = 0;
                     changeUI();
                     break;
                 }
                 case "User_City": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     stato = 60;
                     changeUI();
                     break;
                 }
                 case "User_Type": {
-                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                    /*final Handler myHandler = new Handler();
-                    myHandler.postDelayed(new Runnable() {
-                        public void run() {
-                            GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
-                        }},10000);*/
-                    boolean flag = displayGpsStatus();
-                    if (flag) {
-                        GPSLoc("http://192.168.147.40/pcws/index.php","setGPSLocation",loggato.getMobile());
-                    }
-                    else{
-                        Toast.makeText(this,"Attiva il GPS",Toast.LENGTH_LONG).show();
-                    }
+                    buildGoogleApiClient();
                     if(loggato.getType_id()==1) {
                         funcPHP("getCities","{}");
                     }
@@ -353,10 +313,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getCities": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     cities.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
@@ -367,10 +323,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getAS": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     Autostoppisti.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
@@ -381,10 +333,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getActiveUsers": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     ActiveUsers.clear();
                     for (int x = 0; x< obj.getJSONArray("Message").length();x++){
@@ -395,19 +343,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "removeUser_City": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     loggato.setCity(null);
                     loggato.setProvince(null);
                     break;
                 }
                 case "removeUser_Type": {
-                    if(obj.getBoolean("IsError")==true) {
-                        Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
-                        break;
-                    }
                     loggato.setType_id(null);
                     break;
                 }
@@ -418,43 +358,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         catch (Exception e){
             Toast.makeText(this,e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-    private Boolean displayGpsStatus() {
-        ContentResolver contentResolver = getBaseContext().getContentResolver();
-        boolean gpsStatus = Settings.Secure.isLocationProviderEnabled(contentResolver,LocationManager.GPS_PROVIDER);
-        if (gpsStatus) {
-            return true;
-
-        } else {
-            return false;
-        }
-    }
-    public boolean GPSLoc(String u,String f,String j){
-        // Get the location manager
-        LocationManager locationManager = (LocationManager)
-                getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new MyLocationListener();
-        try {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,10,locationListener);
-            double lat = 0;
-            double lon = 0;
-            if (locationManager != null) {
-                Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                if (location != null) {
-                    lat = location.getLatitude();
-                    lon = location.getLongitude();
-                }
-            }
-            java.util.Date dt = new java.util.Date();
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String finaldate = sdf.format(dt);
-            funcPHP("setGPSLocation", "{\"mobile\":\"" + j + "\",\"lat\":\"" + lat + "\",\"lon\":\"" + lon + "\",\"date\":\"" + finaldate + "\"}");
-            return true;
-        } catch (SecurityException e){
-            return false;
-        } catch (Exception e) {
-            return false;
         }
     }
     public void onClickRegister(View v) {
@@ -505,7 +408,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Object listItem = listView.getItemAtPosition(position);
                         Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+ ((Autostoppista)listItem).getMobile()));
-                        startActivity(i);
+                        try{startActivity(i);}
+                        catch(Exception e){}
                     }
                 });
                 break;
@@ -541,44 +445,57 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onStart() {
         super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client2.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.giorgio.provamenu/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client2, viewAction);
+        mGoogleApiClient.connect();
     }
     @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.giorgio.provamenu/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client2, viewAction);
-        client2.disconnect();
+    protected void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.disconnect();
     }
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(newBase);
         MultiDex.install(this);
+    }
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(5000);
+
+        try{LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);}
+        catch (SecurityException e){return;}
+
+
+        try{mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
+        catch (SecurityException e){return;}
+        if (mLastLocation != null) {
+            lat = String.valueOf(mLastLocation.getLatitude());
+            lon = String.valueOf(mLastLocation.getLongitude());
+        }
+    }
+    @Override
+    public void onConnectionSuspended(int i) {}
+    @Override
+    public void onLocationChanged(Location location) {
+        if(stato == 30||stato ==40||stato ==60) {
+            lat = String.valueOf(location.getLatitude());
+            lon = String.valueOf(location.getLongitude());
+            java.util.Date dt = new java.util.Date();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String finaldate = sdf.format(dt);
+            funcPHP("setGPSLocation", "{\"mobile\":\"" + loggato.getMobile() + "\",\"lat\":\"" + lat + "\",\"lon\":\"" + lon + "\",\"date\":\"" + finaldate + "\"}");
+        }
+    }
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        buildGoogleApiClient();
+    }
+    synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 }

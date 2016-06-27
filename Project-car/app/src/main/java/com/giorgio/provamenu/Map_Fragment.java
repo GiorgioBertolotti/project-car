@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import com.google.android.gms.maps.MapFragment;
 
 public class Map_Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
+    Context mContext;
     public Map_Fragment() {}
     public static Map_Fragment newInstance(int someInt) {
         Map_Fragment myFragment = new Map_Fragment();
@@ -36,7 +38,11 @@ public class Map_Fragment extends Fragment {
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
+        /*mMapFragment = MapFragment.newInstance();
+        FragmentTransaction fragmentTransaction =
+                getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.Map_Layout, mMapFragment);
+        fragmentTransaction.commit();*/
     }
     @Override
     public void onAttach(Context context) {
