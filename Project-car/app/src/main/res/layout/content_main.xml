@@ -12,12 +12,10 @@
     tools:context="com.giorgio.provamenu.MainActivity"
     tools:showIn="@layout/app_bar_main"
     android:id="@+id/RelativeLayout">
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/effettua_il_login_o_registrati"
-        android:id="@+id/textView2"
+        android:id="@+id/tvhome"
         android:layout_margin="20dp" />
-
 </RelativeLayout>

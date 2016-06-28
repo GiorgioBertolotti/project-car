@@ -33,9 +33,22 @@ public class Profile_Fragment extends Fragment {
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        ((TextView) view.findViewById(R.id.textView10)).setText(MainActivity.loggato.getName());
-        ((TextView) view.findViewById(R.id.textView11)).setText(MainActivity.loggato.getSurname());
-        ((TextView) view.findViewById(R.id.textView12)).setText(MainActivity.loggato.getMobile());
+        if(MainActivity.stato == 20){
+            ((TextView) view.findViewById(R.id.tvname)).setText(MainActivity.loggato.getName());
+            ((TextView) view.findViewById(R.id.tvsurname)).setText(MainActivity.loggato.getSurname());
+            ((TextView) view.findViewById(R.id.tvmobile)).setText(MainActivity.loggato.getMobile());
+            ((TextView) view.findViewById(R.id.tvtipo)).setVisibility(View.INVISIBLE);
+        }
+        if(MainActivity.stato == 80||MainActivity.stato == 85){
+            ((TextView) view.findViewById(R.id.tvname)).setText(MainActivity.selected.getName());
+            ((TextView) view.findViewById(R.id.tvsurname)).setText(MainActivity.selected.getSurname());
+            ((TextView) view.findViewById(R.id.tvmobile)).setText(MainActivity.selected.getMobile());
+            ((TextView) view.findViewById(R.id.tvtipo)).setVisibility(View.VISIBLE);
+            if(MainActivity.selected.getType_id()==1)
+                ((TextView) view.findViewById(R.id.tvtipo)).setText("Autostoppista");
+            else
+                ((TextView) view.findViewById(R.id.tvtipo)).setText("Autista");
+        }
     }
     @Override
     public void onAttach(Context context) {
