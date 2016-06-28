@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String lat,lon;
     private GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
-
+    int range;
     public void changeUI(){
         switch (stato){
             case 0:{
@@ -133,6 +133,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle("Scegli un autostoppista");
                 break;
             }
+            case 45:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new User_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Scegli un autostoppista");
+                break;
+            }
             case 50:{
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
@@ -179,13 +187,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         usersAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, ActiveUsers);
         Autostoppisti = new ArrayList<>();
         autostoppistiAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Autostoppisti);
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
+        range = 10;
     }
     @Override
     public void onBackPressed() {
@@ -218,6 +220,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case 40:{
+                    funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    stato = 20;
+                    changeUI();
+                    break;
+                }
+                case 45:{
                     funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                     stato = 20;
                     changeUI();
@@ -342,13 +350,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "User_Type": {
-                    buildGoogleApiClient();
                     if(loggato.getType_id()==1) {
                         funcPHP("getCities","{}");
                     }
                     else{
-                        funcPHP("getAS","{}");
+                        stato = 40;
                     }
+                    buildGoogleApiClient();
                     break;
                 }
                 case "getCities": {
@@ -365,7 +373,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     for(int x = 0; x< obj.getJSONArray("Message").length();x++){
                         Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),1,new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
                     }
-                    stato = 40;
                     changeUI();
                     break;
                 }
@@ -416,11 +423,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this,"Errore nel codificare la password",Toast.LENGTH_SHORT).show();
         }
         funcPHP("registerUser",String.format("{\"name\":\"%s\",\"surname\":\"%s\",\"mobile\":\"%s\",\"password\":\"%s\"}",Name,Surname,Mobile,md5pwd));
-    }
-    public void onClickRegister2(View v){
-        int RC_SIGN_IN = 9001;
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent,RC_SIGN_IN);
     }
     public void onClickLogin(View v) {
         assert ((EditText)findViewById(R.id.lgnetmobile)) != null;
@@ -524,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
-        asyncTask.execute("http://192.168.147.40/pcws/index.php",function,json);
+        asyncTask.execute("http://192.168.200.70:8080/pcws/index.php",function,json);
     }
     public String md5(String s) {
         try {
@@ -597,6 +599,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String finaldate = sdf.format(dt);
             funcPHP("setGPSLocation", "{\"mobile\":\"" + loggato.getMobile() + "\",\"lat\":\"" + lat + "\",\"lon\":\"" + lon + "\",\"date\":\"" + finaldate + "\"}");
+            loggato.setLatitude(Double.parseDouble(lat));
+            loggato.setLongitude(Double.parseDouble(lon));
+            if(stato == 40) {
+                funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), loggato.getLatitude(), loggato.getLongitude(), range));
+                stato = 45;
+            }
         }
     }
     @Override
