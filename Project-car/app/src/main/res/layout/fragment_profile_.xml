@@ -9,25 +9,33 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/textView10"
+        android:text="@string/nome"
+        android:id="@+id/tvname"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/textView11"
-        android:layout_below="@+id/textView10"
+        android:text="@string/cognome"
+        android:id="@+id/tvsurname"
+        android:layout_below="@+id/tvname"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/textView12"
-        android:layout_below="@+id/textView11"
+        android:text="@string/mobile"
+        android:id="@+id/tvmobile"
+        android:layout_below="@+id/tvsurname"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/type_id"
+        android:id="@+id/tvtipo"
+        android:layout_below="@+id/tvmobile"
         android:layout_centerHorizontal="true" />
 
     <ImageView
@@ -36,9 +44,9 @@
         android:id="@+id/imageView2"
         android:src="@drawable/ic_user"
         android:layout_marginBottom="53dp"
-        android:layout_above="@+id/textView10"
+        android:layout_above="@+id/tvname"
         android:layout_centerHorizontal="true"
         android:layout_margin="75dp"
-        android:contentDescription="immagine profilo utente" />
+        android:contentDescription="@string/immagine_profilo_utente" />
 
 </RelativeLayout>

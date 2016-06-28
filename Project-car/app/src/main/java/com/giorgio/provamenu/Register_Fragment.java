@@ -4,11 +4,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 
 public class Register_Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
@@ -33,6 +33,21 @@ public class Register_Fragment extends Fragment {
         return view;
     }
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        String mPhoneNumber;
+        try {
+            TelephonyManager tMgr = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
+            mPhoneNumber = tMgr.getLine1Number();
+        }
+        catch(Exception e) {
+            mPhoneNumber = "";
+        }
+        if(!mPhoneNumber.isEmpty()) {
+            ((TextView) view.findViewById(R.id.regetmobile)).setText(mPhoneNumber);
+            ((TextView) view.findViewById(R.id.regetmobile)).setEnabled(false);
+        }
+    }
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
@@ -48,7 +63,6 @@ public class Register_Fragment extends Fragment {
         mListener = null;
     }
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
