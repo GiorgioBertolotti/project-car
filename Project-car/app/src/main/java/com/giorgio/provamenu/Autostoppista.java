@@ -28,8 +28,8 @@ public class Autostoppista extends User {
     public String getProvince(){
         return province;
     }
-    public Autostoppista(String n,String s,String m,Integer t,String c,String p,Double la,Double lo,Date d){
-        super(n,s,m,t,lo,la,d);
+    public Autostoppista(String n,String s,String m,Integer t,Integer r,String c,String p,Double la,Double lo,Date d){
+        super(n,s,m,t,r,lo,la,d);
         if(setCity(c).equals("")||setProvince(p).equals(""))
             return;
     }

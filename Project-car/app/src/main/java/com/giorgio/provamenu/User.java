@@ -13,6 +13,7 @@ public class User {
     private double latitude;
     private double longitude;
     private Date date;
+    private Integer range;
     private String setName(String value){
         if(value.isEmpty()||value.equals(""))
             return "";
@@ -53,6 +54,12 @@ public class User {
         date = value;
         return "ok";
     }
+    public String setRange(Integer value){
+        if(value!=null&value<0)
+            return "";
+        range = value;
+        return "ok";
+    }
     public String getName(){
         return name;
     }
@@ -64,12 +71,13 @@ public class User {
     public double getLatitude(){return latitude;}
     public double getLongitude(){return longitude;}
     public Date getDate(){return date;}
+    public Integer getRange(){return range;}
     public User(String n,String s,String m,Integer t){
         if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals(""))
             return;
     }
-    public User(String n,String s,String m,Integer t,double lo,double la,Date d){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals(""))
+    public User(String n,String s,String m,Integer t,Integer r,double lo,double la,Date d){
+        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals(""))
             return;
     }
 }

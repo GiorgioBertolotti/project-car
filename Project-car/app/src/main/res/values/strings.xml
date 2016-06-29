@@ -24,4 +24,6 @@
     <string name="type_id">Type_id</string>
     <string name="immagine_profilo_utente">immagine profilo utente</string>
     <string name="google_sign_in">GOOGLE SIGN IN</string>
+    <string name="range">Range</string>
+    <string name="salva">SALVA</string>
 </resources>

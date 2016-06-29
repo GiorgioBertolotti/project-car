@@ -1,5 +1,6 @@
 package com.giorgio.provamenu;
 
+import android.graphics.Color;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
@@ -18,6 +19,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -70,7 +73,6 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
         super.onViewCreated(view, savedInstanceState);
 
         setHasOptionsMenu(true);
-
         mGoogleApiClient = new GoogleApiClient.Builder( getActivity() )
                 .addConnectionCallbacks( this )
                 .addOnConnectionFailedListener( this )
@@ -82,20 +84,7 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
     private void initListeners() {
         getMap().setOnMarkerClickListener(this);
         getMap().setOnMapLongClickListener(this);
-        getMap().setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                MainActivity.stato = 52;
-                for(User a : MainActivity.ActiveUsers){
-                    String m = a.getMobile();
-                    String t= marker.getTitle();
-                    if(m.equals(t)) MainActivity.selected = a;
-                }
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Profile_Fragment())
-                        .commit();
-            }
-        });
+        getMap().setOnInfoWindowClickListener(this);
         getMap().setInfoWindowAdapter(new MyInfoWindowAdapter());
         getMap().setOnMapClickListener(this);
     }
@@ -121,14 +110,14 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
             case 51:{
                 try{mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
                 catch (SecurityException e){return;}
-                initUsers(MainActivity.ActiveUsers);
+                initUsers(MainActivity.ActiveUsers,mCurrentLocation);
                 initCamera(mCurrentLocation);
                 isrunning = true;
                 r = new Runnable(){
                     @Override
                     public void run() {
                         getMap().clear();
-                        initUsers(MainActivity.ActiveUsers);
+                        initUsers(MainActivity.ActiveUsers,mCurrentLocation);
                         handler.postDelayed(this,60000);
                     }
                 };
@@ -143,14 +132,14 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                     mCurrentLocation.setLatitude(MainActivity.selected.getLatitude());
                 }
                 catch (SecurityException e){return;}
-                initUsers(MainActivity.Autostoppisti);
+                initUsers(MainActivity.Autostoppisti,mCurrentLocation);
                 initCamera(mCurrentLocation);
                 isrunning = true;
                 r = new Runnable(){
                     @Override
                     public void run() {
                         getMap().clear();
-                        initUsers(MainActivity.Autostoppisti);
+                        initUsers(MainActivity.Autostoppisti,mCurrentLocation);
                         handler.postDelayed(this,60000);
                     }
                 };
@@ -161,7 +150,7 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
 
     }
 
-    public void initUsers(ArrayList<?> attivi){
+    public void initUsers(ArrayList<?> attivi,Location currentloc){
         switch (MainActivity.stato){
             case 50:{
                 for(Object b : attivi) {
@@ -181,6 +170,10 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                     }
                 }
+                Circle circle = getMap().addCircle(new CircleOptions()
+                        .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
+                        .radius(MainActivity.loggato.getRange())
+                        .strokeColor(Color.RED));
                 break;
             }
             case 51:{
@@ -204,6 +197,10 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                         if(a.getMobile().equals(mobilecl))
                             marker.showInfoWindow();
                     }
+                    Circle circle = getMap().addCircle(new CircleOptions()
+                            .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
+                            .radius(MainActivity.loggato.getRange())
+                            .strokeColor(Color.RED));
                 }
                 break;
             }
@@ -216,8 +213,13 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                             .title(a.getMobile())
                             .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
                             .icon(BitmapDescriptorFactory.defaultMarker()));
-                    if (a.getMobile().equals(MainActivity.selected.getMobile()))
+                    if (a.getMobile().equals(MainActivity.selected.getMobile())) {
                         marker.showInfoWindow();
+                        Circle circle = getMap().addCircle(new CircleOptions()
+                                .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
+                                .radius(MainActivity.selected.getRange())
+                                .strokeColor(Color.RED));
+                    }
                 }
                 break;
             }
@@ -230,13 +232,17 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                             .title(a.getMobile())
                             .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
                             .icon(BitmapDescriptorFactory.defaultMarker()));
-                    if(a.getMobile().equals(mobilecl))
+                    if(a.getMobile().equals(mobilecl)) {
                         marker.showInfoWindow();
+                        Circle circle = getMap().addCircle(new CircleOptions()
+                                .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
+                                .radius(MainActivity.selected.getRange())
+                                .strokeColor(Color.RED));
+                    }
                 }
                 break;
             }
         }
-
     }
 
     private String getAddressFromLatLng( LatLng latLng ) {
@@ -279,6 +285,22 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
     }
 
     @Override
+    public void onInfoWindowClick(Marker marker) {
+        if(MainActivity.stato == 50||MainActivity.stato == 51)
+            MainActivity.stato = 52;
+        if(MainActivity.stato == 43||MainActivity.stato == 44)
+            MainActivity.stato = 45;
+        for(User a : MainActivity.ActiveUsers){
+            String m = a.getMobile();
+            String t= marker.getTitle();
+            if(m.equals(t)) MainActivity.selected = a;
+        }
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.RelativeLayout, new Profile_Fragment())
+                .commit();
+    }
+
+    @Override
     public void onConnectionSuspended(int i) {
 
     }
@@ -288,10 +310,6 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
 
     }
 
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-
-    }
 
     @Override
     public void onMapClick(LatLng latLng) {
