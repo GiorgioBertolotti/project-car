@@ -39,7 +39,7 @@ public class Profile_Fragment extends Fragment {
             ((TextView) view.findViewById(R.id.tvmobile)).setText(MainActivity.loggato.getMobile());
             ((TextView) view.findViewById(R.id.tvtipo)).setVisibility(View.INVISIBLE);
         }
-        if(MainActivity.stato == 80||MainActivity.stato == 85){
+        if(MainActivity.stato == 42||MainActivity.stato == 52){
             ((TextView) view.findViewById(R.id.tvname)).setText(MainActivity.selected.getName());
             ((TextView) view.findViewById(R.id.tvsurname)).setText(MainActivity.selected.getSurname());
             ((TextView) view.findViewById(R.id.tvmobile)).setText(MainActivity.selected.getMobile());

@@ -3,6 +3,7 @@ package com.giorgio.provamenu;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.RunnableFuture;
 
 /**
  * Created by bertolottig on 27/06/2016.
@@ -56,7 +58,10 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
 
     private GoogleApiClient mGoogleApiClient;
     private Location mCurrentLocation;
-
+    final Handler handler = new Handler();
+    Runnable r;
+    private boolean isrunning = false;
+    String mobilecl;
     private final int MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL;
     private int curMapTypeIndex = 1;
 
@@ -80,7 +85,7 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
         getMap().setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                MainActivity.stato = 80;
+                MainActivity.stato = 52;
                 for(User a : MainActivity.ActiveUsers){
                     String m = a.getMobile();
                     String t= marker.getTitle();
@@ -112,50 +117,126 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
     @Override
     public void onConnected(Bundle bundle) {
         switch (MainActivity.stato){
-            case 50:{
+            case 50:
+            case 51:{
                 try{mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
                 catch (SecurityException e){return;}
                 initUsers(MainActivity.ActiveUsers);
                 initCamera(mCurrentLocation);
+                isrunning = true;
+                r = new Runnable(){
+                    @Override
+                    public void run() {
+                        getMap().clear();
+                        initUsers(MainActivity.ActiveUsers);
+                        handler.postDelayed(this,60000);
+                    }
+                };
+                handler.postDelayed(r, 60000 );
                 break;
             }
-            case 55:{
+            case 43:
+            case 44:{
                 try{
                     mCurrentLocation = new Location("");
                     mCurrentLocation.setLongitude(MainActivity.selected.getLongitude());
                     mCurrentLocation.setLatitude(MainActivity.selected.getLatitude());
                 }
                 catch (SecurityException e){return;}
-                initUsers(MainActivity.ActiveUsers);
+                initUsers(MainActivity.Autostoppisti);
                 initCamera(mCurrentLocation);
+                isrunning = true;
+                r = new Runnable(){
+                    @Override
+                    public void run() {
+                        getMap().clear();
+                        initUsers(MainActivity.Autostoppisti);
+                        handler.postDelayed(this,60000);
+                    }
+                };
+                handler.postDelayed(r, 60000 );
                 break;
             }
         }
 
     }
 
-    public void initUsers(ArrayList<User> attivi){
-        for(User a : attivi) {
-            SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
-            if(a.getType_id()==1) {
-                Marker marker = getMap().addMarker(new MarkerOptions()
-                        .position(new LatLng(a.getLatitude(),a.getLongitude()))
-                        .title(a.getMobile())
-                        .snippet(String.format("%s %s\n%s,%s\n%s\n%s",a.getName(),a.getSurname(),a.getLatitude(),a.getLongitude(),dt.format(a.getDate()).toString(),getAddressFromLatLng(new LatLng(a.getLatitude(),a.getLongitude()))))
-                        .icon(BitmapDescriptorFactory.defaultMarker()));
-                if(MainActivity.stato == 55&&a.getMobile().equals(MainActivity.selected.getMobile()))
-                    marker.showInfoWindow();
+    public void initUsers(ArrayList<?> attivi){
+        switch (MainActivity.stato){
+            case 50:{
+                for(Object b : attivi) {
+                    User a = (User) b;
+                    SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
+                    if (a.getType_id() == 1) {
+                        Marker marker = getMap().addMarker(new MarkerOptions()
+                                .position(new LatLng(a.getLatitude(), a.getLongitude()))
+                                .title(a.getMobile())
+                                .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
+                                .icon(BitmapDescriptorFactory.defaultMarker()));
+                    } else {
+                        Marker marker = getMap().addMarker(new MarkerOptions()
+                                .position(new LatLng(a.getLatitude(), a.getLongitude()))
+                                .title(a.getMobile())
+                                .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    }
+                }
+                break;
             }
-            else {
-                Marker marker = getMap().addMarker(new MarkerOptions()
-                        .position(new LatLng(a.getLatitude(),a.getLongitude()))
-                        .title(a.getMobile())
-                        .snippet(String.format("%s %s\n%s,%s\n%s\n%s",a.getName(),a.getSurname(),a.getLatitude(),a.getLongitude(),dt.format(a.getDate()).toString(),getAddressFromLatLng(new LatLng(a.getLatitude(),a.getLongitude()))))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                if(MainActivity.stato == 55&&a.getMobile().equals(MainActivity.selected.getMobile()))
-                    marker.showInfoWindow();
+            case 51:{
+                for(Object b : attivi) {
+                    User a = (User) b;
+                    SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
+                    if (a.getType_id() == 1) {
+                        Marker marker = getMap().addMarker(new MarkerOptions()
+                                .position(new LatLng(a.getLatitude(), a.getLongitude()))
+                                .title(a.getMobile())
+                                .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
+                                .icon(BitmapDescriptorFactory.defaultMarker()));
+                        if(a.getMobile().equals(mobilecl))
+                            marker.showInfoWindow();
+                    } else {
+                        Marker marker = getMap().addMarker(new MarkerOptions()
+                                .position(new LatLng(a.getLatitude(), a.getLongitude()))
+                                .title(a.getMobile())
+                                .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                        if(a.getMobile().equals(mobilecl))
+                            marker.showInfoWindow();
+                    }
+                }
+                break;
+            }
+            case 43:{
+                for(Object b : attivi) {
+                    Autostoppista a = (Autostoppista) b;
+                    SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
+                    Marker marker = getMap().addMarker(new MarkerOptions()
+                            .position(new LatLng(a.getLatitude(), a.getLongitude()))
+                            .title(a.getMobile())
+                            .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
+                            .icon(BitmapDescriptorFactory.defaultMarker()));
+                    if (a.getMobile().equals(MainActivity.selected.getMobile()))
+                        marker.showInfoWindow();
+                }
+                break;
+            }
+            case 44:{
+                for(Object b : attivi) {
+                    Autostoppista a = (Autostoppista) b;
+                    SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
+                    Marker marker = getMap().addMarker(new MarkerOptions()
+                            .position(new LatLng(a.getLatitude(), a.getLongitude()))
+                            .title(a.getMobile())
+                            .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
+                            .icon(BitmapDescriptorFactory.defaultMarker()));
+                    if(a.getMobile().equals(mobilecl))
+                        marker.showInfoWindow();
+                }
+                break;
             }
         }
+
     }
 
     private String getAddressFromLatLng( LatLng latLng ) {
@@ -185,7 +266,14 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
     }
 
     @Override
+    public void onDestroy(){
+        if(isrunning)
+            handler.removeCallbacks(r);
+        super.onDestroy();
+    }
+    @Override
     public boolean onMarkerClick(Marker marker) {
+        mobilecl = marker.getTitle();
         marker.showInfoWindow();
         return true;
     }
@@ -207,7 +295,7 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
 
     @Override
     public void onMapClick(LatLng latLng) {
-
+        mobilecl = null;
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
@@ -51,13 +52,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static ArrayAdapter<City> citiesAdapter;
     public static ArrayList<User> ActiveUsers;
     public static ArrayAdapter<User> usersAdapter;
-    ArrayList<Autostoppista> Autostoppisti;
+    public static ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
     public static int stato = 0;
     String lat,lon;
     private GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     int range;
+    final Handler h = new Handler();
     public void changeUI(){
         switch (stato){
             case 0:{
@@ -114,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView.getMenu().findItem(R.id.autostoppista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.autista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.mappa).setEnabled(true);
-
+                getSupportActionBar().setTitle("Profilo");
                 break;
             }
             case 30:{
@@ -125,6 +127,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle("Scegli destinazione");
                 break;
             }
+            case 31:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Wait_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Attesa");
+                break;
+            }
             case 40:{
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
@@ -133,12 +143,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle("Scegli un autostoppista");
                 break;
             }
-            case 45:{
+            case 42:{
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new User_Fragment())
+                        .replace(R.id.RelativeLayout, new Profile_Fragment())
                         .commit();
-                getSupportActionBar().setTitle("Scegli un autostoppista");
+                getSupportActionBar().setTitle("Profilo pubblico");
+                break;
+            }
+            case 43:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Map_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Mappa");
                 break;
             }
             case 50:{
@@ -149,23 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle("Mappa");
                 break;
             }
-            case 55:{
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Map_Fragment())
-                        .commit();
-                getSupportActionBar().setTitle("Mappa");
-                break;
-            }
-            case 60:{
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Wait_Fragment())
-                        .commit();
-                getSupportActionBar().setTitle("Attesa");
-                break;
-            }
-            case 80:{
+            case 52:{
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Profile_Fragment())
@@ -219,15 +221,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     changeUI();
                     break;
                 }
+                case 31:{
+                    funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    stato = 30;
+                    changeUI();
+                    break;
+                }
                 case 40:{
                     funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                     stato = 20;
                     changeUI();
                     break;
                 }
-                case 45:{
-                    funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
-                    stato = 20;
+                case 42:{
+                    stato = 40;
+                    changeUI();
+                    break;
+                }
+                case 43:{
+                    stato = 40;
+                    changeUI();
+                    break;
+                }
+                case 44:{
+                    stato = 40;
                     changeUI();
                     break;
                 }
@@ -236,24 +253,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     changeUI();
                     break;
                 }
-                case 55:{
-                    stato = 40;
+                case 51:{
+                    stato = 20;
                     changeUI();
                     break;
                 }
-                case 60:{
-                    funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
-                    stato = 30;
-                    changeUI();
-                    break;
-                }
-                case 80:{
+                case 52:{
                     stato = 50;
-                    changeUI();
-                    break;
-                }
-                case 85:{
-                    stato = 40;
                     changeUI();
                     break;
                 }
@@ -279,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             case R.id.autista: {
                 loggato.setType_id(2);
-                if(stato == 60){
+                if(stato == 31){
                     loggato.setCity(null);
                     loggato.setProvince(null);
                     funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
@@ -293,15 +299,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.mappa: {
-                if(stato == 60){
+                if(stato == 31){
                     loggato.setCity(null);
                     loggato.setProvince(null);
                     funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                 }
-                loggato.setType_id(null);
+                stato = 50;
                 funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                 funcPHP("getActiveUsers","{}");
-                stato = 50;
                 break;
             }
             case R.id.logout: {
@@ -332,11 +337,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 case "loginUser": {
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
-                    loggato = new Autostoppista(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"));
-                    Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_LONG).show();
+                    java.util.Date dt = new java.util.Date();
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String finaldate = sdf.format(dt);
+                    loggato = new Autostoppista(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"),null,null,null,Double.parseDouble(lat),Double.parseDouble(lon),dt);
+                    Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
                     ((TextView) findViewById(R.id.textView)).setText(String.format("Benvenuto %s %s",loggato.getName(), loggato.getSurname()));
                     stato = 20;
                     changeUI();
+                    funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",loggato.getMobile(),lat,lon,finaldate));
+                    h.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            java.util.Date dt = new java.util.Date();
+                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String finaldate = sdf.format(dt);
+                            funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",loggato.getMobile(),lat,lon,finaldate));
+                            if(stato == 51)
+                                funcPHP("getActiveUsers", "{}");
+                            if(stato == 44) {
+                                funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), lat, lon, range));
+                            }
+                            h.postDelayed(this,60000);
+                        }
+                    },60000);
                     break;
                 }
                 case "logoutUser": {
@@ -345,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "User_City": {
-                    stato = 60;
+                    stato = 31;
                     changeUI();
                     break;
                 }
@@ -355,8 +379,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     else{
                         stato = 40;
+                        funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), lat, lon, range));
                     }
-                    buildGoogleApiClient();
                     break;
                 }
                 case "getCities": {
@@ -369,19 +393,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getAS": {
-                    Autostoppisti.clear();
-                    for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                        Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),1,new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                    switch (stato){
+                        case 40:{
+                            Autostoppisti.clear();
+                            for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),1,new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                            }
+                            changeUI();
+                            break;
+                        }
+                        case 43:{
+                            Autostoppisti.clear();
+                            for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),1,new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                            }
+                            changeUI();
+                            stato = 44;
+                            break;
+                        }
+                        case 44:{
+                            Autostoppisti.clear();
+                            for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),1,new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                            }
+                            break;
+                        }
                     }
-                    changeUI();
                     break;
                 }
                 case "getActiveUsers": {
-                    ActiveUsers.clear();
-                    for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                        ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                    switch(stato){
+                        case 50:{
+                            ActiveUsers.clear();
+                            for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                            }
+                            changeUI();
+                            stato = 51;
+                            break;
+                        }
+                        case 51:{
+                            ActiveUsers.clear();
+                            for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                            }
+                            break;
+                        }
                     }
-                    changeUI();
                     break;
                 }
                 case "removeUser_City": {
@@ -495,9 +553,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
             }
-            MainActivity.stato = 80;
+            MainActivity.stato = 42;
             changeUI();
-            MainActivity.stato = 85;
         }
         else if(item.getTitle().equals("Chiama")){
             Autostoppista listItem = Autostoppisti.get(info.position);
@@ -509,8 +566,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }else if(item.getTitle().equals("Visualizza su mappa")) {
             selected = Autostoppisti.get(info.position);
-            stato = 55;
-            funcPHP("getActiveUsers","{}");
+            stato = 43;
+            funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), lat, lon, range));
         }else{
             return false;
         }
@@ -526,7 +583,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
-        asyncTask.execute("http://192.168.200.70:8080/pcws/index.php",function,json);
+        asyncTask.execute("http://192.168.147.40/pcws/index.php",function,json);
     }
     public String md5(String s) {
         try {
@@ -575,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onConnected(@Nullable Bundle bundle) {
         LocationRequest mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(10000);
+        mLocationRequest.setInterval(60000);
 
         try{LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);}
         catch (SecurityException e){return;}
@@ -592,19 +649,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onConnectionSuspended(int i) {}
     @Override
     public void onLocationChanged(Location location) {
-        if(stato == 30||stato ==40||stato ==60) {
-            lat = String.valueOf(location.getLatitude());
-            lon = String.valueOf(location.getLongitude());
-            java.util.Date dt = new java.util.Date();
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String finaldate = sdf.format(dt);
-            funcPHP("setGPSLocation", "{\"mobile\":\"" + loggato.getMobile() + "\",\"lat\":\"" + lat + "\",\"lon\":\"" + lon + "\",\"date\":\"" + finaldate + "\"}");
+        lat = String.valueOf(location.getLatitude());
+        lon = String.valueOf(location.getLongitude());
+        if(stato > 20) {
             loggato.setLatitude(Double.parseDouble(lat));
             loggato.setLongitude(Double.parseDouble(lon));
-            if(stato == 40) {
-                funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), loggato.getLatitude(), loggato.getLongitude(), range));
-                stato = 45;
-            }
         }
     }
     @Override

@@ -60,19 +60,15 @@ public class User {
         return surname;
     }
     public String getMobile(){ return mobile; }
-    public int getType_id(){return type_id;}
+    public Integer getType_id(){return type_id;}
     public double getLatitude(){return latitude;}
     public double getLongitude(){return longitude;}
     public Date getDate(){return date;}
-    public User(String n,String s,String m){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals(""))
-            return;
-    }
-    public User(String n,String s,String m,int t){
+    public User(String n,String s,String m,Integer t){
         if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals(""))
             return;
     }
-    public User(String n,String s,String m,int t,double lo,double la,Date d){
+    public User(String n,String s,String m,Integer t,double lo,double la,Date d){
         if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals(""))
             return;
     }
