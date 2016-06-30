@@ -29,7 +29,10 @@ public class CallAPI extends AsyncTask<String, String, String> {
         nameValuePair.add(new BasicNameValuePair("api_data", params[2]));
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
-        } catch (UnsupportedEncodingException e) {}
+        } catch (UnsupportedEncodingException e) {
+            result = e.getMessage();
+            return result;
+        }
         try {
             HttpResponse response = httpClient.execute(httpPost);
             result = EntityUtils.toString(response.getEntity());

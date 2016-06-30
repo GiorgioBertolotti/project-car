@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -13,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
 import android.support.v7.app.AlertDialog;
+import android.util.Base64;
 import android.view.ContextMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -28,6 +32,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -39,10 +44,21 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import org.json.JSONObject;
+
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         Register_Fragment.OnFragmentInteractionListener,
@@ -74,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Location mLastLocation;
     int range;
     final Handler h = new Handler();
+    public static String img;
     public void changeUI(){
         switch (stato){
             case 0:{
@@ -378,6 +395,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     java.util.Date dt = new java.util.Date();
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String finaldate = sdf.format(dt);
+                    img = obj2.getString("Image");
                     if(lat==null||lon==null){
                         loggato = new Autostoppista(obj2.getString("Name"),
                                 obj2.getString("Surname"),
@@ -581,7 +599,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     loggato.setType_id(null);
                     break;
                 }
-                case "setGPSLocation": {
+                case "setImage": {
+                    Toast.makeText(this,"Immagine caricata con successo",Toast.LENGTH_SHORT).show();
                     break;
                 }
             }
@@ -633,8 +652,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         funcPHP("setRange",String.format("{\"mobile\":\"%s\",\"range\":\"%s\"}",loggato.getMobile(),range));
     }
     public void onFragmentInteraction(Uri uri) {
-        switch (loggato.getType_id()){
-            case 1:{
+        switch (stato){
+            case 30:{
                 final ListView listView = (ListView) findViewById(R.id.listView);
                 assert listView != null;
                 listView.setAdapter(citiesAdapter);
@@ -647,7 +666,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
                 break;
             }
-            case 2:{
+            case 40:{
                 final ListView listView = (ListView) findViewById(R.id.listView2);
                 assert listView != null;
                 listView.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new ArrayList<String>()));
@@ -666,6 +685,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
                 break;
             }
+            case 20:{
+                ImageView ivprofile = (ImageView) findViewById(R.id.prfivprofileimage);
+                Bitmap bm = ((BitmapDrawable)ivprofile.getDrawable()).getBitmap();
+                img = getStringImage(bm);
+                if(img == "")
+                    return;
+                funcPHP("setImage",String.format("{\"mobile\":\"%s\",\"img\":\"%s\"}",loggato.getMobile(),img));
+                break;
+            }
+        }
+    }
+    public String getStringImage(Bitmap bmp){
+        /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] imageBytes = baos.toByteArray();
+        String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);*/
+        try{
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, stream); //compress to which format you want.
+            byte [] byte_arr = stream.toByteArray();
+            String image_str = Base64.encodeToString(byte_arr, Base64.DEFAULT);
+            image_str = image_str.replace("\n","");
+            return image_str;
+        }
+        catch (Exception e){
+            Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
+            return "";
         }
     }
     @Override
@@ -711,9 +757,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+        builder.setMessage("Il tuo GPS è disattivato, vuoi attivarlo?")
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Sì", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     }

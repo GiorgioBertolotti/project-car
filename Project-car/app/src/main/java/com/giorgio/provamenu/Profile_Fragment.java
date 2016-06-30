@@ -1,13 +1,24 @@
 package com.giorgio.provamenu;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.InputStream;
 
 public class Profile_Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
@@ -34,22 +45,57 @@ public class Profile_Fragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if(MainActivity.stato == 20){
-            ((TextView) view.findViewById(R.id.tvname)).setText(MainActivity.loggato.getName());
-            ((TextView) view.findViewById(R.id.tvsurname)).setText(MainActivity.loggato.getSurname());
-            ((TextView) view.findViewById(R.id.tvmobile)).setText(MainActivity.loggato.getMobile());
-            ((TextView) view.findViewById(R.id.tvtipo)).setVisibility(View.INVISIBLE);
+            ((TextView) view.findViewById(R.id.prftvname)).setText(MainActivity.loggato.getName());
+            ((TextView) view.findViewById(R.id.prftvsurname)).setText(MainActivity.loggato.getSurname());
+            ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.loggato.getMobile());
+            ((TextView) view.findViewById(R.id.prftvtipo)).setVisibility(View.INVISIBLE);
+            byte[] data = Base64.decode(MainActivity.img,Base64.DEFAULT);
+            ((ImageView) view.findViewById(R.id.prfivprofileimage)).setImageDrawable(new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(data,0,data.length)));
+
+            FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.prffabedit);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                    getIntent.setType("image/*");
+
+                    Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    pickIntent.setType("image/*");
+
+                    Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+                    startActivityForResult(chooserIntent, 1);
+                }
+            });
         }
         if(MainActivity.stato == 42||MainActivity.stato == 45||MainActivity.stato == 52){
-            ((TextView) view.findViewById(R.id.tvname)).setText(MainActivity.selected.getName());
-            ((TextView) view.findViewById(R.id.tvsurname)).setText(MainActivity.selected.getSurname());
-            ((TextView) view.findViewById(R.id.tvmobile)).setText(MainActivity.selected.getMobile());
-            ((TextView) view.findViewById(R.id.tvtipo)).setVisibility(View.VISIBLE);
+            ((TextView) view.findViewById(R.id.prftvname)).setText(MainActivity.selected.getName());
+            ((TextView) view.findViewById(R.id.prftvsurname)).setText(MainActivity.selected.getSurname());
+            ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.selected.getMobile());
+            ((FloatingActionButton) view.findViewById(R.id.prffabedit)).setVisibility(View.INVISIBLE);
+            ((TextView) view.findViewById(R.id.prftvtipo)).setVisibility(View.VISIBLE);
             if(MainActivity.selected.getType_id()==1)
-                ((TextView) view.findViewById(R.id.tvtipo)).setText("Autostoppista");
+                ((TextView) view.findViewById(R.id.prftvtipo)).setText("Autostoppista");
             else
-                ((TextView) view.findViewById(R.id.tvtipo)).setText("Autista");
+                ((TextView) view.findViewById(R.id.prftvtipo)).setText("Autista");
         }
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            if (data == null) return;
+            try {
+                InputStream inputStream = getActivity().getContentResolver().openInputStream(data.getData());
+                Drawable bd = new BitmapDrawable(getResources(), BitmapFactory.decodeStream(inputStream));
+                ((ImageView) getActivity().findViewById(R.id.prfivprofileimage)).setImageDrawable(bd);
+                mListener.onFragmentInteraction(null);
+            }
+            catch (Exception e) {return;}
+        }
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

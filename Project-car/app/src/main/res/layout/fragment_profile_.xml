@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.giorgio.provamenu.Profile_Fragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -10,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/nome"
-        android:id="@+id/tvname"
+        android:id="@+id/prftvname"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
@@ -18,35 +19,45 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/cognome"
-        android:id="@+id/tvsurname"
-        android:layout_below="@+id/tvname"
+        android:id="@+id/prftvsurname"
+        android:layout_below="@+id/prftvname"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/mobile"
-        android:id="@+id/tvmobile"
-        android:layout_below="@+id/tvsurname"
+        android:id="@+id/prftvmobile"
+        android:layout_below="@+id/prftvsurname"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/type_id"
-        android:id="@+id/tvtipo"
-        android:layout_below="@+id/tvmobile"
+        android:id="@+id/prftvtipo"
+        android:layout_below="@+id/prftvmobile"
         android:layout_centerHorizontal="true" />
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/imageView2"
+        android:id="@+id/prfivprofileimage"
         android:src="@drawable/ic_user"
         android:layout_marginBottom="53dp"
-        android:layout_above="@+id/tvname"
+        android:layout_above="@+id/prftvname"
         android:layout_centerHorizontal="true"
         android:layout_margin="75dp"
         android:contentDescription="@string/immagine_profilo_utente" />
+    <android.support.design.widget.FloatingActionButton
+        android:src="@drawable/ic_edit"
+        android:background="@color/colorPrimary"
+        app:fabSize="normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/prfivprofileimage"
+        android:layout_toRightOf="@+id/prftvname"
+        android:layout_toEndOf="@+id/prftvname"
+        android:id="@+id/prffabedit" />
 
 </RelativeLayout>
