@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 
+import com.daasuu.ahp.AnimateHorizontalProgressBar;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -63,10 +64,13 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
     private Location mCurrentLocation;
     final Handler handler = new Handler();
     Runnable r;
+    final Handler timer = new Handler();
+    Runnable r2;
     private boolean isrunning = false;
     String mobilecl;
     private final int MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL;
     private int curMapTypeIndex = 1;
+    AnimateHorizontalProgressBar progressBar;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -108,6 +112,9 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
         switch (MainActivity.stato){
             case 50:
             case 51:{
+                progressBar = (AnimateHorizontalProgressBar) this.getActivity().findViewById(R.id.animate_progress_bar);
+                progressBar.setMax(60);
+                progressBar.setProgress(0);
                 try{mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
                 catch (SecurityException e){return;}
                 initUsers(MainActivity.ActiveUsers,mCurrentLocation);
@@ -122,10 +129,24 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                     }
                 };
                 handler.postDelayed(r, 60000 );
+                r2 = new Runnable() {
+                    @Override
+                    public void run() {
+                        if(progressBar.getProgress()==60)
+                            progressBar.setProgress(1);
+                        else
+                            progressBar.setProgress(progressBar.getProgress()+1);
+                        timer.postDelayed(this,1000);
+                    }
+                };
+                timer.postDelayed(r2,1000);
                 break;
             }
             case 43:
             case 44:{
+                progressBar = (AnimateHorizontalProgressBar) this.getActivity().findViewById(R.id.animate_progress_bar);
+                progressBar.setMax(60);
+                progressBar.setProgress(0);
                 try{
                     mCurrentLocation = new Location("");
                     mCurrentLocation.setLongitude(MainActivity.selected.getLongitude());
@@ -139,11 +160,24 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                     @Override
                     public void run() {
                         getMap().clear();
+                        mCurrentLocation.setLongitude(MainActivity.selected.getLongitude());
+                        mCurrentLocation.setLatitude(MainActivity.selected.getLatitude());
                         initUsers(MainActivity.Autostoppisti,mCurrentLocation);
                         handler.postDelayed(this,60000);
                     }
                 };
                 handler.postDelayed(r, 60000 );
+                r2 = new Runnable() {
+                    @Override
+                    public void run() {
+                        if(progressBar.getProgress()==60)
+                            progressBar.setProgress(1);
+                        else
+                            progressBar.setProgress(progressBar.getProgress()+1);
+                        timer.postDelayed(this,1000);
+                    }
+                };
+                timer.postDelayed(r2,1000);
                 break;
             }
         }
@@ -172,7 +206,7 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                 }
                 Circle circle = getMap().addCircle(new CircleOptions()
                         .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
-                        .radius(MainActivity.loggato.getRange())
+                        .radius(MainActivity.loggato.getRange()*1000)
                         .strokeColor(Color.RED));
                 break;
             }
@@ -199,7 +233,7 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                     }
                     Circle circle = getMap().addCircle(new CircleOptions()
                             .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
-                            .radius(MainActivity.loggato.getRange())
+                            .radius(MainActivity.loggato.getRange()*1000)
                             .strokeColor(Color.RED));
                 }
                 break;
@@ -217,7 +251,7 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                         marker.showInfoWindow();
                         Circle circle = getMap().addCircle(new CircleOptions()
                                 .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
-                                .radius(MainActivity.selected.getRange())
+                                .radius(MainActivity.selected.getRange()*1000)
                                 .strokeColor(Color.RED));
                     }
                 }
@@ -232,12 +266,14 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                             .title(a.getMobile())
                             .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
                             .icon(BitmapDescriptorFactory.defaultMarker()));
-                    if(a.getMobile().equals(mobilecl)) {
-                        marker.showInfoWindow();
+                    if (a.getMobile().equals(MainActivity.selected.getMobile())) {
                         Circle circle = getMap().addCircle(new CircleOptions()
                                 .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
-                                .radius(MainActivity.selected.getRange())
+                                .radius(MainActivity.selected.getRange()*1000)
                                 .strokeColor(Color.RED));
+                    }
+                    if(a.getMobile().equals(mobilecl)) {
+                        marker.showInfoWindow();
                     }
                 }
                 break;
@@ -273,8 +309,10 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
 
     @Override
     public void onDestroy(){
-        if(isrunning)
+        if(isrunning) {
             handler.removeCallbacks(r);
+            timer.removeCallbacks(r2);
+        }
         super.onDestroy();
     }
     @Override

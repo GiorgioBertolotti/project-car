@@ -36,7 +36,7 @@ public class Settings_Fragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         final SeekBar seekBar = (SeekBar)view.findViewById(R.id.setskbrange);
         final TextView seekBarValue = (TextView)view.findViewById(R.id.setetrange);
-        seekBar.setProgress(10);
+        seekBar.setProgress(MainActivity.loggato.getRange());
         seekBarValue.setText(String.valueOf(seekBar.getProgress()));
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -53,7 +53,10 @@ public class Settings_Fragment extends Fragment {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                seekBar.setProgress(Integer.parseInt(s.toString()));
+                if(s.equals(""))
+                    seekBar.setProgress(0);
+                else
+                    seekBar.setProgress(Integer.parseInt(s.toString()));
             }
             @Override
             public void afterTextChanged(Editable s) {}

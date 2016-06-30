@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Passaggi</string>
+    <string name="app_name">EasyTravel</string>
 
     <string name="navigation_drawer_open">Apri menù</string>
     <string name="navigation_drawer_close">Chiudi menù</string>
 
     <string name="action_settings">Impostazioni</string>
-    <string name="passaggi">Passaggi</string>
+    <string name="passaggi">EasyTravel</string>
     <string name="by_giorgio_bertolotti">by Giorgio Bertolotti</string>
     <string name="effettua_il_login_o_registrati">Effettua il login o registrati!</string>
 

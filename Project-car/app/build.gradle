@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.giorgio.provamenu"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -37,4 +37,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:9.0.2'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
     compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
+    compile 'com.github.ybq:Android-SpinKit:1.0.4'
+    compile 'com.daasuu:animateHorizontalProgressBar:0.2.4'
 }

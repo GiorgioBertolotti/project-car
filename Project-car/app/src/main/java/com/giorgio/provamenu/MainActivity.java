@@ -28,23 +28,30 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-
 import org.json.JSONObject;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Register_Fragment.OnFragmentInteractionListener, Login_Fragment.OnFragmentInteractionListener, Profile_Fragment.OnFragmentInteractionListener, City_Fragment.OnFragmentInteractionListener, User_Fragment.OnFragmentInteractionListener, Wait_Fragment.OnFragmentInteractionListener, Map_Fragment.OnFragmentInteractionListener, Settings_Fragment.OnFragmentInteractionListener, AsyncResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        Register_Fragment.OnFragmentInteractionListener,
+        Login_Fragment.OnFragmentInteractionListener,
+        Profile_Fragment.OnFragmentInteractionListener,
+        City_Fragment.OnFragmentInteractionListener,
+        User_Fragment.OnFragmentInteractionListener,
+        Wait_Fragment.OnFragmentInteractionListener,
+        Map_Fragment.OnFragmentInteractionListener,
+        Settings_Fragment.OnFragmentInteractionListener,
+        AsyncResponse,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
     RelativeLayout rl;
     public static Autostoppista loggato;
     public static User selected;
@@ -118,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView.getMenu().findItem(R.id.autostoppista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.autista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.mappa).setEnabled(true);
-                getSupportActionBar().setTitle("Profilo");
+                getSupportActionBar().setTitle("EasyTravel");
                 break;
             }
             case 21:{
@@ -360,23 +367,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     java.util.Date dt = new java.util.Date();
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String finaldate = sdf.format(dt);
-                    loggato = new Autostoppista(obj2.getString("Name"),obj2.getString("Surname"),obj2.getString("Mobile"),null,10,null,null,Double.parseDouble(lat),Double.parseDouble(lon),dt);
+                    loggato = new Autostoppista(obj2.getString("Name"),
+                            obj2.getString("Surname"),
+                            obj2.getString("Mobile"),
+                            null,
+                            Integer.parseInt(obj2.getString("Range")),
+                            null,
+                            null,
+                            Double.parseDouble(lat),
+                            Double.parseDouble(lon),
+                            dt);
                     Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
                     ((TextView) findViewById(R.id.textView)).setText(String.format("Benvenuto %s %s",loggato.getName(), loggato.getSurname()));
                     stato = 20;
                     changeUI();
-                    funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",loggato.getMobile(),lat,lon,finaldate));
+                    funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
+                            loggato.getMobile(),lat,lon,finaldate));
                     h.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             java.util.Date dt = new java.util.Date();
                             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             String finaldate = sdf.format(dt);
-                            funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",loggato.getMobile(),lat,lon,finaldate));
+                            funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
+                                    loggato.getMobile(),lat,lon,finaldate));
                             if(stato == 51)
                                 funcPHP("getActiveUsers", "{}");
                             if(stato == 44) {
-                                funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), lat, lon, range));
+                                funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
+                                        loggato.getMobile(), lat, lon, range));
                             }
                             h.postDelayed(this,60000);
                         }
@@ -399,14 +418,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     else{
                         stato = 40;
-                        funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), lat, lon, range));
+                        funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
+                                loggato.getMobile(), lat, lon, range));
                     }
                     break;
                 }
                 case "getCities": {
                     cities.clear();
                     for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                        cities.add(new City(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Province")));
+                        cities.add(new City(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Province")));
                     }
                     stato = 30;
                     changeUI();
@@ -417,7 +438,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 40:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),1,Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        1,
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
                             }
                             changeUI();
                             break;
@@ -425,7 +455,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 43:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),1,Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        1,
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
                             }
                             changeUI();
                             stato = 44;
@@ -434,7 +473,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 44:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),1,Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        1,
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
                             }
                             break;
                         }
@@ -446,7 +494,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 50:{
                             ActiveUsers.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
                             }
                             changeUI();
                             stato = 51;
@@ -455,7 +510,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 51:{
                             ActiveUsers.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")), new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
                             }
                             break;
                         }
@@ -519,6 +581,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onClickSave(View v){
         Integer Range = ((SeekBar) findViewById(R.id.setskbrange)).getProgress();
         range = Range;
+        loggato.setRange(range);
         funcPHP("setRange",String.format("{\"mobile\":\"%s\",\"range\":\"%s\"}",loggato.getMobile(),range));
     }
     public void onFragmentInteraction(Uri uri) {
@@ -640,6 +703,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 stato = 21;
                 changeUI();
             }
+            else
+                Toast.makeText(this,"Devi aver eseguito il login prima",Toast.LENGTH_SHORT).show();
         }
         if (super.onOptionsItemSelected(item)) return true;
         return false;

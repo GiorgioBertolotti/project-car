@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:lv="http://schemas.android.com/apk/res-auto"
     tools:context="com.giorgio.provamenu.Wait_Fragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -20,9 +21,13 @@
         android:layout_height="match_parent"
         android:gravity="center" >
 
-        <ProgressBar
+        <com.github.ybq.android.spinkit.SpinKitView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/spin_kit"
+            style="@style/SpinKitView.Large.DoubleBounce"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminate="true" />
+            android:layout_gravity="center"
+            app:SpinKit_Color="@color/colorPrimaryDark" />
     </RelativeLayout>
 </RelativeLayout>
