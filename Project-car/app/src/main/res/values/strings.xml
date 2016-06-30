@@ -26,4 +26,5 @@
     <string name="google_sign_in">GOOGLE SIGN IN</string>
     <string name="range">Range</string>
     <string name="salva">SALVA</string>
+    <string name="resta_loggato">Resta loggato</string>
 </resources>

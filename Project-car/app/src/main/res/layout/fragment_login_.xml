@@ -47,4 +47,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:onClick="onClickLogin" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/resta_loggato"
+        android:id="@+id/lgnchkrestaloggato"
+        android:layout_below="@+id/lgnetpassword"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:checked="true" />
 </RelativeLayout>

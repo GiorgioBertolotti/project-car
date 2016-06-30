@@ -1,14 +1,18 @@
 package com.giorgio.provamenu;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
+import android.support.v7.app.AlertDialog;
 import android.view.ContextMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -22,6 +26,7 @@ import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -57,15 +62,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static User selected;
     NavigationView navigationView;
     ArrayList<City> cities;
-    public static ArrayAdapter<City> citiesAdapter;
+    ArrayAdapter<City> citiesAdapter;
     public static ArrayList<User> ActiveUsers;
     public static ArrayAdapter<User> usersAdapter;
     public static ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
     public static int stato = 0;
-    private int prec;
+    int prec;
     String lat,lon;
-    private GoogleApiClient mGoogleApiClient;
+    GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     int range;
     final Handler h = new Handler();
@@ -197,9 +202,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        changeUI();
         //mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
         buildGoogleApiClient();
+        changeUI();
+        SharedPreferences settings = getSharedPreferences("UserData", 0);
+        String m = settings.getString("Mobile", null);
+        String p = settings.getString("Password", null);
+        if(m!=null||p!=null){
+            funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",m,p));
+        }
         cities = new ArrayList<>();
         citiesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, cities);
         ActiveUsers = new ArrayList<>();
@@ -367,17 +378,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     java.util.Date dt = new java.util.Date();
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String finaldate = sdf.format(dt);
-                    loggato = new Autostoppista(obj2.getString("Name"),
-                            obj2.getString("Surname"),
-                            obj2.getString("Mobile"),
-                            null,
-                            Integer.parseInt(obj2.getString("Range")),
-                            null,
-                            null,
-                            Double.parseDouble(lat),
-                            Double.parseDouble(lon),
-                            dt);
-                    Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
+                    if(lat==null||lon==null){
+                        loggato = new Autostoppista(obj2.getString("Name"),
+                                obj2.getString("Surname"),
+                                obj2.getString("Mobile"),
+                                null,
+                                Integer.parseInt(obj2.getString("Range")),
+                                null,
+                                null,
+                                null,
+                                null,
+                                dt);
+                        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER))
+                            buildAlertMessageNoGps();
+                        else
+                            Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        loggato = new Autostoppista(obj2.getString("Name"),
+                                obj2.getString("Surname"),
+                                obj2.getString("Mobile"),
+                                null,
+                                Integer.parseInt(obj2.getString("Range")),
+                                null,
+                                null,
+                                Double.parseDouble(lat),
+                                Double.parseDouble(lon),
+                                dt);
+                        Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
+                    }
+                    if(stato == 15) {
+                        if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()) {
+                            SharedPreferences settings = getSharedPreferences("UserData", 0);
+                            SharedPreferences.Editor editor = settings.edit();
+                            editor.putString("Mobile", loggato.getMobile());
+                            editor.putString("Password", md5(((EditText) findViewById(R.id.lgnetpassword)).getText().toString()));
+                            editor.commit();
+                        }
+                    }
                     ((TextView) findViewById(R.id.textView)).setText(String.format("Benvenuto %s %s",loggato.getName(), loggato.getSurname()));
                     stato = 20;
                     changeUI();
@@ -403,6 +442,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "logoutUser": {
+                    SharedPreferences settings = getSharedPreferences("UserData", 0);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString("Mobile", null);
+                    editor.putString("Password", null);
+                    editor.commit();
                     stato = 0;
                     changeUI();
                     break;
@@ -483,6 +527,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                if(selected!=null&&selected.getMobile().equals(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"))){
+                                    selected.setLatitude(Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")));
+                                    selected.setLongitude(Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")));
+                                }
                             }
                             break;
                         }
@@ -589,7 +637,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case 1:{
                 final ListView listView = (ListView) findViewById(R.id.listView);
                 assert listView != null;
-                listView.setAdapter(MainActivity.citiesAdapter);
+                listView.setAdapter(citiesAdapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -661,6 +709,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         return true;
     }
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     public void hideKeyboard(){
         View view = this.getCurrentFocus();
         if (view != null) {
