@@ -40,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.server.converter.StringToIntConverter;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -50,6 +51,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -59,6 +61,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         Register_Fragment.OnFragmentInteractionListener,
@@ -94,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void changeUI(){
         switch (stato){
             case 0:{
-                hideKeyboard();
                 setContentView(R.layout.activity_main);
                 Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
@@ -125,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case 15:{
-                hideKeyboard();
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Login_Fragment())
@@ -135,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case 20:{
-                hideKeyboard();
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Profile_Fragment())
@@ -403,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 obj2.getString("Mobile"),
                                 null,
                                 Integer.parseInt(obj2.getString("Range")),
-                                null,
+                                BitmapFactory.decodeByteArray(data,0,data.length),
                                 null,
                                 null,
                                 null,
@@ -422,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 obj2.getString("Mobile"),
                                 null,
                                 Integer.parseInt(obj2.getString("Range")),
-                                null,
+                                BitmapFactory.decodeByteArray(data,0,data.length),
                                 null,
                                 null,
                                 Double.parseDouble(lat),
@@ -430,7 +431,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 dt);
                         Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
                     }
-                    loggato.setImage(BitmapFactory.decodeByteArray(data,0,data.length));
                     if(stato == 15) {
                         if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()) {
                             SharedPreferences settings = getSharedPreferences("UserData", 0);
@@ -619,7 +619,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "setImage": {
-                    Toast.makeText(this,"Immagine caricata con successo",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                case "forgotPassword":{
+                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_SHORT).show();
+                    ((TextView) findViewById(R.id.lgntvforgot)).setOnClickListener(null);
+                    break;
+                }
+                case "setPassword":{
+                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_SHORT).show();
+                    ((EditText)findViewById(R.id.setetnewpassword)).setText("");
+                    ((EditText)findViewById(R.id.setetoldpassword)).setText("");
+                    ((EditText)findViewById(R.id.setetconfirm)).setText("");
                     break;
                 }
             }
@@ -633,10 +645,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Name = Name.substring(0,1).toUpperCase() + Name.substring(1);
         String Surname = ((EditText)findViewById(R.id.regetsurname)).getText().toString();
         Surname = Surname.substring(0,1).toUpperCase() + Surname.substring(1);
+        String Email = ((EditText)findViewById(R.id.regetemail)).getText().toString();
         String Mobile = ((EditText)findViewById(R.id.regetmobile)).getText().toString();
         String Password = ((EditText)findViewById(R.id.regetpassword)).getText().toString();
         String Confirm = ((EditText)findViewById(R.id.regetconfirm)).getText().toString();
-        if(Name.isEmpty()||Surname.isEmpty()|| Mobile.isEmpty()|| Password.isEmpty()|| Confirm.isEmpty()) {
+        if(Name.isEmpty()||Surname.isEmpty()||Email.isEmpty()||Mobile.isEmpty()||Password.isEmpty()||Confirm.isEmpty()) {
             Toast.makeText(this,"Compilare tutti i campi",Toast.LENGTH_LONG).show();
             return;
         }
@@ -644,11 +657,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this,"Password e conferma non coincidono", Toast.LENGTH_LONG).show();
             return;
         }
+        if(!isEmailValid(Email)){
+            Toast.makeText(this,"Inserisci una e-mail valida", Toast.LENGTH_LONG).show();
+            return;
+        }
         String md5pwd = md5(Password);
         if(md5pwd.isEmpty()) {
             Toast.makeText(this,"Errore nel codificare la password",Toast.LENGTH_SHORT).show();
         }
-        funcPHP("registerUser",String.format("{\"name\":\"%s\",\"surname\":\"%s\",\"mobile\":\"%s\",\"password\":\"%s\"}",Name,Surname,Mobile,md5pwd));
+        funcPHP("registerUser",String.format("{\"name\":\"%s\",\"surname\":\"%s\",\"email\":\"%s\",\"mobile\":\"%s\",\"password\":\"%s\"}",Name,Surname,Email,Mobile,md5pwd));
     }
     public void onClickLogin(View v) {
         assert ((EditText)findViewById(R.id.lgnetmobile)) != null;
@@ -669,6 +686,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         range = Range;
         loggato.setRange(range);
         funcPHP("setRange",String.format("{\"mobile\":\"%s\",\"range\":\"%s\"}",loggato.getMobile(),range));
+        String oldpassword = ((EditText)findViewById(R.id.setetoldpassword)).getText().toString();
+        if(oldpassword.isEmpty()) {
+            Toast.makeText(this,"Range aggiornato",Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String newpassword = ((EditText)findViewById(R.id.setetnewpassword)).getText().toString();
+        String confirm = ((EditText)findViewById(R.id.setetconfirm)).getText().toString();
+        if(!newpassword.equals(confirm)) {
+            Toast.makeText(this,"Password e conferma non coincidono",Toast.LENGTH_SHORT);
+            return;
+        }
+        funcPHP("setPassword", String.format("{\"mobile\":\"%s\",\"old\":\"%s\",\"new\":\"%s\"}",loggato.getMobile(),md5(oldpassword),md5(newpassword)));
+    }
+    public void onClickForgot(View v){
+        String Mobile = ((EditText)findViewById(R.id.lgnetmobile)).getText().toString();
+        funcPHP("forgotPassword",String.format("{\"mobile\":\"%s\"}",Mobile));
     }
     public void onFragmentInteraction(Uri uri) {
         switch (stato){
@@ -709,6 +742,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Bitmap bm = ((BitmapDrawable)ivprofile.getDrawable()).getBitmap();
                 bm = Bitmap.createScaledBitmap(bm, 256, 256, false);
                 img = getStringImage(bm);
+                loggato.setImage(bm);
                 if(img == "")
                     return;
                 funcPHP("setImage",String.format("{\"mobile\":\"%s\",\"img\":\"%s\"}",loggato.getMobile(),img));
@@ -792,14 +826,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final AlertDialog alert = builder.create();
         alert.show();
     }
-
-    public void hideKeyboard(){
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
@@ -807,22 +833,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     public String md5(String s) {
         try {
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-            digest.update(s.getBytes());
-            byte messageDigest[] = digest.digest();
-
-            StringBuilder hexString = new StringBuilder();
-            for(byte a : messageDigest)
-                hexString.append(Integer.toHexString(0xFF & a));
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+            MessageDigest m = MessageDigest.getInstance("MD5");
+            m.reset();
+            m.update(s.getBytes());
+            byte[] digest = m.digest();
+            BigInteger bigInt = new BigInteger(1,digest);
+            String hashtext = bigInt.toString(16);
+            while(hashtext.length() < 32 ){
+                hashtext = "0"+hashtext;
+            }
+            return hashtext;
+        } catch (NoSuchAlgorithmException e) {}
         return "";
+    }
+    /*
+    public String MD5(String md5) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(md5.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < array.length; ++i) {
+                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+            }
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+        }
+        return null;
+    }*/
+    public static boolean isEmailValid(String email) {
+        boolean isValid = false;
+        String expression = "^[a-zA-Z0-9\\.-]+\\@[a-zA-Z0-9-]+\\.[a-z]{2,4}$";
+        // ^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$
+        CharSequence inputStr = email;
+        Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(inputStr);
+        if (matcher.matches()) {
+            isValid = true;
+        }
+        return isValid;
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }

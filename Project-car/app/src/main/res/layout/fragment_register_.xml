@@ -54,10 +54,10 @@
             android:layout_height="wrap_content"
             android:id="@+id/regetemail"
             android:layout_alignParentStart="true"
-            android:password="true"
+            android:password="false"
             android:layout_below="@+id/regtvemail"
             android:layout_alignParentLeft="true"
-            android:inputType="textEmailAddress" />
+            android:inputType="textWebEmailAddress" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

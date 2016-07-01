@@ -1,10 +1,12 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.giorgio.provamenu.Settings_Fragment">
-
-
+    tools:context="com.giorgio.provamenu.Settings_Fragment"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,7 +18,6 @@
         android:max="100"
         android:layout_toLeftOf="@+id/setetrange"
         android:layout_toStartOf="@+id/setetrange" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,17 +28,6 @@
         android:layout_alignParentStart="true"
         android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/salva"
-        android:id="@+id/setbtnsalva"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"
-        android:onClick="onClickSave" />
-
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,7 +38,6 @@
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@+id/settvinvisible"
         android:layout_toRightOf="@+id/settvinvisible" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -60,5 +49,66 @@
         android:layout_alignTop="@+id/setskbrange"
         android:layout_toRightOf="@+id/setbtnsalva"
         android:layout_toEndOf="@+id/setbtnsalva" />
-
-</RelativeLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/old_password"
+        android:id="@+id/settvoldpassword"
+        android:layout_below="@+id/setetrange"
+        android:layout_alignLeft="@+id/settvrange"
+        android:layout_alignStart="@+id/settvrange"
+        android:layout_marginTop="20dp" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/setetoldpassword"
+        android:layout_below="@+id/settvoldpassword"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/setetrange"
+        android:layout_alignEnd="@+id/setetrange"
+        android:password="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/new_password"
+        android:id="@+id/settvnewpassword"
+        android:layout_below="@+id/setetoldpassword"
+        android:layout_alignLeft="@+id/settvoldpassword"
+        android:layout_alignStart="@+id/settvoldpassword" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/setetnewpassword"
+        android:layout_below="@+id/settvnewpassword"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:password="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/confirm"
+        android:id="@+id/settvconfirm"
+        android:layout_below="@+id/setetnewpassword"
+        android:layout_alignLeft="@+id/settvnewpassword"
+        android:layout_alignStart="@+id/settvnewpassword" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/setetconfirm"
+        android:layout_below="@+id/settvconfirm"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:password="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/salva"
+        android:id="@+id/setbtnsalva"
+        android:onClick="onClickSave"
+        android:layout_below="@+id/setetconfirm"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+</ScrollView>

@@ -24,4 +24,8 @@
     <string name="range">Range</string>
     <string name="salva">SALVA</string>
     <string name="resta_loggato">Resta loggato</string>
+    <string name="hai_dimenticato_la_password">Hai dimenticato la password?</string>
+    <string name="old_password">Old password</string>
+    <string name="new_password">New password</string>
+    <string name="confirm">Confirm</string>
 </resources>
