@@ -49,9 +49,8 @@ public class Profile_Fragment extends Fragment {
             ((TextView) view.findViewById(R.id.prftvsurname)).setText(MainActivity.loggato.getSurname());
             ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.loggato.getMobile());
             ((TextView) view.findViewById(R.id.prftvtipo)).setVisibility(View.INVISIBLE);
-            byte[] data = Base64.decode(MainActivity.img,Base64.DEFAULT);
-            ((ImageView) view.findViewById(R.id.prfivprofileimage)).setImageDrawable(new BitmapDrawable(getResources(), BitmapFactory.decodeByteArray(data,0,data.length)));
-
+            if(MainActivity.loggato.getImg()!=null)
+                ((ImageView) view.findViewById(R.id.prfivprofileimage)).setImageDrawable(new BitmapDrawable(getResources(), MainActivity.loggato.getImg()));
             FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.prffabedit);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -73,6 +72,8 @@ public class Profile_Fragment extends Fragment {
             ((TextView) view.findViewById(R.id.prftvname)).setText(MainActivity.selected.getName());
             ((TextView) view.findViewById(R.id.prftvsurname)).setText(MainActivity.selected.getSurname());
             ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.selected.getMobile());
+            if(MainActivity.selected.getImg()!=null)
+                ((ImageView) view.findViewById(R.id.prfivprofileimage)).setImageDrawable(new BitmapDrawable(getResources(), MainActivity.selected.getImg()));
             ((FloatingActionButton) view.findViewById(R.id.prffabedit)).setVisibility(View.INVISIBLE);
             ((TextView) view.findViewById(R.id.prftvtipo)).setVisibility(View.VISIBLE);
             if(MainActivity.selected.getType_id()==1)

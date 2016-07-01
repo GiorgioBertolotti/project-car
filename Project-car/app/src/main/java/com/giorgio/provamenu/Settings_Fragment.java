@@ -53,7 +53,7 @@ public class Settings_Fragment extends Fragment {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.equals(""))
+                if(s.toString().isEmpty())
                     seekBar.setProgress(0);
                 else
                     seekBar.setProgress(Integer.parseInt(s.toString()));

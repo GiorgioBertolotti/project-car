@@ -1,5 +1,8 @@
 package com.giorgio.provamenu;
 
+import android.graphics.Bitmap;
+import android.media.Image;
+
 import java.util.Date;
 
 /**
@@ -11,6 +14,7 @@ public class User {
     private String mobile;
     private Integer type_id;
     private Integer range;
+    private Bitmap img;
     private Double latitude;
     private Double longitude;
     private Date date;
@@ -60,6 +64,12 @@ public class User {
         range = value;
         return "ok";
     }
+    public String setImage(Bitmap value){
+        if(value==null)
+            return "";
+        img = value;
+        return "ok";
+    }
     public String getName(){
         return name;
     }
@@ -72,12 +82,13 @@ public class User {
     public Double getLongitude(){return longitude;}
     public Date getDate(){return date;}
     public Integer getRange(){return range;}
+    public Bitmap getImg(){return img;}
     public User(String n,String s,String m,Integer t){
         if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals(""))
             return;
     }
-    public User(String n,String s,String m,Integer t,Integer r,Double lo,Double la,Date d){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals(""))
+    public User(String n,String s,String m,Integer t,Integer r,Double lo,Double la,Date d,Bitmap i){
+        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals("")||setImage(i).equals(""))
             return;
     }
 }

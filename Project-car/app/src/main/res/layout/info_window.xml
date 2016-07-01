@@ -8,9 +8,10 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="5dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/ic_user"/>
+        android:src="@drawable/ic_user"
+        android:id="@+id/infivprofile" />
     <TextView
-        android:id="@+id/textView14"
+        android:id="@+id/inftvdesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="12dp"

@@ -1,6 +1,9 @@
 package com.giorgio.provamenu;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
@@ -9,6 +12,7 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.daasuu.ahp.AnimateHorizontalProgressBar;
@@ -49,8 +53,30 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
         }
         @Override
         public View getInfoContents(Marker marker) {
-            TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.textView14));
+            TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.inftvdesc));
             tvSnippet.setText(marker.getSnippet());
+            switch (MainActivity.stato) {
+                case 50:
+                case 51: {
+                    for(User a:MainActivity.ActiveUsers){
+                        if(a.getMobile().equals(marker.getTitle())&&a.getImg()!=null){
+                            ((ImageView) myContentsView.findViewById(R.id.infivprofile)).setImageBitmap(Bitmap.createScaledBitmap(a.getImg(), 64, 64, false));
+                        }else{
+                            ((ImageView) myContentsView.findViewById(R.id.infivprofile)).setImageResource(R.drawable.ic_user);
+                        }
+                    }
+                }
+                case 43:
+                case 44: {
+                    for(Autostoppista a:MainActivity.Autostoppisti){
+                        if(a.getMobile().equals(marker.getTitle())&&a.getImg()!=null){
+                            ((ImageView) myContentsView.findViewById(R.id.infivprofile)).setImageBitmap(Bitmap.createScaledBitmap(a.getImg(), 64, 64, false));
+                        }else{
+                            ((ImageView) myContentsView.findViewById(R.id.infivprofile)).setImageResource(R.drawable.ic_user);
+                        }
+                    }
+                }
+            }
             return myContentsView;
         }
         @Override

@@ -1,5 +1,8 @@
 package com.giorgio.provamenu;
 
+import android.graphics.Bitmap;
+import android.media.Image;
+
 import java.util.Date;
 
 /**
@@ -22,14 +25,10 @@ public class Autostoppista extends User {
         province = value;
         return "ok";
     }
-    public String getCity(){
-        return city;
-    }
-    public String getProvince(){
-        return province;
-    }
-    public Autostoppista(String n,String s,String m,Integer t,Integer r,String c,String p,Double la,Double lo,Date d){
-        super(n,s,m,t,r,lo,la,d);
+    public String getCity(){return city;}
+    public String getProvince(){return province;}
+    public Autostoppista(String n, String s, String m, Integer t, Integer r, Bitmap i, String c, String p, Double la, Double lo, Date d){
+        super(n,s,m,t,r,lo,la,d,i);
         if(setCity(c).equals("")||setProvince(p).equals(""))
             return;
     }

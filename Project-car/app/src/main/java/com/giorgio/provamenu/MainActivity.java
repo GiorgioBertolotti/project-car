@@ -396,6 +396,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String finaldate = sdf.format(dt);
                     img = obj2.getString("Image");
+                    byte[] data = Base64.decode(img,Base64.DEFAULT);
                     if(lat==null||lon==null){
                         loggato = new Autostoppista(obj2.getString("Name"),
                                 obj2.getString("Surname"),
@@ -406,7 +407,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 null,
                                 null,
                                 null,
+                                null,
                                 dt);
+
                         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                         if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER))
                             buildAlertMessageNoGps();
@@ -421,11 +424,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 Integer.parseInt(obj2.getString("Range")),
                                 null,
                                 null,
+                                null,
                                 Double.parseDouble(lat),
                                 Double.parseDouble(lon),
                                 dt);
                         Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
                     }
+                    loggato.setImage(BitmapFactory.decodeByteArray(data,0,data.length));
                     if(stato == 15) {
                         if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()) {
                             SharedPreferences settings = getSharedPreferences("UserData", 0);
@@ -500,11 +505,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 40:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
                                 Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        BitmapFactory.decodeByteArray(data,0,data.length),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
@@ -517,11 +524,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 43:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
                                 Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        BitmapFactory.decodeByteArray(data,0,data.length),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
@@ -535,11 +544,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 44:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
                                 Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        BitmapFactory.decodeByteArray(data,0,data.length),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
@@ -560,14 +571,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 50:{
                             ActiveUsers.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                User u = new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
-                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
+                                        null);
+                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
+                                u.setImage(BitmapFactory.decodeByteArray(data,0,data.length));
+                                ActiveUsers.add(u);
                             }
                             changeUI();
                             stato = 51;
@@ -576,14 +591,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 51:{
                             ActiveUsers.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                ActiveUsers.add(new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                User u = new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
-                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
+                                        null);
+                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
+                                u.setImage(BitmapFactory.decodeByteArray(data,0,data.length));
+                                ActiveUsers.add(u);
                             }
                             break;
                         }
@@ -688,6 +707,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case 20:{
                 ImageView ivprofile = (ImageView) findViewById(R.id.prfivprofileimage);
                 Bitmap bm = ((BitmapDrawable)ivprofile.getDrawable()).getBitmap();
+                bm = Bitmap.createScaledBitmap(bm, 256, 256, false);
                 img = getStringImage(bm);
                 if(img == "")
                     return;
