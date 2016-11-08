@@ -851,7 +851,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
-        asyncTask.execute("http://192.168.147.40/pcws/index.php",function,json);
+        asyncTask.execute("http://192.168.200.160:8080/pcws/index.php",function,json);
     }
     public String md5(String s) {
         try {
