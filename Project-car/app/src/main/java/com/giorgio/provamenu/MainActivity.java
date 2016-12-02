@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
     public static int stato = 0;
+    public static String ipServer = "http://172.22.20.107:8081/pcws/index.php";
     int prec;
     String lat,lon;
     GoogleApiClient mGoogleApiClient;
@@ -118,6 +119,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView.getMenu().findItem(R.id.autista).setEnabled(false);
                 navigationView.getMenu().findItem(R.id.mappa).setEnabled(false);
                 rl = (RelativeLayout) findViewById(R.id.RelativeLayout);
+                break;
+            }
+            case 1:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Settings_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Impostazioni");
                 break;
             }
             case 10:{
@@ -227,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences settings = getSharedPreferences("UserData", 0);
         String m = settings.getString("Mobile", null);
         String p = settings.getString("Password", null);
+        ipServer = settings.getString("IP", null);
         if(m!=null||p!=null){
             funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",m,p));
         }
@@ -249,6 +259,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case 0: {
                     android.os.Process.killProcess(android.os.Process.myPid());
                     System.exit(1);
+                    break;
+                }
+                case 1: {
+                    stato= prec;
+                    changeUI();
                     break;
                 }
                 case 10:{
@@ -683,22 +698,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",Mobile,md5pwd));
     }
     public void onClickSave(View v){
-        Integer Range = ((SeekBar) findViewById(R.id.setskbrange)).getProgress();
-        range = Range;
-        loggato.setRange(range);
-        funcPHP("setRange",String.format("{\"mobile\":\"%s\",\"range\":\"%s\"}",loggato.getMobile(),range));
-        String oldpassword = ((EditText)findViewById(R.id.setetoldpassword)).getText().toString();
-        if(oldpassword.isEmpty()) {
-            Toast.makeText(this,"Range aggiornato",Toast.LENGTH_SHORT).show();
-            return;
+        switch (stato){
+            case 21:{
+                Integer Range = ((SeekBar) findViewById(R.id.setskbrange)).getProgress();
+                range = Range;
+                loggato.setRange(range);
+                funcPHP("setRange",String.format("{\"mobile\":\"%s\",\"range\":\"%s\"}",loggato.getMobile(),range));
+                String oldpassword = ((EditText)findViewById(R.id.setetoldpassword)).getText().toString();
+                if(oldpassword.isEmpty()) {
+                    Toast.makeText(this,"Range aggiornato",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String newpassword = ((EditText)findViewById(R.id.setetnewpassword)).getText().toString();
+                String confirm = ((EditText)findViewById(R.id.setetconfirm)).getText().toString();
+                if(!newpassword.equals(confirm)) {
+                    Toast.makeText(this,"Password e conferma non coincidono",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                funcPHP("setPassword", String.format("{\"mobile\":\"%s\",\"old\":\"%s\",\"new\":\"%s\"}",loggato.getMobile(),md5(oldpassword),md5(newpassword)));
+                break;
+            }
+            case 1:{
+                EditText et = (EditText)findViewById(R.id.setetip);
+                if(!et.getText().toString().isEmpty()){
+                    ipServer = et.getText().toString();
+                    Toast.makeText(this,"Nuovo IP impostato",Toast.LENGTH_SHORT).show();
+                    SharedPreferences settings = getSharedPreferences("UserData", 0);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString("IP", ipServer);
+                    editor.commit();
+                }
+                break;
+            }
         }
-        String newpassword = ((EditText)findViewById(R.id.setetnewpassword)).getText().toString();
-        String confirm = ((EditText)findViewById(R.id.setetconfirm)).getText().toString();
-        if(!newpassword.equals(confirm)) {
-            Toast.makeText(this,"Password e conferma non coincidono",Toast.LENGTH_SHORT);
-            return;
-        }
-        funcPHP("setPassword", String.format("{\"mobile\":\"%s\",\"old\":\"%s\",\"new\":\"%s\"}",loggato.getMobile(),md5(oldpassword),md5(newpassword)));
     }
     public void onClickForgot(View v){
         String Mobile = ((EditText)findViewById(R.id.lgnetmobile)).getText().toString();
@@ -851,7 +883,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
-        asyncTask.execute("http://192.168.200.160:8080/pcws/index.php",function,json);
+        asyncTask.execute(ipServer,function,json);
     }
     public String md5(String s) {
         try {
@@ -908,8 +940,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 stato = 21;
                 changeUI();
             }
-            else
-                Toast.makeText(this,"Devi aver eseguito il login prima",Toast.LENGTH_SHORT).show();
+            else {
+                prec = stato;
+                stato = 1;
+                changeUI();
+            }
         }
         if (super.onOptionsItemSelected(item)) return true;
         return false;

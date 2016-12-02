@@ -18,4 +18,5 @@
         android:text="@string/effettua_il_login_o_registrati"
         android:id="@+id/tvhome"
         android:layout_margin="20dp" />
+
 </RelativeLayout>

@@ -16,7 +16,7 @@
     <string name="email">E-mail</string>
     <string name="registrati">REGISTRATI</string>
     <string name="please_wait">Attendi che un autista ti contatti</string>
-    <string name="google_api_key">AIzaSyAV9fkm1g_pSUThXHNKh9OGtE9NT22Pcoo</string>
+    <string name="google_api_key">AIzaSyCffbNuWyROpx1zpavp0hSgWSBwsu7m_6M</string>
     <string name="name">Name</string>
     <string name="type_id">Type_id</string>
     <string name="immagine_profilo_utente">immagine profilo utente</string>
@@ -28,4 +28,5 @@
     <string name="old_password">Old password</string>
     <string name="new_password">New password</string>
     <string name="confirm">Confirm</string>
+    <string name="ip_server">IP Server:</string>
 </resources>
