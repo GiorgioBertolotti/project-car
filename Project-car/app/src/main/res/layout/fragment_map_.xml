@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.giorgio.provamenu.Map_Fragment"
+    tools:context="com.easytravel.app.Map_Fragment"
     android:id="@+id/Map_Layout">
         <com.daasuu.ahp.AnimateHorizontalProgressBar
             android:id="@+id/animate_progress_bar"
@@ -13,7 +13,7 @@
             app:ahp_progressColor="@color/colorPrimaryLight" />
         <fragment
             android:id="@+id/map"
-            android:name="com.giorgio.provamenu.MapFragment"
+            android:name="com.easytravel.app.MapFragment"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_below="@id/animate_progress_bar"/>

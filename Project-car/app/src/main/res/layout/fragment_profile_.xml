@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.giorgio.provamenu.Profile_Fragment">
+    tools:context="com.easytravel.app.Profile_Fragment">
 
     <!-- TODO: Update blank fragment layout -->
 
