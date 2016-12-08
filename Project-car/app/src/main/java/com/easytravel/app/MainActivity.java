@@ -13,6 +13,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
@@ -28,6 +29,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -68,11 +70,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
     RelativeLayout rl;
-    public static Autostoppista loggato;
-    public static User selected;
     NavigationView navigationView;
     ArrayList<City> cities;
     ArrayAdapter<City> citiesAdapter;
+    public static Autostoppista loggato;
+    public static User selected;
     public static ArrayList<User> ActiveUsers;
     public static ArrayAdapter<User> usersAdapter;
     public static ArrayList<Autostoppista> Autostoppisti;
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     int range;
     final Handler h = new Handler();
     public static String img;
+    boolean doubleBackToExitPressedOnce = false;
     public void changeUI(){
         switch (stato){
             case 0:{
@@ -130,15 +133,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle("Registrati");
                 break;
             }
-            /*case 15:{
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Login_Fragment())
-                        .addToBackStack(null)
-                        .commit();
-                getSupportActionBar().setTitle("Login");
-                break;
-            }*/
             case 20:{
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
@@ -250,8 +244,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             switch (stato){
                 case 0: {
-                    android.os.Process.killProcess(android.os.Process.myPid());
-                    System.exit(1);
+                    if (doubleBackToExitPressedOnce) {
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                        System.exit(1);
+                        break;
+                    }
+                    this.doubleBackToExitPressedOnce = true;
+                    Toast.makeText(this, "Click back again to exit", Toast.LENGTH_SHORT).show();
+                    new Handler().postDelayed(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            doubleBackToExitPressedOnce=false;
+                        }
+                    }, 2000);
                     break;
                 }
                 case 1: {
@@ -264,11 +270,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     changeUI();
                     break;
                 }
-                /*case 15:{
-                    stato= 0;
-                    changeUI();
+                case 20:{
+                    if (doubleBackToExitPressedOnce) {
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                        System.exit(1);
+                        break;
+                    }
+                    this.doubleBackToExitPressedOnce = true;
+                    Toast.makeText(this, "Click back again to exit", Toast.LENGTH_SHORT).show();
+                    new Handler().postDelayed(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            doubleBackToExitPressedOnce=false;
+                        }
+                    }, 2000);
                     break;
-                }*/
+                }
                 case 21:{
                     stato= prec;
                     changeUI();
@@ -440,8 +458,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 dt);
                         Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
                     }
-                    if(stato == 15) {
-                        if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()) {
+                    if(stato == 0) {
+                        if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()&&!((EditText) findViewById(R.id.lgnetpassword)).getText().toString().isEmpty()){
                             SharedPreferences settings = getSharedPreferences("UserData", 0);
                             SharedPreferences.Editor editor = settings.edit();
                             editor.putString("Mobile", loggato.getMobile());
@@ -449,7 +467,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             editor.commit();
                         }
                     }
-                    ((TextView) findViewById(R.id.textView)).setText(String.format("Benvenuto %s %s",loggato.getName(), loggato.getSurname()));
                     stato = 20;
                     changeUI();
                     funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",

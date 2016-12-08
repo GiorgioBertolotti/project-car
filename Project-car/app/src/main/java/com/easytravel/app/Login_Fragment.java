@@ -36,7 +36,7 @@ public class Login_Fragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         String mPhoneNumber;
         try {
-            TelephonyManager tMgr = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
+            TelephonyManager tMgr = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
             mPhoneNumber = tMgr.getLine1Number();
         }
         catch(Exception e) {

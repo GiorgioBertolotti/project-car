@@ -29,14 +29,14 @@ public class Register_Fragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         View view = null;
-        view = inflater.inflate(R.layout.fragment_register_, container, false);
+        view = inflater.inflate(R.layout.fragment_register, container, false);
         return view;
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         String mPhoneNumber;
         try {
-            TelephonyManager tMgr = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
+            TelephonyManager tMgr = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
             mPhoneNumber = tMgr.getLine1Number();
         }
         catch(Exception e) {
