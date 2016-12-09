@@ -4,10 +4,38 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:fillViewport="true"
-    android:background="@drawable/background">
+    android:background="@drawable/background2">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <TextView
+            android:text="@string/ip_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settvip"
+            android:layout_above="@+id/setskbrange"
+            android:layout_alignLeft="@+id/regtvinvisible"
+            android:layout_alignStart="@+id/regtvinvisible" />
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/setetip"
+            android:layout_below="@+id/settvip"
+            android:layout_alignLeft="@+id/setskbrange"
+            android:layout_alignStart="@+id/setskbrange"
+            android:layout_alignRight="@+id/setetoldpassword"
+            android:layout_alignEnd="@+id/setetoldpassword" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/range"
+            android:id="@+id/settvrange"
+            android:layout_marginTop="21dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignLeft="@+id/settvip"
+            android:layout_alignStart="@+id/settvip" />
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -17,39 +45,27 @@
             android:max="100"
             android:layout_alignLeft="@+id/settvip"
             android:layout_alignStart="@+id/settvip"
-            android:layout_toLeftOf="@+id/setetrange"
-            android:layout_toStartOf="@+id/setetrange" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/setetrange"
-            android:inputType="number"
-            android:layout_below="@+id/settvrange"
-            android:layout_alignRight="@+id/setetoldpassword"
-            android:layout_alignEnd="@+id/setetoldpassword"
-            android:layout_alignLeft="@+id/regtvinvisible2"
-            android:layout_alignStart="@+id/regtvinvisible2" />
-
+            android:layout_alignRight="@+id/settvrange2"
+            android:layout_alignEnd="@+id/setetoldpassword" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/old_password"
             android:id="@+id/settvoldpassword"
-            android:layout_below="@+id/setetrange"
             android:layout_alignLeft="@+id/settvrange"
             android:layout_alignStart="@+id/settvrange"
+            android:layout_below="@id/setskbrange"
             android:layout_marginTop="20dp" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/setetoldpassword"
             android:layout_below="@+id/settvoldpassword"
-            android:password="true"
             android:layout_alignLeft="@+id/settvoldpassword"
             android:layout_alignStart="@+id/settvoldpassword"
             android:layout_alignRight="@+id/setetnewpassword"
-            android:layout_alignEnd="@+id/setetnewpassword" />
+            android:layout_alignEnd="@+id/setetnewpassword"
+            android:inputType="textPassword" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -63,11 +79,11 @@
             android:layout_height="wrap_content"
             android:id="@+id/setetnewpassword"
             android:layout_below="@+id/settvnewpassword"
-            android:password="true"
             android:layout_alignLeft="@+id/settvnewpassword"
             android:layout_alignStart="@+id/settvnewpassword"
             android:layout_alignRight="@+id/setetconfirm"
-            android:layout_alignEnd="@+id/setetconfirm" />
+            android:layout_alignEnd="@+id/setetconfirm"
+            android:inputType="textPassword" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,7 +92,16 @@
             android:layout_below="@+id/setetnewpassword"
             android:layout_alignLeft="@+id/settvnewpassword"
             android:layout_alignStart="@+id/settvnewpassword" />
-
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/setetconfirm"
+            android:layout_below="@+id/settvconfirm"
+            android:layout_alignLeft="@+id/settvconfirm"
+            android:layout_alignStart="@+id/settvconfirm"
+            android:layout_alignRight="@+id/regtvinvisible2"
+            android:layout_alignEnd="@+id/regtvinvisible2"
+            android:inputType="textPassword" />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -86,7 +111,6 @@
             android:layout_below="@+id/setetconfirm"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true" />
-
         <TextView
             android:text="@string/_0000"
             android:layout_width="wrap_content"
@@ -104,6 +128,14 @@
             android:text="@string/_0000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/settvrange2"
+            android:layout_alignTop="@+id/setskbrange"
+            android:layout_toRightOf="@+id/setetoldpassword"
+            android:layout_toEndOf="@+id/setetoldpassword" />
+        <TextView
+            android:text="@string/_0000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="46dp"
             android:id="@+id/regtvinvisible2"
             android:layout_below="@+id/setbtnsalva"
@@ -113,47 +145,5 @@
             android:layout_marginEnd="60dp"
             tools:text="0000"
             android:visibility="invisible"/>
-
-        <TextView
-            android:text="@string/ip_server"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/settvip"
-            android:layout_above="@+id/setskbrange"
-            android:layout_alignLeft="@+id/regtvinvisible"
-            android:layout_alignStart="@+id/regtvinvisible" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/range"
-            android:id="@+id/settvrange"
-            android:layout_marginTop="21dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignLeft="@+id/settvip"
-            android:layout_alignStart="@+id/settvip" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/setetconfirm"
-            android:password="true"
-            android:layout_below="@+id/settvconfirm"
-            android:layout_alignLeft="@+id/settvconfirm"
-            android:layout_alignStart="@+id/settvconfirm"
-            android:layout_alignRight="@+id/regtvinvisible2"
-            android:layout_alignEnd="@+id/regtvinvisible2" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:ems="10"
-            android:id="@+id/setetip"
-            android:layout_below="@+id/settvip"
-            android:layout_alignRight="@+id/setetrange"
-            android:layout_alignEnd="@+id/setetrange"
-            android:layout_alignLeft="@+id/setskbrange"
-            android:layout_alignStart="@+id/setskbrange" />
     </RelativeLayout>
 </ScrollView>

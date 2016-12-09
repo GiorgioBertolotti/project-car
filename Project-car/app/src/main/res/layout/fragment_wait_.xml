@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:lv="http://schemas.android.com/apk/res-auto"
     tools:context="com.easytravel.app.Wait_Fragment"
-    android:background="@drawable/background">
+    android:background="@drawable/background2">
 
     <!-- TODO: Update blank fragment layout -->
 

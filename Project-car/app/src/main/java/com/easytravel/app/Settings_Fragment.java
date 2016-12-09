@@ -39,41 +39,29 @@ public class Settings_Fragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         switch (MainActivity.stato){
             case 21:{
+                view.findViewById(R.id.setetip).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.settvip).setVisibility(View.INVISIBLE);
                 final SeekBar seekBar = (SeekBar)view.findViewById(R.id.setskbrange);
-                final TextView seekBarValue = (TextView)view.findViewById(R.id.setetrange);
+                final TextView tvRange = (TextView)view.findViewById(R.id.settvrange2);
                 seekBar.setProgress(MainActivity.loggato.getRange());
-                seekBarValue.setText(String.valueOf(seekBar.getProgress()));
+                tvRange.setText(MainActivity.loggato.getRange().toString());
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        seekBarValue.setText(String.valueOf(progress));
+                        Integer tmp = progress;
+                        tvRange.setText(tmp.toString());
                     }
                     @Override
                     public void onStartTrackingTouch(SeekBar seekBar) {}
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar) {}
                 });
-                seekBarValue.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if(s.toString().isEmpty())
-                            seekBar.setProgress(0);
-                        else
-                            seekBar.setProgress(Integer.parseInt(s.toString()));
-                    }
-                    @Override
-                    public void afterTextChanged(Editable s) {}
-                });
-                view.findViewById(R.id.settvip).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.setetip).setVisibility(View.INVISIBLE);
                 break;
             }
             case 1:{
                 view.findViewById(R.id.setskbrange).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.setetrange).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.settvrange).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.settvrange2).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.settvoldpassword).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.setetoldpassword).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.settvnewpassword).setVisibility(View.INVISIBLE);
