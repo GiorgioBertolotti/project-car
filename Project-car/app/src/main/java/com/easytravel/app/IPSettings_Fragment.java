@@ -4,17 +4,22 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.telephony.TelephonyManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class Login_Fragment extends Fragment {
+public class IPSettings_Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
-    public Login_Fragment() {}
-    public static Login_Fragment newInstance(int someInt) {
-        Login_Fragment myFragment = new Login_Fragment();
+    public IPSettings_Fragment() {}
+    public static IPSettings_Fragment newInstance(int someInt) {
+        IPSettings_Fragment myFragment = new IPSettings_Fragment();
 
         Bundle args = new Bundle();
         args.putInt("someInt", someInt);
@@ -23,30 +28,17 @@ public class Login_Fragment extends Fragment {
         return myFragment;
     }
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    public void onCreate(Bundle savedInstanceState) {super.onCreate(savedInstanceState);}
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         View view = null;
-        view = inflater.inflate(R.layout.fragment_login_, container, false);
+        view = inflater.inflate(R.layout.fragment_setip, container, false);
         return view;
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        String mPhoneNumber;
-        try {
-            TelephonyManager tMgr = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
-            mPhoneNumber = tMgr.getLine1Number();
-        }
-        catch(Exception e) {
-            mPhoneNumber = "";
-        }
-        if(!mPhoneNumber.isEmpty()) {
-            TextView tvmobile = (TextView) view.findViewById(R.id.lgnetmobile);
-            tvmobile.setText(mPhoneNumber);
-            tvmobile.setEnabled(false);
-        }
+        ((EditText)view.findViewById(R.id.setipetip)).setText(MainActivity.ipServer);
+        Button btnsave = (Button)view.findViewById(R.id.setipbtnset);
     }
     @Override
     public void onAttach(Context context) {

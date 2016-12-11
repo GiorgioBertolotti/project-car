@@ -30,4 +30,6 @@
     <string name="confirm">Confirm</string>
     <string name="ip_server">IP Server:</string>
     <string name="_0000">0000</string>
+    <string name="loginregister">Crea account</string>
+    <string name="advsettings">Impostazioni avanzate</string>
 </resources>

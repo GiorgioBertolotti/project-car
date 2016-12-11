@@ -1,13 +1,23 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".Register_Fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:onClick="onClickRegister2"
-    android:background="@drawable/background2">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    android:background="@drawable/backgroundlogin">
+    <View
+        android:layout_width="fill_parent"
+        android:id="@+id/view"
+        android:layout_height="200dp" />
+
+    <ScrollView android:layout_height="fill_parent"
+        android:layout_width="wrap_content"
+        android:fillViewport="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="false"
+        android:layout_below="@+id/view">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="100dp">
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -17,7 +27,10 @@
             android:layout_alignLeft="@+id/regtvsurname"
             android:layout_alignStart="@+id/regtvsurname"
             android:layout_alignRight="@+id/regtvinvisible2"
-            android:layout_alignEnd="@+id/regtvinvisible2" />
+            android:layout_alignEnd="@+id/regtvinvisible2"
+            android:textColor="@color/colorWhite"
+            android:backgroundTint="@color/colorWhite"
+            tools:targetApi="lollipop" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,7 +40,10 @@
             android:layout_alignLeft="@+id/regtvemail"
             android:layout_alignStart="@+id/regtvemail"
             android:layout_alignRight="@+id/regetname"
-            android:layout_alignEnd="@+id/regetname" />
+            android:layout_alignEnd="@+id/regetname"
+            android:textColor="@color/colorWhite"
+            android:backgroundTint="@color/colorWhite"
+            tools:targetApi="lollipop" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,7 +53,8 @@
             android:layout_alignLeft="@+id/regtvsurname"
             android:layout_alignStart="@+id/regtvsurname"
             android:layout_alignRight="@+id/regtvsurname"
-            android:layout_alignEnd="@+id/regtvsurname" />
+            android:layout_alignEnd="@+id/regtvsurname"
+            android:textColor="@color/colorWhite" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,7 +64,10 @@
             android:layout_alignLeft="@+id/regtvmobile"
             android:layout_alignStart="@+id/regtvmobile"
             android:layout_alignRight="@+id/regetemail"
-            android:layout_alignEnd="@+id/regetemail" />
+            android:layout_alignEnd="@+id/regetemail"
+            android:textColor="@color/colorWhite"
+            android:backgroundTint="@color/colorWhite"
+            tools:targetApi="lollipop" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,7 +77,10 @@
             android:layout_alignLeft="@+id/regtvpassword"
             android:layout_alignStart="@+id/regtvpassword"
             android:layout_alignRight="@+id/regetmobile"
-            android:layout_alignEnd="@+id/regetmobile" />
+            android:layout_alignEnd="@+id/regetmobile"
+            android:textColor="@color/colorWhite"
+            android:backgroundTint="@color/colorWhite"
+            tools:targetApi="lollipop" />
         <TextView
             android:text="@string/_0000"
             android:layout_width="wrap_content"
@@ -70,7 +93,8 @@
             android:layout_marginLeft="60dp"
             android:layout_marginStart="60dp"
             tools:text="0000"
-            android:visibility="invisible"/>
+            android:visibility="invisible"
+            android:textColor="@color/colorWhite"/>
         <TextView
             android:text="@string/_0000"
             android:layout_width="wrap_content"
@@ -83,7 +107,8 @@
             android:layout_marginRight="60dp"
             android:layout_marginEnd="60dp"
             tools:text="0000"
-            android:visibility="invisible"/>
+            android:visibility="invisible"
+            android:textColor="@color/colorWhite"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -92,8 +117,7 @@
             android:layout_below="@+id/regetname"
             android:layout_alignLeft="@+id/regtvname"
             android:layout_alignStart="@+id/regtvname"
-            android:layout_alignRight="@+id/regtvname"
-            android:layout_alignEnd="@+id/regtvname" />
+            android:textColor="@color/colorWhite" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -103,7 +127,8 @@
             android:layout_alignLeft="@+id/regtvemail"
             android:layout_alignStart="@+id/regtvemail"
             android:layout_alignRight="@+id/regtvemail"
-            android:layout_alignEnd="@+id/regtvemail" />
+            android:layout_alignEnd="@+id/regtvemail"
+            android:textColor="@color/colorWhite" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -112,8 +137,7 @@
             android:layout_alignLeft="@+id/regtvmobile"
             android:layout_alignStart="@+id/regtvmobile"
             android:layout_below="@+id/regetmobile"
-            android:layout_alignRight="@+id/regtvmobile"
-            android:layout_alignEnd="@+id/regtvmobile" />
+            android:textColor="@color/colorWhite" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -123,49 +147,58 @@
             android:layout_alignLeft="@+id/regtvpassword"
             android:layout_alignStart="@+id/regtvpassword"
             android:layout_alignRight="@+id/regtvpassword"
-            android:layout_alignEnd="@+id/regtvpassword" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/nome"
-            android:id="@+id/regtvname"
-            android:layout_marginTop="38dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignLeft="@+id/regtvinvisible"
-            android:layout_alignStart="@+id/regtvinvisible"
-            android:layout_toLeftOf="@+id/regbtnregister"
-            android:layout_toStartOf="@+id/regbtnregister" />
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/regetconfirm"
-            android:inputType="textPassword"
-            android:layout_below="@+id/regtvconfirm"
-            android:layout_alignLeft="@+id/regtvconfirm"
-            android:layout_alignStart="@+id/regtvconfirm"
-            android:layout_alignRight="@+id/regetpassword"
-            android:layout_alignEnd="@+id/regetpassword" />
-        <EditText
+            android:layout_alignEnd="@+id/regtvpassword"
+            android:textColor="@color/colorWhite" />
+
+            <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/regetemail"
-            android:password="false"
             android:inputType="textWebEmailAddress"
             android:layout_below="@+id/regtvemail"
             android:layout_alignRight="@+id/regetsurname"
             android:layout_alignEnd="@+id/regetsurname"
             android:layout_alignLeft="@+id/regtvemail"
-            android:layout_alignStart="@+id/regtvemail" />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/registrati"
-            android:id="@+id/regbtnregister"
-            android:nestedScrollingEnabled="false"
-            android:onClick="onClickRegister"
-            tools:targetApi="lollipop"
-            android:layout_alignWithParentIfMissing="false"
-            android:layout_alignBottom="@+id/regtvinvisible2"
-            android:layout_centerHorizontal="true" />
-    </RelativeLayout>
-</ScrollView>
+            android:layout_alignStart="@+id/regtvemail"
+                android:textColor="@color/colorWhite"
+                android:backgroundTint="@color/colorWhite"
+                tools:targetApi="lollipop" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/regetconfirm"
+                android:inputType="textPassword"
+                android:layout_below="@+id/regtvconfirm"
+                android:layout_alignLeft="@+id/regtvconfirm"
+                android:layout_alignStart="@+id/regtvconfirm"
+                android:layout_alignRight="@+id/regetpassword"
+                android:layout_alignEnd="@+id/regetpassword"
+                android:textColor="@color/colorWhite"
+                android:backgroundTint="@color/colorWhite"
+                tools:targetApi="lollipop" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/registrati"
+                android:id="@+id/regbtnregister"
+                android:nestedScrollingEnabled="false"
+                android:onClick="onClickRegister"
+                tools:targetApi="lollipop"
+                android:layout_alignWithParentIfMissing="false"
+                android:layout_below="@+id/regetconfirm"
+                android:layout_centerHorizontal="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nome"
+                android:id="@+id/regtvname"
+                android:textColor="@color/colorWhite"
+                android:layout_alignParentTop="true"
+                android:layout_alignLeft="@+id/regtvinvisible"
+                android:layout_alignStart="@+id/regtvinvisible" />
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

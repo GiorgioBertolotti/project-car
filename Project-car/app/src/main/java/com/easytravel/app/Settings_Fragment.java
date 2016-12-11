@@ -37,45 +37,21 @@ public class Settings_Fragment extends Fragment {
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        switch (MainActivity.stato){
-            case 21:{
-                view.findViewById(R.id.setetip).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.settvip).setVisibility(View.INVISIBLE);
-                final SeekBar seekBar = (SeekBar)view.findViewById(R.id.setskbrange);
-                final TextView tvRange = (TextView)view.findViewById(R.id.settvrange2);
-                seekBar.setProgress(MainActivity.loggato.getRange());
-                tvRange.setText(MainActivity.loggato.getRange().toString());
-                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        Integer tmp = progress;
-                        tvRange.setText(tmp.toString());
-                    }
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {}
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {}
-                });
-                break;
+        final SeekBar seekBar = (SeekBar)view.findViewById(R.id.setskbrange);
+        final TextView tvRange = (TextView)view.findViewById(R.id.settvrange2);
+        seekBar.setProgress(MainActivity.loggato.getRange());
+        tvRange.setText(MainActivity.loggato.getRange().toString());
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Integer tmp = progress;
+                tvRange.setText(tmp.toString());
             }
-            case 1:{
-                view.findViewById(R.id.setskbrange).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.settvrange).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.settvrange2).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.settvoldpassword).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.setetoldpassword).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.settvnewpassword).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.setetnewpassword).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.settvconfirm).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.setetconfirm).setVisibility(View.INVISIBLE);
-                ((EditText)view.findViewById(R.id.setetip)).setText(MainActivity.ipServer);
-                Button btnsave = (Button)view.findViewById(R.id.setbtnsalva);
-                RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                p.addRule(RelativeLayout.BELOW, R.id.setetip);
-                p.addRule(RelativeLayout.CENTER_HORIZONTAL);
-                btnsave.setLayoutParams(p);
-            }
-        }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
     }
     @Override
     public void onAttach(Context context) {

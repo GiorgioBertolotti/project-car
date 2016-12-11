@@ -1,0 +1,63 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true"
+    tools:context="com.easytravel.app.IPSettings_Fragment"
+    android:background="@drawable/backgroundlogin">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="@string/_0000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/setiptvinvisible"
+            android:visibility="invisible"
+            android:layout_marginBottom="158dp"
+            android:textColor="@color/colorWhite"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="60dp"
+            android:layout_marginEnd="60dp" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/setipetip"
+            android:layout_above="@+id/setipbtnset"
+            android:layout_alignLeft="@+id/setiptvip"
+            android:layout_alignStart="@+id/setiptvip"
+            android:layout_alignRight="@+id/setiptvinvisible"
+            android:layout_alignEnd="@+id/setiptvinvisible"
+            android:textColor="@color/colorWhite"
+            android:backgroundTint="@color/colorWhite"
+            tools:targetApi="lollipop" />
+
+        <TextView
+            android:text="@string/ip_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/setiptvip"
+            android:layout_above="@+id/setipetip"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="60dp"
+            android:layout_marginStart="60dp"
+            android:textColor="@color/colorWhite" />
+
+        <Button
+            android:text="@string/salva"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/setipbtnset"
+            android:layout_above="@+id/setiptvinvisible"
+            android:layout_centerHorizontal="true"
+            android:onClick="onClickSetIP"/>
+
+    </RelativeLayout>
+</ScrollView>

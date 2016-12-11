@@ -9,33 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:text="@string/ip_server"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/settvip"
-            android:layout_above="@+id/setskbrange"
-            android:layout_alignLeft="@+id/regtvinvisible"
-            android:layout_alignStart="@+id/regtvinvisible" />
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:ems="10"
-            android:id="@+id/setetip"
-            android:layout_below="@+id/settvip"
-            android:layout_alignLeft="@+id/setskbrange"
-            android:layout_alignStart="@+id/setskbrange"
-            android:layout_alignRight="@+id/setetoldpassword"
-            android:layout_alignEnd="@+id/setetoldpassword" />
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/range"
             android:id="@+id/settvrange"
             android:layout_marginTop="21dp"
             android:layout_alignParentTop="true"
-            android:layout_alignLeft="@+id/settvip"
-            android:layout_alignStart="@+id/settvip" />
+            android:layout_alignLeft="@+id/regtvinvisible"
+            android:layout_alignStart="@+id/regtvinvisible" />
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,8 +24,8 @@
             android:layout_below="@+id/settvrange"
             android:layout_marginTop="20dp"
             android:max="100"
-            android:layout_alignLeft="@+id/settvip"
-            android:layout_alignStart="@+id/settvip"
+            android:layout_alignLeft="@+id/settvrange"
+            android:layout_alignStart="@+id/settvrange"
             android:layout_alignRight="@+id/settvrange2"
             android:layout_alignEnd="@+id/setetoldpassword" />
         <TextView

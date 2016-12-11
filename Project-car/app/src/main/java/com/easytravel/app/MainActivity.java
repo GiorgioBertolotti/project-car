@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
 import android.support.v7.app.AlertDialog;
 import android.util.Base64;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -58,7 +59,6 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         Register_Fragment.OnFragmentInteractionListener,
-        Login_Fragment.OnFragmentInteractionListener,
         Profile_Fragment.OnFragmentInteractionListener,
         City_Fragment.OnFragmentInteractionListener,
         User_Fragment.OnFragmentInteractionListener,
@@ -82,16 +82,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static int stato = 0;
     public static String ipServer = "http://172.22.20.107:8081/pcws/index.php";
     int prec;
-    String lat,lon;
+    public static String lat,lon;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
-    int range;
-    final Handler h = new Handler();
+    public static int range;
+    public static final Handler h = new Handler();
     public static String img;
     boolean doubleBackToExitPressedOnce = false;
     public void changeUI(){
         switch (stato){
-            case 0:{
+            case 20:{
                 setContentView(R.layout.activity_main);
                 Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
@@ -103,48 +103,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView = (NavigationView) findViewById(R.id.nav_view);
                 assert navigationView != null;
                 navigationView.setNavigationItemSelectedListener(this);
-                navigationView.getMenu().findItem(R.id.logout).setVisible(false);
-                navigationView.getMenu().findItem(R.id.login).setVisible(true);
-                navigationView.getMenu().findItem(R.id.register).setVisible(true);
-                navigationView.getMenu().findItem(R.id.autostoppista).setEnabled(false);
-                navigationView.getMenu().findItem(R.id.autista).setEnabled(false);
-                navigationView.getMenu().findItem(R.id.mappa).setEnabled(false);
-                rl = (RelativeLayout) findViewById(R.id.RelativeLayout);
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Login_Fragment())
-                        .commit();
-                getSupportActionBar().setTitle("Login");
-                break;
-            }
-            case 1:{
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Settings_Fragment())
-                        .commit();
-                getSupportActionBar().setTitle("Impostazioni");
-                break;
-            }
-            case 10:{
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Register_Fragment())
-                        .commit();
-                getSupportActionBar().setTitle("Registrati");
-                break;
-            }
-            case 20:{
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Profile_Fragment())
-                        .addToBackStack(null)
-                        .commit();
                 navigationView.getMenu().findItem(R.id.logout).setVisible(true);
                 navigationView.getMenu().findItem(R.id.login).setVisible(false);
                 navigationView.getMenu().findItem(R.id.register).setVisible(false);
                 navigationView.getMenu().findItem(R.id.autostoppista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.autista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.mappa).setEnabled(true);
+                rl = (RelativeLayout) findViewById(R.id.RelativeLayout);
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Profile_Fragment())
+                        .addToBackStack(null)
+                        .commit();
                 getSupportActionBar().setTitle("EasyTravel");
                 break;
             }
@@ -356,16 +326,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         switch (id) {
-            case R.id.register: {
-                stato = 10;
-                changeUI();
-                break;
-            }
-            case R.id.login: {
-                stato = 0;
-                changeUI();
-                break;
-            }
             case R.id.autista: {
                 loggato.setType_id(2);
                 if(stato == 31){
@@ -412,84 +372,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             switch (obj.getString("Function"))
             {
-                case "registerUser": {
-                    Toast.makeText(this,obj.getString("Message"),Toast.LENGTH_LONG).show();
-                    stato = 0;
-                    changeUI();
-                    break;
-                }
-                case "loginUser": {
-                    JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
-                    java.util.Date dt = new java.util.Date();
-                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String finaldate = sdf.format(dt);
-                    img = obj2.getString("Image");
-                    byte[] data = Base64.decode(img,Base64.DEFAULT);
-                    if(lat==null||lon==null){
-                        loggato = new Autostoppista(obj2.getString("Name"),
-                                obj2.getString("Surname"),
-                                obj2.getString("Mobile"),
-                                null,
-                                Integer.parseInt(obj2.getString("Range")),
-                                BitmapFactory.decodeByteArray(data,0,data.length),
-                                null,
-                                null,
-                                null,
-                                null,
-                                dt);
-
-                        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                        if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER))
-                            buildAlertMessageNoGps();
-                        else
-                            Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        loggato = new Autostoppista(obj2.getString("Name"),
-                                obj2.getString("Surname"),
-                                obj2.getString("Mobile"),
-                                null,
-                                Integer.parseInt(obj2.getString("Range")),
-                                BitmapFactory.decodeByteArray(data,0,data.length),
-                                null,
-                                null,
-                                Double.parseDouble(lat),
-                                Double.parseDouble(lon),
-                                dt);
-                        Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
-                    }
-                    if(stato == 0) {
-                        if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()&&!((EditText) findViewById(R.id.lgnetpassword)).getText().toString().isEmpty()){
-                            SharedPreferences settings = getSharedPreferences("UserData", 0);
-                            SharedPreferences.Editor editor = settings.edit();
-                            editor.putString("Mobile", loggato.getMobile());
-                            editor.putString("Password", md5(((EditText) findViewById(R.id.lgnetpassword)).getText().toString()));
-                            editor.commit();
-                        }
-                    }
-                    stato = 20;
-                    changeUI();
-                    funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
-                            loggato.getMobile(),lat,lon,finaldate));
-                    h.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            java.util.Date dt = new java.util.Date();
-                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            String finaldate = sdf.format(dt);
-                            funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
-                                    loggato.getMobile(),lat,lon,finaldate));
-                            if(stato == 51)
-                                funcPHP("getActiveUsers", "{}");
-                            if(stato == 44) {
-                                funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
-                                        loggato.getMobile(), lat, lon, range));
-                            }
-                            h.postDelayed(this,60000);
-                        }
-                    },60000);
-                    break;
-                }
                 case "logoutUser": {
                     SharedPreferences settings = getSharedPreferences("UserData", 0);
                     SharedPreferences.Editor editor = settings.edit();
@@ -497,7 +379,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     editor.putString("Password", null);
                     editor.commit();
                     stato = 0;
-                    changeUI();
+                    Intent i = new Intent(this, LoginActivity.class);
+                    startActivity(i);
+                    finish();
                     break;
                 }
                 case "User_City": {
@@ -708,39 +592,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",Mobile,md5pwd));
     }
     public void onClickSave(View v){
-        switch (stato){
-            case 21:{
-                Integer Range = ((SeekBar) findViewById(R.id.setskbrange)).getProgress();
-                range = Range;
-                loggato.setRange(range);
-                funcPHP("setRange",String.format("{\"mobile\":\"%s\",\"range\":\"%s\"}",loggato.getMobile(),range));
-                String oldpassword = ((EditText)findViewById(R.id.setetoldpassword)).getText().toString();
-                if(oldpassword.isEmpty()) {
-                    Toast.makeText(this,"Range aggiornato",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                String newpassword = ((EditText)findViewById(R.id.setetnewpassword)).getText().toString();
-                String confirm = ((EditText)findViewById(R.id.setetconfirm)).getText().toString();
-                if(!newpassword.equals(confirm)) {
-                    Toast.makeText(this,"Password e conferma non coincidono",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                funcPHP("setPassword", String.format("{\"mobile\":\"%s\",\"old\":\"%s\",\"new\":\"%s\"}",loggato.getMobile(),md5(oldpassword),md5(newpassword)));
-                break;
-            }
-            case 1:{
-                EditText et = (EditText)findViewById(R.id.setetip);
-                if(!et.getText().toString().isEmpty()){
-                    ipServer = et.getText().toString();
-                    Toast.makeText(this,"Nuovo IP impostato",Toast.LENGTH_SHORT).show();
-                    SharedPreferences settings = getSharedPreferences("UserData", 0);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString("IP", ipServer);
-                    editor.commit();
-                }
-                break;
-            }
+        Integer Range = ((SeekBar) findViewById(R.id.setskbrange)).getProgress();
+        range = Range;
+        loggato.setRange(range);
+        funcPHP("setRange",String.format("{\"mobile\":\"%s\",\"range\":\"%s\"}",loggato.getMobile(),range));
+        String oldpassword = ((EditText)findViewById(R.id.setetoldpassword)).getText().toString();
+        if(oldpassword.isEmpty()) {
+            Toast.makeText(this,"Range aggiornato",Toast.LENGTH_SHORT).show();
+            return;
         }
+        String newpassword = ((EditText)findViewById(R.id.setetnewpassword)).getText().toString();
+        String confirm = ((EditText)findViewById(R.id.setetconfirm)).getText().toString();
+        if(!newpassword.equals(confirm)) {
+            Toast.makeText(this,"Password e conferma non coincidono",Toast.LENGTH_SHORT).show();
+            return;
+        }
+        funcPHP("setPassword", String.format("{\"mobile\":\"%s\",\"old\":\"%s\",\"new\":\"%s\"}",loggato.getMobile(),md5(oldpassword),md5(newpassword)));
     }
     public void onClickForgot(View v){
         String Mobile = ((EditText)findViewById(R.id.lgnetmobile)).getText().toString();
@@ -873,23 +740,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         return true;
     }
-    private void buildAlertMessageNoGps() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Il tuo GPS è disattivato, vuoi attivarlo?")
-                .setCancelable(false)
-                .setPositiveButton("Sì", new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
-    }
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
@@ -944,18 +794,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings){
-            if(stato>=20) {
-                prec = stato;
-                stato = 21;
-                changeUI();
-            }
-            else {
-                prec = stato;
-                stato = 1;
-                changeUI();
-            }
-        }
+        prec = stato;
+        stato = 21;
+        changeUI();
         if (super.onOptionsItemSelected(item)) return true;
         return false;
     }
@@ -967,7 +808,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(loggato!=null&&!loggato.getMobile().isEmpty())
+        if(loggato!=null&&!loggato.getMobile().isEmpty()&&!(stato==0))
             funcPHP("logoutUser",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
         mGoogleApiClient.disconnect();
     }
