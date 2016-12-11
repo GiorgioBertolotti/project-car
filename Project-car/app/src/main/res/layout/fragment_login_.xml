@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     android:fillViewport="true"
     tools:context="com.easytravel.app.Login_Fragment"
-    android:background="@drawable/background">
+    android:background="@drawable/backgroundlogin">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
