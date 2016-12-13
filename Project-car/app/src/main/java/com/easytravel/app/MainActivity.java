@@ -46,6 +46,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.UiSettings;
+
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -79,16 +82,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static ArrayAdapter<User> usersAdapter;
     public static ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
-    public static int stato = 0;
     public static String ipServer = "http://172.22.20.107:8081/pcws/index.php";
-    int prec;
-    public static String lat,lon;
+    public static String lat,lon,img;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
-    public static int range;
+    public static int range, stato = 0, prec;
     public static final Handler h = new Handler();
-    public static String img;
-    boolean doubleBackToExitPressedOnce = false;
+    public static boolean isFirstMapOpen = true, doubleBackToExitPressedOnce = false;
     public void changeUI(){
         switch (stato){
             case 20:{
@@ -190,6 +190,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
         buildGoogleApiClient();
         changeUI();
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER))
+            buildAlertMessageNoGps();
         SharedPreferences settings = getSharedPreferences("UserData", 0);
         String m = settings.getString("Mobile", null);
         String p = settings.getString("Password", null);
@@ -367,6 +370,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             JSONObject obj = new JSONObject(output);
             if(obj.getBoolean("IsError")) {
+                if(obj.getString("Message").equals("Errore nella query"))
+                    return;
                 Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
                 return;
             }
@@ -546,9 +551,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }
-        catch (Exception e){
-            Toast.makeText(this,e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        catch (Exception e){}
     }
     public void onClickRegister(View v) {
         String Name = ((EditText)findViewById(R.id.regetname)).getText().toString();
@@ -760,20 +763,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } catch (NoSuchAlgorithmException e) {}
         return "";
     }
-    /*
-    public String MD5(String md5) {
-        try {
-            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
-            byte[] array = md.digest(md5.getBytes());
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < array.length; ++i) {
-                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
-            }
-            return sb.toString();
-        } catch (java.security.NoSuchAlgorithmException e) {
-        }
-        return null;
-    }*/
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Il tuo GPS è disattivato, vuoi attivarlo?")
+                .setCancelable(false)
+                .setPositiveButton("Sì", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
     public static boolean isEmailValid(String email) {
         boolean isValid = false;
         String expression = "^[a-zA-Z0-9\\.-]+\\@[a-zA-Z0-9-]+\\.[a-z]{2,4}$";

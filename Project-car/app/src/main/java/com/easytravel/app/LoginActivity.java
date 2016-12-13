@@ -191,12 +191,6 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                                 null,
                                 null,
                                 dt);
-
-                        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                        if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER))
-                            buildAlertMessageNoGps();
-                        else
-                            Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
                     }
                     else{
                         loggato = new Autostoppista(obj2.getString("Name"),
@@ -210,7 +204,6 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                                 Double.parseDouble(lat),
                                 Double.parseDouble(lon),
                                 dt);
-                        Toast.makeText(this,"Benvenuto "+loggato.getName(),Toast.LENGTH_SHORT).show();
                     }
                     if(stato == 0) {
                         if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()&&!((EditText) findViewById(R.id.lgnetpassword)).getText().toString().isEmpty()){
@@ -255,26 +248,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                 }
             }
         }
-        catch (Exception e){
-            Toast.makeText(this,e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-    private void buildAlertMessageNoGps() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Il tuo GPS è disattivato, vuoi attivarlo?")
-                .setCancelable(false)
-                .setPositiveButton("Sì", new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
+        catch (Exception e){}
     }
     public void onClickCreateAcc(View view) {
         stato = 10;

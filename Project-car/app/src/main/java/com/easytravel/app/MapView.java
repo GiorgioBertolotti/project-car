@@ -1,5 +1,4 @@
 package com.easytravel.app;
-
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Geocoder;
@@ -29,17 +28,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
-/**
- * Created by bertolottig on 27/06/2016.
- */
-public class MapFragment extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
+public class MapView extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnMapLongClickListener,
         GoogleMap.OnMapClickListener,
         GoogleMap.OnMarkerClickListener {
-
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         private final View myContentsView;
         MyInfoWindowAdapter(){
@@ -79,7 +73,6 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
         }
 
     }
-
     private GoogleApiClient mGoogleApiClient;
     private Location mCurrentLocation;
     final Handler handler = new Handler();
@@ -88,10 +81,10 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
     Runnable r2;
     private boolean isrunning = false;
     String mobilecl;
+    private static float ZOOM=0,BEARING=0,TILT=0;
     private final int MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL;
     private int curMapTypeIndex = 1;
     AnimateHorizontalProgressBar progressBar;
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -104,7 +97,6 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                 .build();
         initListeners();
     }
-
     private void initListeners() {
         getMap().setOnMarkerClickListener(this);
         getMap().setOnMapLongClickListener(this);
@@ -112,21 +104,21 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
         getMap().setInfoWindowAdapter(new MyInfoWindowAdapter());
         getMap().setOnMapClickListener(this);
     }
-
     @Override
     public void onStart(){
         super.onStart();
         mGoogleApiClient.connect();
     }
-
     @Override
     public void onStop(){
         super.onStop();
+        ZOOM = getMap().getCameraPosition().zoom;
+        BEARING = getMap().getCameraPosition().bearing;
+        TILT = getMap().getCameraPosition().tilt;
         if( mGoogleApiClient != null && mGoogleApiClient.isConnected() ) {
             mGoogleApiClient.disconnect();
         }
     }
-
     @Override
     public void onConnected(Bundle bundle) {
         switch (MainActivity.stato){
@@ -201,9 +193,7 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                 break;
             }
         }
-
     }
-
     public void initUsers(ArrayList<?> attivi,Location currentloc){
         switch (MainActivity.stato){
             case 50:{
@@ -300,7 +290,6 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
             }
         }
     }
-
     private String getAddressFromLatLng( LatLng latLng ) {
         Geocoder geocoder = new Geocoder(getActivity());
         String address = "";
@@ -311,22 +300,31 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
         }
         return address;
     }
-
     private void initCamera(Location location) {
-        CameraPosition position = CameraPosition.builder()
-                .target(new LatLng(location.getLatitude(),location.getLongitude()))
-                .zoom(16f)
-                .bearing(0.0f)
-                .tilt(0.0f)
-                .build();
-        getMap().animateCamera(CameraUpdateFactory.newCameraPosition(position), null);
+        if(MainActivity.isFirstMapOpen) {
+            CameraPosition position = CameraPosition.builder()
+                    .target(new LatLng(location.getLatitude(),location.getLongitude()))
+                    .zoom(16f)
+                    .bearing(0.0f)
+                    .tilt(0.0f)
+                    .build();
+            getMap().animateCamera(CameraUpdateFactory.newCameraPosition(position), null);
+            MainActivity.isFirstMapOpen = false;
+        }else{
+            CameraPosition position = CameraPosition.builder()
+                    .target(new LatLng(location.getLatitude(),location.getLongitude()))
+                    .zoom(ZOOM)
+                    .bearing(BEARING)
+                    .tilt(TILT)
+                    .build();
+            getMap().moveCamera(CameraUpdateFactory.newCameraPosition(position));
+        }
         getMap().setMapType(MAP_TYPE);
         getMap().setTrafficEnabled(false);
         try{getMap().setMyLocationEnabled(true);}
         catch (SecurityException e){return;}
         getMap().getUiSettings().setZoomControlsEnabled(false);
     }
-
     @Override
     public void onDestroy(){
         if(isrunning) {
@@ -341,7 +339,6 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
         marker.showInfoWindow();
         return true;
     }
-
     @Override
     public void onInfoWindowClick(Marker marker) {
         if(MainActivity.stato == 50||MainActivity.stato == 51)
@@ -357,25 +354,14 @@ public class MapFragment extends SupportMapFragment implements GoogleApiClient.C
                 .replace(R.id.RelativeLayout, new Profile_Fragment())
                 .commit();
     }
-
     @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
+    public void onConnectionSuspended(int i) {}
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
     @Override
     public void onMapClick(LatLng latLng) {
         mobilecl = null;
     }
-
     @Override
-    public void onMapLongClick(LatLng latLng) {
-
-    }
+    public void onMapLongClick(LatLng latLng) {}
 }
