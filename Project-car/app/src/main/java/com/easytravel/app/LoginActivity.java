@@ -214,8 +214,6 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                         }
                     }
                     stato = 20;
-                    funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
-                            loggato.getMobile(),lat,lon,finaldate));
                     h.postDelayed(new Runnable() {
                         @Override
                         public void run() {

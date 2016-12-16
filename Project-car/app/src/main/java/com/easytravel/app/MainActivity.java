@@ -17,8 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.annotation.*;
 import android.support.multidex.MultiDex;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.NotificationCompat;
@@ -113,6 +112,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 navigationView.getMenu().findItem(R.id.autista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.mappa).setEnabled(true);
                 rl = (RelativeLayout) findViewById(R.id.RelativeLayout);
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Profile_Fragment())
+                        .addToBackStack(null)
+                        .commit();
+                getSupportActionBar().setTitle("EasyTravel");
+                break;
+            }
+            case 22:{
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Profile_Fragment())
@@ -566,14 +574,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     }
                     else {
-                        if(TmpAutostoppisti.size()>Autostoppisti.size()){
+                        if(TmpAutostoppisti.size()<Autostoppisti.size()){
+                            Autostoppisti = (ArrayList<Autostoppista>)TmpAutostoppisti.clone();
+                            aresame = true;
+                        }else{
                             aresame = false;
                         }
                     }
                     if(!aresame){
                         notifica();
+                        Autostoppisti = (ArrayList<Autostoppista>)TmpAutostoppisti.clone();
                     }
-                    Autostoppisti = (ArrayList<Autostoppista>)TmpAutostoppisti.clone();
                     break;
                 }
                 case "getActiveUsers": {
@@ -894,10 +905,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 intent, 0);
         NotificationCompat.Builder mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("EasyTravel")
                         .setLargeIcon(largeIcon)
-                        .setDeleteIntent(pendingIntent)
                         .setContentIntent(pendingIntent)
                         .setDefaults(Notification.DEFAULT_ALL)
                         .setAutoCancel(true)
@@ -938,7 +947,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MultiDex.install(this);
     }
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
+    public void onConnected( Bundle bundle) {
         LocationRequest mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(60000);
@@ -953,6 +962,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             lat = String.valueOf(mLastLocation.getLatitude());
             lon = String.valueOf(mLastLocation.getLongitude());
             if(stato>=20) {
+                java.util.Date dt = new java.util.Date();
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String finaldate = sdf.format(dt);
+                funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
+                        loggato.getMobile(),lat,lon,finaldate));
                 funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
                         loggato.getMobile(), lat, lon, range));
             }
@@ -970,7 +984,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    public void onConnectionFailed( ConnectionResult connectionResult) {
         buildGoogleApiClient();
     }
     synchronized void buildGoogleApiClient() {

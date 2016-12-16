@@ -42,7 +42,7 @@ public class Profile_Fragment extends Fragment {
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        if(MainActivity.stato == 20){
+        if(MainActivity.stato == 20||MainActivity.stato == 22){
             ((TextView) view.findViewById(R.id.prftvname)).setText(MainActivity.loggato.getName());
             ((TextView) view.findViewById(R.id.prftvsurname)).setText(MainActivity.loggato.getSurname());
             ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.loggato.getMobile());
