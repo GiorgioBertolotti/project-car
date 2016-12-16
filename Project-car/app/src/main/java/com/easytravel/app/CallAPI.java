@@ -30,6 +30,10 @@ public class CallAPI extends AsyncTask<String, String, String> {
         int timeoutSocket = 5000;
         HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
         DefaultHttpClient httpClient = new DefaultHttpClient(httpParameters);
+        if(params[0]==null){
+            result = "Missing IP";
+            return result;
+        }
         HttpPost httpPost = new HttpPost(params[0]);
         List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
         nameValuePair.add(new BasicNameValuePair("api_method", params[1]));

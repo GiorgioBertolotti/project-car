@@ -1,5 +1,8 @@
 package com.easytravel.app;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.multidex.MultiDex;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.NotificationCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -83,11 +87,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
     public static String ipServer = "http://172.22.20.107:8081/pcws/index.php";
-    public static String lat,lon,img;
+    public static String lat,lon,img,notifications = "Ci sono nuovi autostoppisti!";
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
-    public static int range, stato = 0, prec;
-    public static final Handler h = new Handler();
+    public static int range, stato = 0, prec, idNotifica = 0;
     public static boolean isFirstMapOpen = true, doubleBackToExitPressedOnce = false;
     public void changeUI(){
         switch (stato){
@@ -265,10 +268,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     changeUI();
                     break;
                 }
+                case 22:{
+                    if (doubleBackToExitPressedOnce) {
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                        System.exit(1);
+                        break;
+                    }
+                    this.doubleBackToExitPressedOnce = true;
+                    Toast.makeText(this, "Click back again to exit", Toast.LENGTH_SHORT).show();
+                    new Handler().postDelayed(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            doubleBackToExitPressedOnce=false;
+                        }
+                    }, 2000);
+                    break;
+                }
                 case 30:{
                     loggato.setType_id(null);
                     funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
-                    stato = 20;
+                    stato = 22;
                     changeUI();
                     break;
                 }
@@ -280,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 case 40:{
                     funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
-                    stato = 20;
+                    stato = 22;
                     changeUI();
                     break;
                 }
@@ -305,12 +325,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case 50:{
-                    stato = 20;
+                    stato = 22;
                     changeUI();
                     break;
                 }
                 case 51:{
-                    stato = 20;
+                    stato = 22;
                     changeUI();
                     break;
                 }
@@ -417,6 +437,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 case "getAS": {
                     switch (stato){
+                        case 20:{
+                            Autostoppisti.clear();
+                            for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
+                                Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        1,
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                        BitmapFactory.decodeByteArray(data,0,data.length),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                            }
+                            final Handler notifications = new Handler();
+                            notifications.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(stato>=20) {
+                                        funcPHP("getAS2", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
+                                                loggato.getMobile(), lat, lon, range));
+                                        notifications.postDelayed(this, 60000);
+                                    }else{
+                                        notifications.removeCallbacks(this);
+                                    }
+                                }
+                            },60000);
+
+                            stato = 22;
+                            break;
+                        }
                         case 40:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
@@ -479,6 +532,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             break;
                         }
                     }
+                    break;
+                }
+                case "getAS2":{
+                    ArrayList<Autostoppista> TmpAutostoppisti = new ArrayList<Autostoppista>();
+                    for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                        byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
+                        TmpAutostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
+                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                1,
+                                Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
+                                BitmapFactory.decodeByteArray(data,0,data.length),
+                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
+                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
+                                Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
+                                new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                    }
+                    boolean aresame=true;
+                    if(TmpAutostoppisti.size()==Autostoppisti.size()) {
+                        for (int i = 0; i < TmpAutostoppisti.size(); i++){
+                            boolean check = false;
+                            for (int k = 0; k < Autostoppisti.size(); k++){
+                                if(TmpAutostoppisti.get(i).getMobile().equals(Autostoppisti.get(k).getMobile())){
+                                    check = true;
+                                }
+                            }
+                            if(!check){
+                                aresame = false;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        if(TmpAutostoppisti.size()>Autostoppisti.size()){
+                            aresame = false;
+                        }
+                    }
+                    if(!aresame){
+                        notifica();
+                    }
+                    Autostoppisti = (ArrayList<Autostoppista>)TmpAutostoppisti.clone();
                     break;
                 }
                 case "getActiveUsers": {
@@ -792,6 +887,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         return isValid;
     }
+    public void notifica() {
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.icona);
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                intent, 0);
+        NotificationCompat.Builder mBuilder =
+                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("EasyTravel")
+                        .setLargeIcon(largeIcon)
+                        .setDeleteIntent(pendingIntent)
+                        .setContentIntent(pendingIntent)
+                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setAutoCancel(true)
+                        .setContentText(notifications);
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotifyMgr.notify(idNotifica, mBuilder.build());
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -838,6 +952,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (mLastLocation != null) {
             lat = String.valueOf(mLastLocation.getLatitude());
             lon = String.valueOf(mLastLocation.getLongitude());
+            if(stato>=20) {
+                funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
+                        loggato.getMobile(), lat, lon, range));
+            }
         }
     }
     @Override

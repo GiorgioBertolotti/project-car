@@ -82,6 +82,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     private boolean isrunning = false;
     String mobilecl;
     private static float ZOOM=0,BEARING=0,TILT=0;
+    private static float LAT=0,LON=0;
     private final int MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL;
     private int curMapTypeIndex = 1;
     AnimateHorizontalProgressBar progressBar;
@@ -115,6 +116,8 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         ZOOM = getMap().getCameraPosition().zoom;
         BEARING = getMap().getCameraPosition().bearing;
         TILT = getMap().getCameraPosition().tilt;
+        LAT = (float)getMap().getCameraPosition().target.latitude;
+        LON = (float)getMap().getCameraPosition().target.longitude;
         if( mGoogleApiClient != null && mGoogleApiClient.isConnected() ) {
             mGoogleApiClient.disconnect();
         }
@@ -311,13 +314,23 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             getMap().animateCamera(CameraUpdateFactory.newCameraPosition(position), null);
             MainActivity.isFirstMapOpen = false;
         }else{
-            CameraPosition position = CameraPosition.builder()
-                    .target(new LatLng(location.getLatitude(),location.getLongitude()))
-                    .zoom(ZOOM)
-                    .bearing(BEARING)
-                    .tilt(TILT)
-                    .build();
-            getMap().moveCamera(CameraUpdateFactory.newCameraPosition(position));
+            if(LAT!=0&&LON!=0) {
+                CameraPosition position = CameraPosition.builder()
+                        .target(new LatLng(LAT, LON))
+                        .zoom(ZOOM)
+                        .bearing(BEARING)
+                        .tilt(TILT)
+                        .build();
+                getMap().moveCamera(CameraUpdateFactory.newCameraPosition(position));
+            }else{
+                CameraPosition position = CameraPosition.builder()
+                        .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .zoom(ZOOM)
+                        .bearing(BEARING)
+                        .tilt(TILT)
+                        .build();
+                getMap().moveCamera(CameraUpdateFactory.newCameraPosition(position));
+            }
         }
         getMap().setMapType(MAP_TYPE);
         getMap().setTrafficEnabled(false);

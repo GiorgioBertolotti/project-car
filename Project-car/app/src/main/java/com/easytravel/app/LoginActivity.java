@@ -31,8 +31,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.easytravel.app.MainActivity.h;
 import static com.easytravel.app.MainActivity.img;
 import static com.easytravel.app.MainActivity.ipServer;
 import static com.easytravel.app.MainActivity.lat;
@@ -46,6 +44,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
         Register_Fragment.OnFragmentInteractionListener{
     RelativeLayout rl;
     boolean doubleBackToExitPressedOnce = false;
+    public Handler h = new Handler();
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,6 +232,8 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                                             loggato.getMobile(), lat, lon, range));
                                 }
                                 h.postDelayed(this, 60000);
+                            }else{
+                                h.removeCallbacks(this);
                             }
                         }
                     },60000);
