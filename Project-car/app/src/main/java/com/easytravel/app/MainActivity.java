@@ -204,13 +204,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER))
             buildAlertMessageNoGps();
-        SharedPreferences settings = getSharedPreferences("UserData", 0);
+        /*SharedPreferences settings = getSharedPreferences("UserData", 0);
         String m = settings.getString("Mobile", null);
         String p = settings.getString("Password", null);
         ipServer = settings.getString("IP", null);
         if(m!=null||p!=null){
             funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",m,p));
-        }
+        }*/
         cities = new ArrayList<>();
         citiesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, cities);
         ActiveUsers = new ArrayList<>();
@@ -900,11 +900,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     public void notifica() {
         Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.icona);
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, SplashScreen.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 intent, 0);
         NotificationCompat.Builder mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.mipmap.icontoolbar)
                         .setContentTitle("EasyTravel")
                         .setLargeIcon(largeIcon)
                         .setContentIntent(pendingIntent)
