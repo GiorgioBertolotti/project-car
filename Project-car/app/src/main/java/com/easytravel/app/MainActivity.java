@@ -1,5 +1,6 @@
 package com.easytravel.app;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -16,13 +18,12 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
-import android.support.annotation.*;
 import android.support.multidex.MultiDex;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.NotificationCompat;
 import android.util.Base64;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -33,10 +34,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -49,11 +48,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.UiSettings;
-
 import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -90,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     public static int range, stato = 0, prec, idNotifica = 0;
+    public static final int MY_PERMISSION_REQUEST_READ_FINE_LOCATION = 61626,PERMISSION_TELEPHONE_NUMBER = 61627;
     public static boolean isFirstMapOpen = true, doubleBackToExitPressedOnce = false;
     public void changeUI(){
         switch (stato){
@@ -948,28 +944,73 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MultiDex.install(this);
     }
     @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_READ_FINE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    LocationRequest mLocationRequest = LocationRequest.create();
+                    mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                    mLocationRequest.setInterval(60000);
+                    try{LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);}
+                    catch (SecurityException e){
+                        String a = e.getMessage();
+                        return;
+                    }
+                    try{mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
+                    catch (SecurityException e){return;}
+                    if (mLastLocation != null) {
+                        lat = String.valueOf(mLastLocation.getLatitude());
+                        lon = String.valueOf(mLastLocation.getLongitude());
+                        if(stato>=20) {
+                            java.util.Date dt = new java.util.Date();
+                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String finaldate = sdf.format(dt);
+                            funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
+                                    loggato.getMobile(),lat,lon,finaldate));
+                            funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
+                                    loggato.getMobile(), lat, lon, range));
+                        }
+                    }
+                } else {
+
+                    return;
+                }
+                return;
+            }
+        }
+    }
+    @Override
     public void onConnected( Bundle bundle) {
-        LocationRequest mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(60000);
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission( getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSION_REQUEST_READ_FINE_LOCATION);
+        }
+        else{
 
-        try{LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);}
-        catch (SecurityException e){return;}
-
-
-        try{mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
-        catch (SecurityException e){return;}
-        if (mLastLocation != null) {
-            lat = String.valueOf(mLastLocation.getLatitude());
-            lon = String.valueOf(mLastLocation.getLongitude());
-            if(stato>=20) {
-                java.util.Date dt = new java.util.Date();
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String finaldate = sdf.format(dt);
-                funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
-                        loggato.getMobile(),lat,lon,finaldate));
-                funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
-                        loggato.getMobile(), lat, lon, range));
+            LocationRequest mLocationRequest = LocationRequest.create();
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            mLocationRequest.setInterval(60000);
+            try{LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);}
+            catch (SecurityException e){
+                String a = e.getMessage();
+                return;
+            }
+            try{mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
+            catch (SecurityException e){return;}
+            if (mLastLocation != null) {
+                lat = String.valueOf(mLastLocation.getLatitude());
+                lon = String.valueOf(mLastLocation.getLongitude());
+                if(stato>=20) {
+                    java.util.Date dt = new java.util.Date();
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String finaldate = sdf.format(dt);
+                    funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
+                            loggato.getMobile(),lat,lon,finaldate));
+                    funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
+                            loggato.getMobile(), lat, lon, range));
+                }
             }
         }
     }

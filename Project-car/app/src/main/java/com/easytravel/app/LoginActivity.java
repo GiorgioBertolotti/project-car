@@ -1,15 +1,18 @@
 package com.easytravel.app;
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -25,12 +28,18 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
 import org.json.JSONObject;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.easytravel.app.MainActivity.PERMISSION_TELEPHONE_NUMBER;
 import static com.easytravel.app.MainActivity.img;
 import static com.easytravel.app.MainActivity.ipServer;
 import static com.easytravel.app.MainActivity.lat;
@@ -59,7 +68,29 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
             funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",m,p));
         }
     }
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_TELEPHONE_NUMBER: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    String mPhoneNumber;
+                    try {
+                        TelephonyManager tMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                        mPhoneNumber = tMgr.getLine1Number();
+                    }
+                    catch(Exception e) {
+                        mPhoneNumber = "";
+                    }
+                    if(!mPhoneNumber.isEmpty()) {
+                        TextView tvmobile = (TextView) findViewById(R.id.lgnetmobile);
+                        tvmobile.setText(mPhoneNumber);
+                        tvmobile.setEnabled(false);
+                    }
+                }
+                return;
+            }
+        }
+    }
     public void funcPHP(String function,String json){
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
@@ -89,18 +120,25 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                 window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                 window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorLoginPrimary));
                 window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-                String mPhoneNumber;
-                try {
-                    TelephonyManager tMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-                    mPhoneNumber = tMgr.getLine1Number();
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission( getApplicationContext(), android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_PHONE_STATE},
+                            MainActivity.PERMISSION_TELEPHONE_NUMBER);
                 }
-                catch(Exception e) {
-                    mPhoneNumber = "";
-                }
-                if(!mPhoneNumber.isEmpty()) {
-                    TextView tvmobile = (TextView) findViewById(R.id.lgnetmobile);
-                    tvmobile.setText(mPhoneNumber);
-                    tvmobile.setEnabled(false);
+                else {
+                    String mPhoneNumber;
+                    try {
+                        TelephonyManager tMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                        mPhoneNumber = tMgr.getLine1Number();
+                    } catch (Exception e) {
+                        mPhoneNumber = "";
+                    }
+                    if (!mPhoneNumber.isEmpty()) {
+                        TextView tvmobile = (TextView) findViewById(R.id.lgnetmobile);
+                        tvmobile.setText(mPhoneNumber);
+                        tvmobile.setEnabled(false);
+                    }
                 }
                 rl = (RelativeLayout) findViewById(R.id.RelativeLayout2);
                 break;

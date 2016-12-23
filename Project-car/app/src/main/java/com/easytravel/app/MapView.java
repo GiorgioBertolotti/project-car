@@ -1,4 +1,6 @@
 package com.easytravel.app;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Geocoder;
@@ -6,6 +8,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,6 +17,7 @@ import android.widget.TextView;
 import com.daasuu.ahp.AnimateHorizontalProgressBar;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,6 +33,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
+import static com.easytravel.app.MainActivity.MY_PERMISSION_REQUEST_READ_FINE_LOCATION;
+
 public class MapView extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnInfoWindowClickListener,
@@ -89,14 +97,42 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        setHasOptionsMenu(true);
-        mGoogleApiClient = new GoogleApiClient.Builder( getActivity() )
-                .addConnectionCallbacks( this )
-                .addOnConnectionFailedListener( this )
-                .addApi( LocationServices.API )
-                .build();
-        initListeners();
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission( getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSION_REQUEST_READ_FINE_LOCATION);
+        }else {
+            setHasOptionsMenu(true);
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            initListeners();
+            if(!mGoogleApiClient.isConnected())
+                mGoogleApiClient.connect();
+        }
+    }
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_READ_FINE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    setHasOptionsMenu(true);
+                    mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                            .addConnectionCallbacks(this)
+                            .addOnConnectionFailedListener(this)
+                            .addApi(LocationServices.API)
+                            .build();
+                    initListeners();
+                    if(!mGoogleApiClient.isConnected())
+                        mGoogleApiClient.connect();
+                } else {
+                    return;
+                }
+                return;
+            }
+        }
     }
     private void initListeners() {
         getMap().setOnMarkerClickListener(this);
@@ -106,9 +142,12 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         getMap().setOnMapClickListener(this);
     }
     @Override
+    public void onResume() {
+        super.onResume();
+    }
+    @Override
     public void onStart(){
         super.onStart();
-        mGoogleApiClient.connect();
     }
     @Override
     public void onStop(){
