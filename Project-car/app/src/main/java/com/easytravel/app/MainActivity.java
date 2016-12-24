@@ -718,6 +718,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String Mobile = ((EditText)findViewById(R.id.lgnetmobile)).getText().toString();
         funcPHP("forgotPassword",String.format("{\"mobile\":\"%s\"}",Mobile));
     }
+    public void onClickSettings(View v){
+        prec = stato;
+        stato = 21;
+        changeUI();
+    }
     public void onFragmentInteraction(Uri uri) {
         switch (stato){
             case 30:{
@@ -911,20 +916,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotifyMgr.notify(idNotifica, mBuilder.build());
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        prec = stato;
-        stato = 21;
-        changeUI();
-        if (super.onOptionsItemSelected(item)) return true;
-        return false;
     }
     @Override
     public void onStart() {
