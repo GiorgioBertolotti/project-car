@@ -1,5 +1,6 @@
 package com.easytravel.app;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 
 import java.util.Date;
@@ -82,8 +83,8 @@ public class User {
     public Date getDate(){return date;}
     public Integer getRange(){return range;}
     public Bitmap getImg(){return img;}
-    public User(String n,String s,String m,Integer t){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals(""))
+    public User(String n, String s, String m, Integer t, Integer r, Bitmap i){
+        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setImage(i).equals(""))
             return;
     }
     public User(String n,String s,String m,Integer t,Integer r,Double lo,Double la,Date d,Bitmap i){

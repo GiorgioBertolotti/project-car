@@ -213,35 +213,14 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
                     java.util.Date dt = new java.util.Date();
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String finaldate = sdf.format(dt);
                     img = obj2.getString("Image");
                     byte[] data = Base64.decode(img,Base64.DEFAULT);
-                    if(lat==null||lon==null){
-                        loggato = new Autostoppista(obj2.getString("Name"),
-                                obj2.getString("Surname"),
-                                obj2.getString("Mobile"),
-                                null,
-                                Integer.parseInt(obj2.getString("Range")),
-                                BitmapFactory.decodeByteArray(data,0,data.length),
-                                null,
-                                null,
-                                null,
-                                null,
-                                dt);
-                    }
-                    else{
-                        loggato = new Autostoppista(obj2.getString("Name"),
-                                obj2.getString("Surname"),
-                                obj2.getString("Mobile"),
-                                null,
-                                Integer.parseInt(obj2.getString("Range")),
-                                BitmapFactory.decodeByteArray(data,0,data.length),
-                                null,
-                                null,
-                                Double.parseDouble(lat),
-                                Double.parseDouble(lon),
-                                dt);
-                    }
+                    loggato = new Autostoppista(obj2.getString("Name"),
+                            obj2.getString("Surname"),
+                            obj2.getString("Mobile"),
+                            null,
+                            Integer.parseInt(obj2.getString("Range")),
+                            BitmapFactory.decodeByteArray(data,0,data.length));
                     if(stato == 0) {
                         if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()&&!((EditText) findViewById(R.id.lgnetpassword)).getText().toString().isEmpty()){
                             SharedPreferences settings = getSharedPreferences("UserData", 0);
@@ -285,7 +264,9 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                 }
             }
         }
-        catch (Exception e){}
+        catch (Exception e){
+            String a = e.getMessage();
+        }
     }
     public void onClickCreateAcc(View view) {
         stato = 10;

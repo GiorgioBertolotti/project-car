@@ -51,7 +51,6 @@ public class CallAPI extends AsyncTask<String, String, String> {
         } catch (Exception e) {
             result = e.getMessage();
         }
-        int a = 1;
         return result;
     }
     @Override

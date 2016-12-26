@@ -1,15 +1,18 @@
 package com.easytravel.app;
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,12 +32,31 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.easytravel.app.MainActivity.MY_PERMISSION_REQUEST_READ_FINE_LOCATION;
+import static com.easytravel.app.MainActivity.selected;
+import static com.easytravel.app.MainActivity.selectedOnMap;
+import static com.easytravel.app.MainActivity.stato;
 
 public class MapView extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -51,7 +73,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         public View getInfoContents(Marker marker) {
             TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.inftvdesc));
             tvSnippet.setText(marker.getSnippet());
-            switch (MainActivity.stato) {
+            switch (stato) {
                 case 50:
                 case 51: {
                     for(User a:MainActivity.ActiveUsers){
@@ -82,6 +104,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
 
     }
     private GoogleApiClient mGoogleApiClient;
+    public static GoogleMap map;
     private Location mCurrentLocation;
     final Handler handler = new Handler();
     Runnable r;
@@ -140,6 +163,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         getMap().setOnInfoWindowClickListener(this);
         getMap().setInfoWindowAdapter(new MyInfoWindowAdapter());
         getMap().setOnMapClickListener(this);
+        map = getMap();
     }
     @Override
     public void onResume() {
@@ -163,7 +187,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     }
     @Override
     public void onConnected(Bundle bundle) {
-        switch (MainActivity.stato){
+        switch (stato){
             case 50:
             case 51:{
                 progressBar = (AnimateHorizontalProgressBar) this.getActivity().findViewById(R.id.animate_progress_bar);
@@ -203,8 +227,8 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                 progressBar.setProgress(0);
                 try{
                     mCurrentLocation = new Location("");
-                    mCurrentLocation.setLongitude(MainActivity.selected.getLongitude());
-                    mCurrentLocation.setLatitude(MainActivity.selected.getLatitude());
+                    mCurrentLocation.setLongitude(MainActivity.selectedOnMap.getLongitude());
+                    mCurrentLocation.setLatitude(MainActivity.selectedOnMap.getLatitude());
                 }
                 catch (SecurityException e){return;}
                 initUsers(MainActivity.Autostoppisti,mCurrentLocation);
@@ -214,8 +238,8 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                     @Override
                     public void run() {
                         getMap().clear();
-                        mCurrentLocation.setLongitude(MainActivity.selected.getLongitude());
-                        mCurrentLocation.setLatitude(MainActivity.selected.getLatitude());
+                        mCurrentLocation.setLongitude(MainActivity.selectedOnMap.getLongitude());
+                        mCurrentLocation.setLatitude(MainActivity.selectedOnMap.getLatitude());
                         initUsers(MainActivity.Autostoppisti,mCurrentLocation);
                         handler.postDelayed(this,60000);
                     }
@@ -237,7 +261,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         }
     }
     public void initUsers(ArrayList<?> attivi,Location currentloc){
-        switch (MainActivity.stato){
+        switch (stato){
             case 50:{
                 for(Object b : attivi) {
                     User a = (User) b;
@@ -293,18 +317,20 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             case 43:{
                 for(Object b : attivi) {
                     Autostoppista a = (Autostoppista) b;
-                    SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
-                    Marker marker = getMap().addMarker(new MarkerOptions()
-                            .position(new LatLng(a.getLatitude(), a.getLongitude()))
-                            .title(a.getMobile())
-                            .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
-                            .icon(BitmapDescriptorFactory.defaultMarker()));
-                    if (a.getMobile().equals(MainActivity.selected.getMobile())) {
+                    if (a.getMobile().equals(MainActivity.selectedOnMap.getMobile())) {
+                        SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
+                        Marker marker = getMap().addMarker(new MarkerOptions()
+                                .position(new LatLng(a.getLatitude(), a.getLongitude()))
+                                .title(a.getMobile())
+                                .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
+                                .icon(BitmapDescriptorFactory.defaultMarker()));
                         marker.showInfoWindow();
-                        Circle circle = getMap().addCircle(new CircleOptions()
+                        getMap().addCircle(new CircleOptions()
                                 .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
-                                .radius(MainActivity.selected.getRange()*1000)
+                                .radius(MainActivity.selectedOnMap.getRange()*1000)
                                 .strokeColor(Color.RED));
+                        connectAsyncTask task = new connectAsyncTask(makeURL(selectedOnMap.getLatitude(),selectedOnMap.getLongitude(),selectedOnMap.getDestlat(),selectedOnMap.getDestlon()));
+                        task.execute();
                     }
                 }
                 break;
@@ -318,11 +344,13 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                             .title(a.getMobile())
                             .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
                             .icon(BitmapDescriptorFactory.defaultMarker()));
-                    if (a.getMobile().equals(MainActivity.selected.getMobile())) {
-                        Circle circle = getMap().addCircle(new CircleOptions()
+                    if (a.getMobile().equals(MainActivity.selectedOnMap.getMobile())) {
+                        getMap().addCircle(new CircleOptions()
                                 .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
-                                .radius(MainActivity.selected.getRange()*1000)
+                                .radius(MainActivity.selectedOnMap.getRange()*1000)
                                 .strokeColor(Color.RED));
+                        connectAsyncTask task = new connectAsyncTask(makeURL(selectedOnMap.getLatitude(),selectedOnMap.getLongitude(),selectedOnMap.getDestlat(),selectedOnMap.getDestlon()));
+                        task.execute();
                     }
                     if(a.getMobile().equals(mobilecl)) {
                         marker.showInfoWindow();
@@ -393,14 +421,21 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     }
     @Override
     public void onInfoWindowClick(Marker marker) {
-        if(MainActivity.stato == 50||MainActivity.stato == 51)
-            MainActivity.stato = 52;
-        if(MainActivity.stato == 43||MainActivity.stato == 44)
-            MainActivity.stato = 45;
-        for(User a : MainActivity.ActiveUsers){
-            String m = a.getMobile();
-            String t= marker.getTitle();
-            if(m.equals(t)) MainActivity.selected = a;
+        if(stato == 50|| stato == 51) {
+            stato = 52;
+            for(User a : MainActivity.ActiveUsers){
+                String m = a.getMobile();
+                String t= marker.getTitle();
+                if(m.equals(t)) MainActivity.selected = a;
+            }
+        }
+        if(stato == 43|| stato == 44) {
+            stato = 45;
+            for(User a : MainActivity.Autostoppisti){
+                String m = a.getMobile();
+                String t= marker.getTitle();
+                if(m.equals(t)) MainActivity.selected = a;
+            }
         }
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.RelativeLayout, new Profile_Fragment())
@@ -416,4 +451,19 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     }
     @Override
     public void onMapLongClick(LatLng latLng) {}
+    public String makeURL (double sourcelat, double sourcelog, double destlat, double destlog ){
+        StringBuilder urlString = new StringBuilder();
+        urlString.append("https://maps.googleapis.com/maps/api/directions/json");
+        urlString.append("?origin=");// from
+        urlString.append(Double.toString(sourcelat));
+        urlString.append(",");
+        urlString.append(Double.toString( sourcelog));
+        urlString.append("&destination=");// to
+        urlString.append(Double.toString( destlat));
+        urlString.append(",");
+        urlString.append(Double.toString( destlog));
+        urlString.append("&sensor=false&mode=driving&alternatives=true");
+        urlString.append("&key=AIzaSyCffbNuWyROpx1zpavp0hSgWSBwsu7m_6M");
+        return urlString.toString();
+    }
 }

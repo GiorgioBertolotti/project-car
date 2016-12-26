@@ -32,7 +32,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -48,6 +47,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -61,7 +64,7 @@ import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         Register_Fragment.OnFragmentInteractionListener,
         Profile_Fragment.OnFragmentInteractionListener,
-        City_Fragment.OnFragmentInteractionListener,
+        Destination_Fragment.OnFragmentInteractionListener,
         User_Fragment.OnFragmentInteractionListener,
         Wait_Fragment.OnFragmentInteractionListener,
         Map_Fragment.OnFragmentInteractionListener,
@@ -72,9 +75,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LocationListener {
     RelativeLayout rl;
     NavigationView navigationView;
-    ArrayList<City> cities;
-    ArrayAdapter<City> citiesAdapter;
-    public static Autostoppista loggato;
+    public static Autostoppista loggato, selectedOnMap;
     public static User selected;
     public static ArrayList<User> ActiveUsers;
     public static ArrayAdapter<User> usersAdapter;
@@ -85,8 +86,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     public static int range, stato = 0, prec, idNotifica = 0;
-    public static final int MY_PERMISSION_REQUEST_READ_FINE_LOCATION = 61626,PERMISSION_TELEPHONE_NUMBER = 61627;
-    public static boolean isFirstMapOpen = true, doubleBackToExitPressedOnce = false;
+    public static final int MY_PERMISSION_REQUEST_READ_FINE_LOCATION = 61626,PERMISSION_TELEPHONE_NUMBER = 61627, PLACE_PICKER_REQUEST = 61628;;
+    public static boolean isFirstMapOpen = true, isFirstMapOpen2 = true, doubleBackToExitPressedOnce = false, needRefreshAutostoppisti = true;
+    public static Context context;
     public void changeUI(){
         switch (stato){
             case 20:{
@@ -116,6 +118,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle("EasyTravel");
                 break;
             }
+            case 21:{
+                rl.removeAllViews();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.RelativeLayout, new Settings_Fragment())
+                        .commit();
+                getSupportActionBar().setTitle("Impostazioni");
+                break;
+            }
             case 22:{
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
@@ -125,18 +135,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle("EasyTravel");
                 break;
             }
-            case 21:{
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.RelativeLayout, new Settings_Fragment())
-                        .commit();
-                getSupportActionBar().setTitle("Impostazioni");
-                break;
-            }
             case 30:{
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new City_Fragment())
+                        .replace(R.id.RelativeLayout, new Destination_Fragment())
                         .commit();
                 getSupportActionBar().setTitle("Scegli destinazione");
                 break;
@@ -194,26 +196,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
         buildGoogleApiClient();
         changeUI();
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER))
             buildAlertMessageNoGps();
-        /*SharedPreferences settings = getSharedPreferences("UserData", 0);
-        String m = settings.getString("Mobile", null);
-        String p = settings.getString("Password", null);
-        ipServer = settings.getString("IP", null);
-        if(m!=null||p!=null){
-            funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",m,p));
-        }*/
-        cities = new ArrayList<>();
-        citiesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, cities);
         ActiveUsers = new ArrayList<>();
         usersAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, ActiveUsers);
         Autostoppisti = new ArrayList<>();
         autostoppistiAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Autostoppisti);
         range = 10;
+        context = this;
     }
     @Override
     public void onBackPressed() {
@@ -297,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case 31:{
-                    funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    funcPHP("removeUser_Destination",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                     stato = 30;
                     changeUI();
                     break;
@@ -356,9 +349,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.autista: {
                 loggato.setType_id(2);
                 if(stato == 31){
-                    loggato.setCity(null);
-                    loggato.setProvince(null);
-                    funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    loggato.setDestlon(null);
+                    loggato.setDestlat(null);
+                    funcPHP("removeUser_Destination",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                 }
                 funcPHP("User_Type",String.format("{\"mobile\":\"%s\",\"type\":\"autista\"}",loggato.getMobile()));
                 break;
@@ -370,9 +363,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             case R.id.mappa: {
                 if(stato == 31){
-                    loggato.setCity(null);
-                    loggato.setProvince(null);
-                    funcPHP("removeUser_City",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    loggato.setDestlon(null);
+                    loggato.setDestlat(null);
+                    funcPHP("removeUser_Destination",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                 }
                 stato = 50;
                 funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
@@ -413,30 +406,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     finish();
                     break;
                 }
-                case "User_City": {
+                case "User_Destination": {
                     stato = 31;
                     changeUI();
                     break;
                 }
                 case "User_Type": {
                     if(loggato.getType_id()==1) {
-                        funcPHP("getCities","{}");
-                    }
-                    else{
+                        stato = 30;
+                        changeUI();
+                    }else{
                         stato = 40;
                         funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
                                 loggato.getMobile(), lat, lon, range));
                     }
-                    break;
-                }
-                case "getCities": {
-                    cities.clear();
-                    for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                        cities.add(new City(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
-                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Province")));
-                    }
-                    stato = 30;
-                    changeUI();
                     break;
                 }
                 case "getAS": {
@@ -451,8 +434,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
-                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
-                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlat")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
@@ -484,8 +467,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
-                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
-                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlat")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
@@ -503,8 +486,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
-                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
-                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlat")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
@@ -523,8 +506,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
-                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
-                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlat")),
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
@@ -548,8 +531,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 1,
                                 Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                 BitmapFactory.decodeByteArray(data,0,data.length),
-                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Name"),
-                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("City_Province"),
+                                Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlat")),
+                                Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                 Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                 Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                 new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
@@ -626,9 +609,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     break;
                 }
-                case "removeUser_City": {
-                    loggato.setCity(null);
-                    loggato.setProvince(null);
+                case "removeUser_Destination": {
+                    loggato.setDestlat(null);
+                    loggato.setDestlon(null);
                     break;
                 }
                 case "removeUser_Type": {
@@ -726,20 +709,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onFragmentInteraction(Uri uri) {
         switch (stato){
             case 30:{
-                final ListView listView = (ListView) findViewById(R.id.listView);
-                assert listView != null;
-                listView.setAdapter(citiesAdapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Object listItem = listView.getItemAtPosition(position);
-                        funcPHP("User_City",String.format("{\"mobile\":\"%s\",\"city\":\"%s\"}",loggato.getMobile(),((City)listItem).getName()));
-                    }
-                });
                 break;
             }
             case 40:{
-                final ListView listView = (ListView) findViewById(R.id.listView2);
+                final ListView listView = (ListView) findViewById(R.id.listUsers);
                 assert listView != null;
                 listView.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,new ArrayList<String>()));
                 listView.setAdapter(autostoppistiAdapter);
@@ -822,7 +795,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onContextItemSelected(MenuItem item){
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         if(item.getTitle().equals("Visualizza profilo")){
-            for(User a : Autostoppisti){
+            for(Autostoppista a : Autostoppisti){
                 String m = a.getMobile();
                 String t= Autostoppisti.get(info.position).getMobile();
                 if(m.equals(t)) {
@@ -842,7 +815,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return false;
             }
         }else if(item.getTitle().equals("Visualizza su mappa")) {
-            selected = Autostoppisti.get(info.position);
+            selectedOnMap = Autostoppisti.get(info.position);
             stato = 43;
             funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), lat, lon, range));
         }else{

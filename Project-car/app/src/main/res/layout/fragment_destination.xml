@@ -2,14 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.easytravel.app.City_Fragment">
-
-    <!-- TODO: Update blank fragment layout -->
-
-    <ListView
+    tools:context="com.easytravel.app.Destination_Fragment">
+    <fragment
+        android:id="@+id/map"
+        android:name="com.easytravel.app.MapViewDestination"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/listView"
-        android:layout_alignParentBottom="true" />
-
+        android:layout_height="fill_parent" />
 </RelativeLayout>
