@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Destination_Fragment())
                         .commit();
-                getSupportActionBar().setTitle("Scegli destinazione");
+                getSupportActionBar().setTitle("Scegli una destinazione");
                 break;
             }
             case 31:{
@@ -539,10 +539,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     boolean aresame=true;
                     if(TmpAutostoppisti.size()==Autostoppisti.size()) {
-                        for (int i = 0; i < TmpAutostoppisti.size(); i++){
+                        for (Autostoppista a : TmpAutostoppisti){
                             boolean check = false;
-                            for (int k = 0; k < Autostoppisti.size(); k++){
-                                if(TmpAutostoppisti.get(i).getMobile().equals(Autostoppisti.get(k).getMobile())){
+                            for (Autostoppista b:Autostoppisti){
+                                if(a.getMobile().equals(b.getMobile())){
                                     check = true;
                                 }
                             }
@@ -875,7 +875,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return isValid;
     }
     public void notifica() {
-        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.icona);
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
         Intent intent = new Intent(this, SplashScreen.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 intent, 0);

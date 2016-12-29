@@ -1,18 +1,15 @@
 package com.easytravel.app;
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Geocoder;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,7 +17,6 @@ import android.widget.TextView;
 import com.daasuu.ahp.AnimateHorizontalProgressBar;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,29 +28,12 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.easytravel.app.MainActivity.MY_PERMISSION_REQUEST_READ_FINE_LOCATION;
-import static com.easytravel.app.MainActivity.selected;
 import static com.easytravel.app.MainActivity.selectedOnMap;
 import static com.easytravel.app.MainActivity.stato;
 
@@ -67,7 +46,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         private final View myContentsView;
         MyInfoWindowAdapter(){
-            myContentsView = getActivity().getLayoutInflater().inflate(R.layout.info_window, null);
+            myContentsView = getActivity().getLayoutInflater().inflate(R.layout.info_window_map, null);
         }
         @Override
         public View getInfoContents(Marker marker) {
