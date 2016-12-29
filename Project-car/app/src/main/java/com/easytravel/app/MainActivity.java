@@ -702,6 +702,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         funcPHP("forgotPassword",String.format("{\"mobile\":\"%s\"}",Mobile));
     }
     public void onClickSettings(View v){
+        if(stato==21)
+            return;
         prec = stato;
         stato = 21;
         changeUI();
