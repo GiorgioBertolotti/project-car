@@ -46,10 +46,9 @@ public class connectAsyncTask extends AsyncTask<Void, Void, String> {
     }
     @Override
     protected void onPreExecute() {
-        // TODO Auto-generated method stub
         super.onPreExecute();
         progressDialog = new ProgressDialog(MainActivity.context);
-        progressDialog.setMessage("Fetching route, Please wait...");
+        progressDialog.setMessage("Sto calcolando il percorso...");
         progressDialog.setIndeterminate(true);
         progressDialog.show();
     }
@@ -95,7 +94,7 @@ public class connectAsyncTask extends AsyncTask<Void, Void, String> {
             JSONObject overviewPolylines = routes.getJSONObject("overview_polyline");
             String encodedString = overviewPolylines.getString("points");
             List<LatLng> list = decodePoly(encodedString);
-            Polyline line = MapView.map.addPolyline(new PolylineOptions()
+            MapView.map.addPolyline(new PolylineOptions()
                     .addAll(list)
                     .width(12)
                     .color(Color.parseColor("#05b1fb"))//Google maps blue color

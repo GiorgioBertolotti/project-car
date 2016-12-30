@@ -15,12 +15,11 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="189dp"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@drawable/icon"
+        android:src="@drawable/iconcar"
         android:contentDescription=""
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="0.61" />
+        android:layout_gravity="center_horizontal" />
 
     <TextView
         android:layout_width="match_parent"
