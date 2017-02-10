@@ -397,8 +397,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case "logoutUser": {
                     SharedPreferences settings = getSharedPreferences("UserData", 0);
                     SharedPreferences.Editor editor = settings.edit();
-                    editor.putString("Mobile", null);
-                    editor.putString("Password", null);
+                    editor.putString("Token", null);
                     editor.commit();
                     stato = 0;
                     Intent i = new Intent(this, LoginActivity.class);

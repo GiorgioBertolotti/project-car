@@ -61,11 +61,10 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
         stato = 0;
         changeUI();
         SharedPreferences settings = getSharedPreferences("UserData", 0);
-        String m = settings.getString("Mobile", null);
-        String p = settings.getString("Password", null);
+        String token = settings.getString("Token", null);
         ipServer = settings.getString("IP", null);
-        if(m!=null||p!=null){
-            funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",m,p));
+        if(token!=null){
+            funcPHP("loginWToken",String.format("{\"token\":\"%s\"}",token));
         }
     }
     @Override
@@ -222,14 +221,52 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                             Integer.parseInt(obj2.getString("Range")),
                             BitmapFactory.decodeByteArray(data,0,data.length));
                     if(stato == 0) {
-                        if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()&&!((EditText) findViewById(R.id.lgnetpassword)).getText().toString().isEmpty()){
+                        if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()){
                             SharedPreferences settings = getSharedPreferences("UserData", 0);
                             SharedPreferences.Editor editor = settings.edit();
-                            editor.putString("Mobile", loggato.getMobile());
-                            editor.putString("Password", md5(((EditText) findViewById(R.id.lgnetpassword)).getText().toString()));
+                            editor.putString("Token", obj2.getString("Token"));
                             editor.commit();
                         }
                     }
+                    stato = 20;
+                    h.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(stato>=20) {
+                                java.util.Date dt = new java.util.Date();
+                                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                String finaldate = sdf.format(dt);
+                                funcPHP("setGPSLocation", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"date\":\"%s\"}",
+                                        loggato.getMobile(), lat, lon, finaldate));
+                                if (stato == 51)
+                                    funcPHP("getActiveUsers", "{}");
+                                if (stato == 44) {
+                                    funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
+                                            loggato.getMobile(), lat, lon, range));
+                                }
+                                h.postDelayed(this, 60000);
+                            }else{
+                                h.removeCallbacks(this);
+                            }
+                        }
+                    },60000);
+                    Intent i = new Intent(this, MainActivity.class);
+                    startActivity(i);
+                    finish();
+                    break;
+                }
+                case "loginWToken": {
+                    JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
+                    java.util.Date dt = new java.util.Date();
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    img = obj2.getString("Image");
+                    byte[] data = Base64.decode(img,Base64.DEFAULT);
+                    loggato = new Autostoppista(obj2.getString("Name"),
+                            obj2.getString("Surname"),
+                            obj2.getString("Mobile"),
+                            null,
+                            Integer.parseInt(obj2.getString("Range")),
+                            BitmapFactory.decodeByteArray(data,0,data.length));
                     stato = 20;
                     h.postDelayed(new Runnable() {
                         @Override
