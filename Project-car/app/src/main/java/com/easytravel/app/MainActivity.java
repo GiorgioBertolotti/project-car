@@ -373,7 +373,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.logout: {
-                funcPHP("logoutUser",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                SharedPreferences settings = getSharedPreferences("UserData", 0);
+                String token = settings.getString("Token", null);
+                funcPHP("logoutUser", String.format("{\"mobile\":\"%s\",\"token\":\"%s\"}", loggato.getMobile(),token));
                 break;
             }
         }
@@ -899,8 +901,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(loggato!=null&&!loggato.getMobile().isEmpty()&&!(stato==0))
-            funcPHP("logoutUser",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+        if(loggato!=null&&!loggato.getMobile().isEmpty()&&!(stato==0)) {
+            SharedPreferences settings = getSharedPreferences("UserData", 0);
+            String token = settings.getString("Token", null);
+            funcPHP("logoutUser", String.format("{\"mobile\":\"%s\",\"token\":\"%s\"}", loggato.getMobile(),token));
+        }
         mGoogleApiClient.disconnect();
     }
     @Override
