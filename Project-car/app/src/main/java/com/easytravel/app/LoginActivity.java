@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -83,7 +85,6 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                     if(!mPhoneNumber.isEmpty()) {
                         TextView tvmobile = (TextView) findViewById(R.id.lgnetmobile);
                         tvmobile.setText(mPhoneNumber);
-                        tvmobile.setEnabled(false);
                     }
                 }
                 return;
@@ -210,16 +211,15 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                 }
                 case "loginUser": {
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
-                    java.util.Date dt = new java.util.Date();
-                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     img = obj2.getString("Image");
-                    byte[] data = Base64.decode(img,Base64.DEFAULT);
+                    byte[] data = Base64.decode(img.replace("data:image/jpeg;base64,",""),Base64.DEFAULT);
+                    Bitmap propic = BitmapFactory.decodeByteArray(data, 0, data.length);
                     loggato = new Autostoppista(obj2.getString("Name"),
                             obj2.getString("Surname"),
                             obj2.getString("Mobile"),
                             null,
                             Integer.parseInt(obj2.getString("Range")),
-                            BitmapFactory.decodeByteArray(data,0,data.length));
+                            propic);
                     if(stato == 0) {
                         if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()){
                             SharedPreferences settings = getSharedPreferences("UserData", 0);
@@ -257,16 +257,15 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                 }
                 case "loginWToken": {
                     JSONObject obj2 = new JSONObject(obj.getJSONArray("Message").getString(0));
-                    java.util.Date dt = new java.util.Date();
-                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     img = obj2.getString("Image");
-                    byte[] data = Base64.decode(img,Base64.DEFAULT);
+                    byte[] data = Base64.decode(img.replace("data:image/jpeg;base64,",""),Base64.DEFAULT);
+                    Bitmap propic = BitmapFactory.decodeByteArray(data, 0, data.length);
                     loggato = new Autostoppista(obj2.getString("Name"),
                             obj2.getString("Surname"),
                             obj2.getString("Mobile"),
                             null,
                             Integer.parseInt(obj2.getString("Range")),
-                            BitmapFactory.decodeByteArray(data,0,data.length));
+                            propic);
                     stato = 20;
                     h.postDelayed(new Runnable() {
                         @Override
