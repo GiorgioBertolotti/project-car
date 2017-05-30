@@ -283,14 +283,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case 30:{
-                    loggato.setType_id(null);
-                    funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                     stato = 22;
                     changeUI();
                     break;
                 }
                 case 31:{
-                    funcPHP("removeUser_Destination",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                    loggato.setType_id(null);
+                    funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                     stato = 30;
                     changeUI();
                     break;
@@ -346,26 +345,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         switch (id) {
+            case R.id.autostoppista: {
+                stato = 30;
+                changeUI();
+                break;
+            }
             case R.id.autista: {
                 loggato.setType_id(2);
                 if(stato == 31){
                     loggato.setDestlon(null);
                     loggato.setDestlat(null);
-                    funcPHP("removeUser_Destination",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                 }
                 funcPHP("User_Type",String.format("{\"mobile\":\"%s\",\"type\":\"autista\"}",loggato.getMobile()));
-                break;
-            }
-            case R.id.autostoppista: {
-                loggato.setType_id(1);
-                funcPHP("User_Type",String.format("{\"mobile\":\"%s\",\"type\":\"autostoppista\"}",loggato.getMobile()));
                 break;
             }
             case R.id.mappa: {
                 if(stato == 31){
                     loggato.setDestlon(null);
                     loggato.setDestlat(null);
-                    funcPHP("removeUser_Destination",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
                 }
                 stato = 50;
                 funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
@@ -414,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 case "User_Type": {
                     if(loggato.getType_id()==1) {
-                        stato = 30;
+                        stato = 31;
                         changeUI();
                     }else{
                         stato = 40;
@@ -608,11 +605,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             break;
                         }
                     }
-                    break;
-                }
-                case "removeUser_Destination": {
-                    loggato.setDestlat(null);
-                    loggato.setDestlon(null);
                     break;
                 }
                 case "removeUser_Type": {

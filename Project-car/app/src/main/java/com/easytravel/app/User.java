@@ -11,10 +11,12 @@ import java.util.Date;
 public class User {
     private String name;
     private String surname;
+    private String mail;
     private String mobile;
     private Integer type_id;
-    private Integer range;
+    private int range;
     private Bitmap img;
+    private int rating;
     private Double latitude;
     private Double longitude;
     private Date date;
@@ -32,6 +34,10 @@ public class User {
         if(value.length()>20)
             return "";
         surname = value;
+        return "ok";
+    }
+    private String setMail(String value){
+        mail = value;
         return "ok";
     }
     private String setMobile(String value){
@@ -58,8 +64,8 @@ public class User {
         date = value;
         return "ok";
     }
-    public String setRange(Integer value){
-        if(value!=null&value<0)
+    public String setRange(int value){
+        if(value>100||value<0)
             return "";
         range = value;
         return "ok";
@@ -70,6 +76,12 @@ public class User {
         img = value;
         return "ok";
     }
+    public String setRating(int value){
+        if(value>5||value<0)
+            return "";
+        rating = value;
+        return "ok";
+    }
     public String getName(){
         return name;
     }
@@ -77,12 +89,14 @@ public class User {
         return surname;
     }
     public String getMobile(){ return mobile; }
+    public String getMail(){ return mail; }
     public Integer getType_id(){return type_id;}
     public Double getLatitude(){return latitude;}
     public Double getLongitude(){return longitude;}
     public Date getDate(){return date;}
-    public Integer getRange(){return range;}
+    public int getRange(){return range;}
     public Bitmap getImg(){return img;}
+    public int getRating(){return rating;}
     public User(String n, String s, String m, Integer t, Integer r, Bitmap i){
         if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setImage(i).equals(""))
             return;

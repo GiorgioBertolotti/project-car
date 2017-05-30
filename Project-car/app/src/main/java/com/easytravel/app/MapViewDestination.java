@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,12 +33,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.easytravel.app.MainActivity.MY_PERMISSION_REQUEST_READ_FINE_LOCATION;
+import static com.easytravel.app.MainActivity.context;
 import static com.easytravel.app.MainActivity.ipServer;
 import static com.easytravel.app.MainActivity.lat;
 import static com.easytravel.app.MainActivity.loggato;
@@ -179,7 +183,10 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
     public boolean onMarkerClick(Marker marker) {
         CallAPI asyncTask = new CallAPI();
         asyncTask.delegate = this;
-        asyncTask.execute(ipServer,"User_Destination", String.format("{\"mobile\":\"%s\",\"Latitude\":\"%s\",\"Longitude\":\"%s\"}",loggato.getMobile(), lat, lon));
+        asyncTask.execute(ipServer,"User_Type", String.format("{\"mobile\":\"%s\",\"type\":\"autostoppista\"}",loggato.getMobile()));
+        CallAPI asyncTask2 = new CallAPI();
+        asyncTask2.delegate = this;
+        asyncTask2.execute(ipServer,"User_Destination", String.format("{\"mobile\":\"%s\",\"Latitude\":\"%s\",\"Longitude\":\"%s\"}",loggato.getMobile(), lat, lon));
         return true;
     }
     @Override
@@ -219,9 +226,24 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
     }
     @Override
     public void processFinish(String output) {
-        stato = 31;
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.RelativeLayout, new Wait_Fragment())
-                .commit();
+        try {
+            JSONObject obj = new JSONObject(output);
+            if (obj.getBoolean("IsError")) {
+                if (obj.getString("Message").equals("Errore nella query"))
+                    return;
+                Toast.makeText(context, obj.getString("Message"), Toast.LENGTH_LONG).show();
+                return;
+            }else {
+                if (obj.getString("Function").equals("User_Destination")) {
+                    stato = 31;
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.RelativeLayout, new Wait_Fragment())
+                            .commit();
+                }
+            }
+        }
+        catch (Exception e){
+            Log.e("Error",e.getMessage());
+        }
     }
 }

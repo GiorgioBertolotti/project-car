@@ -40,7 +40,7 @@ public class Settings_Fragment extends Fragment {
         final SeekBar seekBar = (SeekBar)view.findViewById(R.id.setskbrange);
         final TextView tvRange = (TextView)view.findViewById(R.id.settvrange2);
         seekBar.setProgress(MainActivity.loggato.getRange());
-        tvRange.setText(MainActivity.loggato.getRange().toString());
+        tvRange.setText(Integer.toString(MainActivity.loggato.getRange()));
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
