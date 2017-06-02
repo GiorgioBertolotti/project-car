@@ -1,34 +1,29 @@
 package com.easytravel.app;
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.daasuu.ahp.AnimateHorizontalProgressBar;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -39,6 +34,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static com.easytravel.app.MainActivity.MY_PERMISSION_REQUEST_READ_FINE_LOCATION;
 import static com.easytravel.app.MainActivity.context;
@@ -57,17 +53,11 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
         AsyncResponse{
     private GoogleApiClient mGoogleApiClient;
     private Location mCurrentLocation;
-    final Handler handler = new Handler();
     Runnable r;
-    final Handler timer = new Handler();
-    Runnable r2;
-    private boolean isrunning = false;
-    String mobilecl;
+    public static String Dest;
     private static float ZOOM=0,BEARING=0,TILT=0;
-    private static float LAT=0,LON=0;
+    public static float LAT=0,LON=0;
     private final int MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL;
-    private int curMapTypeIndex = 1;
-    AnimateHorizontalProgressBar progressBar;
     Marker marker;
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -88,6 +78,22 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
             if(!mGoogleApiClient.isConnected())
                 mGoogleApiClient.connect();
         }
+        PlaceAutocompleteFragment fragment = new PlaceAutocompleteFragment();
+        getActivity().getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
+        fragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                selectedPlace(place);
+                Dest = place.getName().toString();
+                Log.i("Place", "Place: " + place.getName());
+            }
+            @Override
+            public void onError(Status status) {
+                Log.i("Error", "An error occurred: " + status);
+            }
+        });
     }
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -139,6 +145,20 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
         try{mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
         catch (SecurityException e){return;}
         initCamera(mCurrentLocation);
+    }
+    private void selectedPlace(Place place){
+        if(marker!=null)
+            marker.remove();
+        marker = getMap().addMarker(new MarkerOptions()
+                .position(new LatLng(place.getLatLng().latitude, place.getLatLng().longitude))
+                .icon(BitmapDescriptorFactory.defaultMarker()));
+        CameraPosition position = CameraPosition.builder()
+                .target(new LatLng(place.getLatLng().latitude,place.getLatLng().longitude))
+                .zoom(16f)
+                .bearing(0.0f)
+                .tilt(0.0f)
+                .build();
+        getMap().animateCamera(CameraUpdateFactory.newCameraPosition(position), null);
     }
     private void initCamera(Location location) {
         if(MainActivity.isFirstMapOpen2) {
@@ -200,6 +220,14 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
         marker = getMap().addMarker(new MarkerOptions()
                 .position(new LatLng(latLng.latitude, latLng.longitude))
                 .icon(BitmapDescriptorFactory.defaultMarker()));
+        try {
+            Geocoder geocoder;
+            List<Address> addresses;
+            geocoder = new Geocoder(context, Locale.getDefault());
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            Toast.makeText(context,addresses.get(0).getAddressLine(0),Toast.LENGTH_LONG).show();
+            Dest = addresses.get(0).getAddressLine(0);
+        }catch (Exception e) {}
     }
     @Override
     public void onMapLongClick(LatLng latLng) {

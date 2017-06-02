@@ -7,6 +7,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import static com.easytravel.app.MainActivity.lat;
+import static com.easytravel.app.MainActivity.lon;
+import static com.easytravel.app.MapViewDestination.Dest;
 
 public class Wait_Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
@@ -29,6 +34,13 @@ public class Wait_Fragment extends Fragment {
         View view = null;
         view = inflater.inflate(R.layout.fragment_wait_, container, false);
         return view;
+    }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        mListener.onFragmentInteraction(null);
+        ((TextView) getActivity().findViewById(R.id.selectedLat)).setText(Float.toString(MapViewDestination.LAT));
+        ((TextView) getActivity().findViewById(R.id.selectedLng)).setText(Float.toString(MapViewDestination.LON));
+        ((TextView) getActivity().findViewById(R.id.selectedDest)).setText("("+Dest+")");
     }
     @Override
     public void onAttach(Context context) {

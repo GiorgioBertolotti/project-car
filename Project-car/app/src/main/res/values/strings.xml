@@ -32,4 +32,9 @@
     <string name="_0000">0000</string>
     <string name="loginregister">Crea account</string>
     <string name="advsettings">Impostazioni avanzate</string>
+    <string name="AdvisorWait">NB: Ricorda di annullare la ricerca una volta che avrai concordato un passaggio con un autista.</string>
+    <string name="latitudine">LATITUDINE</string>
+    <string name="longitudine">LONGITUDINE</string>
+    <string name="destinazione">DESTINAZIONE</string>
+    <string name="hai_scelto_questa_destinazione">Hai scelto questa destinazione:</string>
 </resources>
