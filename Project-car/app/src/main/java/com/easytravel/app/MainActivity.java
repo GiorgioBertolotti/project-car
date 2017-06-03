@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final int MY_PERMISSION_REQUEST_READ_FINE_LOCATION = 61626,PERMISSION_TELEPHONE_NUMBER = 61627, PLACE_PICKER_REQUEST = 61628;;
     public static boolean isFirstMapOpen = true, isFirstMapOpen2 = true, doubleBackToExitPressedOnce = false, needRefreshAutostoppisti = true;
     public static Context context;
+    public static ActionBarDrawerToggle mDrawerToggle;
     public void changeUI(){
         switch (stato){
             case 20:{
@@ -96,16 +97,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                mDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
                 assert drawer != null;
-                drawer.setDrawerListener(toggle);
-                toggle.syncState();
+                drawer.setDrawerListener(mDrawerToggle);
+                mDrawerToggle.syncState();
                 navigationView = (NavigationView) findViewById(R.id.nav_view);
                 assert navigationView != null;
                 navigationView.setNavigationItemSelectedListener(this);
                 navigationView.getMenu().findItem(R.id.logout).setVisible(true);
-                navigationView.getMenu().findItem(R.id.login).setVisible(false);
-                navigationView.getMenu().findItem(R.id.register).setVisible(false);
                 navigationView.getMenu().findItem(R.id.autostoppista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.autista).setEnabled(true);
                 navigationView.getMenu().findItem(R.id.mappa).setEnabled(true);
@@ -191,6 +190,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportActionBar().setTitle("Profilo pubblico");
                 break;
             }
+        }
+    }
+    public void enableViews(boolean enable) {
+        if(enable) {
+            mDrawerToggle.setDrawerIndicatorEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
+        } else {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            mDrawerToggle.setDrawerIndicatorEnabled(true);
+            mDrawerToggle.setToolbarNavigationClickListener(null);
         }
     }
     @Override
@@ -630,47 +645,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         catch (Exception e){}
-    }
-    public void onClickRegister(View v) {
-        String Name = ((EditText)findViewById(R.id.regetname)).getText().toString();
-        Name = Name.substring(0,1).toUpperCase() + Name.substring(1);
-        String Surname = ((EditText)findViewById(R.id.regetsurname)).getText().toString();
-        Surname = Surname.substring(0,1).toUpperCase() + Surname.substring(1);
-        String Email = ((EditText)findViewById(R.id.regetemail)).getText().toString();
-        String Mobile = ((EditText)findViewById(R.id.regetmobile)).getText().toString();
-        String Password = ((EditText)findViewById(R.id.regetpassword)).getText().toString();
-        String Confirm = ((EditText)findViewById(R.id.regetconfirm)).getText().toString();
-        if(Name.isEmpty()||Surname.isEmpty()||Email.isEmpty()||Mobile.isEmpty()||Password.isEmpty()||Confirm.isEmpty()) {
-            Toast.makeText(this,"Compilare tutti i campi",Toast.LENGTH_LONG).show();
-            return;
-        }
-        if(!Password.equals(Confirm)) {
-            Toast.makeText(this,"Password e conferma non coincidono", Toast.LENGTH_LONG).show();
-            return;
-        }
-        if(!isEmailValid(Email)){
-            Toast.makeText(this,"Inserisci una e-mail valida", Toast.LENGTH_LONG).show();
-            return;
-        }
-        String md5pwd = md5(Password);
-        if(md5pwd.isEmpty()) {
-            Toast.makeText(this,"Errore nel codificare la password",Toast.LENGTH_SHORT).show();
-        }
-        funcPHP("registerUser",String.format("{\"name\":\"%s\",\"surname\":\"%s\",\"email\":\"%s\",\"mobile\":\"%s\",\"password\":\"%s\"}",Name,Surname,Email,Mobile,md5pwd));
-    }
-    public void onClickLogin(View v) {
-        assert ((EditText)findViewById(R.id.lgnetmobile)) != null;
-        String Mobile = ((EditText)findViewById(R.id.lgnetmobile)).getText().toString();
-        String Password = ((EditText)findViewById(R.id.lgnetpassword)).getText().toString();
-        if(Mobile.isEmpty()|| Password.isEmpty()) {
-            Toast.makeText(this,"Compilare tutti i campi",Toast.LENGTH_LONG).show();
-            return;
-        }
-        String md5pwd = md5(Password);
-        if(md5pwd.isEmpty()) {
-            Toast.makeText(this,"Errore nel codificare la password",Toast.LENGTH_SHORT).show();
-        }
-        funcPHP("loginUser",String.format("{\"mobile\":\"%s\",\"password\":\"%s\"}",Mobile,md5pwd));
     }
     public void onClickSave(View v){
         Integer Range = ((SeekBar) findViewById(R.id.setskbrange)).getProgress();

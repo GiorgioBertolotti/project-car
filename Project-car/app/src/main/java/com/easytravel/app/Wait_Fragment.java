@@ -4,13 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import static com.easytravel.app.MainActivity.lat;
-import static com.easytravel.app.MainActivity.lon;
+import static com.easytravel.app.MainActivity.mDrawerToggle;
 import static com.easytravel.app.MapViewDestination.Dest;
 
 public class Wait_Fragment extends Fragment {
@@ -27,6 +27,7 @@ public class Wait_Fragment extends Fragment {
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
     @Override
@@ -41,6 +42,17 @@ public class Wait_Fragment extends Fragment {
         ((TextView) getActivity().findViewById(R.id.selectedLat)).setText(Float.toString(MapViewDestination.LAT));
         ((TextView) getActivity().findViewById(R.id.selectedLng)).setText(Float.toString(MapViewDestination.LON));
         ((TextView) getActivity().findViewById(R.id.selectedDest)).setText("("+Dest+")");
+        mDrawerToggle.setDrawerIndicatorEnabled(false);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+                ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                mDrawerToggle.setDrawerIndicatorEnabled(true);
+                mDrawerToggle.setToolbarNavigationClickListener(null);
+            }
+        });
     }
     @Override
     public void onAttach(Context context) {

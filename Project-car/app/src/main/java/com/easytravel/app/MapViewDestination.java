@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -267,6 +268,7 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.RelativeLayout, new Wait_Fragment())
                             .commit();
+                    ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Attesa");
                 }
             }
         }
