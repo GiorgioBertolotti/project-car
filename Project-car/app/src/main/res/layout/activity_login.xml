@@ -83,18 +83,19 @@
             android:textColor="@color/colorWhite" />
 
         <TextView
+            android:id="@+id/lgntvforgot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hai_dimenticato_la_password"
-            android:id="@+id/lgntvforgot"
-            android:onClick="onClickForgot"
-            android:textAlignment="center"
             android:layout_above="@+id/lgntvinvisible"
-            android:layout_alignRight="@+id/lgntvinvisible"
             android:layout_alignEnd="@+id/lgntvinvisible"
             android:layout_alignLeft="@+id/lgnchkrestaloggato"
+            android:layout_alignRight="@+id/lgntvinvisible"
             android:layout_alignStart="@+id/lgnchkrestaloggato"
-            android:textColor="@color/colorWhite"/>
+            android:onClick="onClickForgot"
+            android:text="@string/hai_dimenticato_la_password"
+            android:textAlignment="center"
+            android:textColor="@color/colorWhite"
+            android:visibility="invisible" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -38,6 +38,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -54,6 +55,7 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -115,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .addToBackStack(null)
                         .commit();
                 getSupportActionBar().setTitle("EasyTravel");
+                funcPHP("getRating", String.format("{\"mobile\":\"%s\"}", loggato.getMobile()));
                 break;
             }
             case 21:{
@@ -593,6 +596,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ((EditText)findViewById(R.id.setetconfirm)).setText("");
                     break;
                 }
+                case "getRating": {
+                    ((RatingBar)findViewById(R.id.prfrbrating)).setRating(Float.parseFloat(obj.getString("Message")));
+                    break;
+                }
             }
         }
         catch (Exception e){}
@@ -685,19 +692,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         menu.add(0, v.getId(), 0, "Visualizza profilo");//groupId, itemId, order, title
         menu.add(0, v.getId(), 0, "Visualizza su mappa");
         menu.add(0, v.getId(), 0, "Chiama");
+        menu.add(0, v.getId(), 0, "E-mail");
     }
     @Override
     public boolean onContextItemSelected(MenuItem item){
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         if(item.getTitle().equals("Visualizza profilo")){
-            for(Autostoppista a : Autostoppisti){
-                if(a.getMobile().equals(Autostoppisti.get(info.position).getMobile())) {
-                    MainActivity.selected = a;
-                    break;
-                }
-            }
+            MainActivity.selected = Autostoppisti.get(info.position);
             MainActivity.stato = 42;
             changeUI();
+            funcPHP("selectAutostoppista", String.format("{\"caller\":\"%s\",\"receiver\":\"%s\"}", loggato.getMobile(), MainActivity.selected.getMobile()));
+        }else if(item.getTitle().equals("Visualizza su mappa")) {
+            selectedOnMap = Autostoppisti.get(info.position);
+            stato = 43;
+            funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), lat, lon, range));
+            funcPHP("selectAutostoppista", String.format("{\"caller\":\"%s\",\"receiver\":\"%s\"}", loggato.getMobile(), selectedOnMap.getMobile()));
         }
         else if(item.getTitle().equals("Chiama")){
             Autostoppista listItem = Autostoppisti.get(info.position);
@@ -707,10 +716,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(this,"Errore nella chiamata",Toast.LENGTH_SHORT).show();
                 return false;
             }
-        }else if(item.getTitle().equals("Visualizza su mappa")) {
-            selectedOnMap = Autostoppisti.get(info.position);
-            stato = 43;
-            funcPHP("getAS", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}", loggato.getMobile(), lat, lon, range));
+            funcPHP("addContact", String.format("{\"caller\":\"%s\",\"receiver\":\"%s\",\"type\":\"Call\"}", loggato.getMobile(), listItem.getMobile()));
+        }
+        else if(item.getTitle().equals("E-mail")){
+            Autostoppista listItem = Autostoppisti.get(info.position);
+            Uri uri = Uri.parse("mailto:"+listItem.getMail() + "?subject=" + URLEncoder.encode("EasyTravel: ti serve un passaggio?"));
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(uri);
+            startActivity(Intent.createChooser(intent, "Send Email"));
+            funcPHP("addContact", String.format("{\"caller\":\"%s\",\"receiver\":\"%s\",\"type\":\"Mail\"}", loggato.getMobile(), listItem.getMobile()));
         }else{
             return false;
         }

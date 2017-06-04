@@ -3,7 +3,10 @@ package com.easytravel.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -116,8 +119,29 @@ public class Profile_Fragment extends Fragment {
             if (data == null) return;
             try {
                 InputStream inputStream = getActivity().getContentResolver().openInputStream(data.getData());
-                Drawable bd = new BitmapDrawable(getResources(), BitmapFactory.decodeStream(inputStream));
-                ((ImageView) getActivity().findViewById(R.id.prfivprofileimage)).setImageDrawable(bd);
+                Bitmap bmpo = BitmapFactory.decodeStream(inputStream);
+                int w = 200, h = 200;
+                Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+                Bitmap bmp = Bitmap.createBitmap(w, h, conf);
+                Canvas canvas = new Canvas(bmp);
+                canvas.drawColor(Color.WHITE);
+                float rel = (float)bmpo.getWidth()/bmpo.getHeight();
+                if(bmpo.getHeight()>bmpo.getWidth()){
+                    int nw = Math.round(rel*w);
+                    Bitmap scaled = Bitmap.createScaledBitmap(bmpo, nw, h, true);
+                    canvas.drawBitmap(scaled,(w-nw)/2,0,null);
+                }
+                if(bmpo.getHeight()<bmpo.getWidth()){
+                    int nh = Math.round(h/rel);
+                    Bitmap scaled = Bitmap.createScaledBitmap(bmpo, w, nh, true);
+                    canvas.drawBitmap(scaled,0,(h-nh)/2,null);
+                }
+                if(bmpo.getHeight()==bmpo.getWidth()){
+                    Bitmap scaled = Bitmap.createScaledBitmap(bmpo, w, h, true);
+                    canvas.drawBitmap(scaled,0,0,null);
+                }
+                Drawable drawable = new BitmapDrawable(getResources(), bmp);
+                ((ImageView) getActivity().findViewById(R.id.prfivprofileimage)).setImageDrawable(drawable);
                 mListener.onFragmentInteraction(null);
             }
             catch (Exception e) {return;}
