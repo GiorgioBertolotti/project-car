@@ -48,6 +48,7 @@ public class Wait_Fragment extends Fragment {
         ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        getActivity().findViewById(R.id.tlbbtnsettings).setVisibility(View.INVISIBLE);
         mDrawerToggle.syncState();
         mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
@@ -59,6 +60,7 @@ public class Wait_Fragment extends Fragment {
                 DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
                 drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_UNLOCKED);
+                getActivity().findViewById(R.id.tlbbtnsettings).setVisibility(View.VISIBLE);
                 mDrawerToggle.syncState();
             }
         });

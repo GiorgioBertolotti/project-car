@@ -10,6 +10,7 @@
     <string name="mobile">Mobile</string>
     <string name="password">Password</string>
     <string name="login">LOGIN</string>
+    <string name="nomecognome">Nome Cognome</string>
     <string name="nome">Nome</string>
     <string name="cognome">Cognome</string>
     <string name="conferma">Conferma</string>

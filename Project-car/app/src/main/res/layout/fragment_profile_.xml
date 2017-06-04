@@ -4,24 +4,17 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.easytravel.app.Profile_Fragment"
-    android:background="@drawable/background">
+    android:background="@drawable/background2">
 
     <!-- TODO: Update blank fragment layout -->
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/nome"
-        android:id="@+id/prftvname"
+        android:text="@string/nomecognome"
+        android:id="@+id/prftvnamesurname"
+        android:textSize="32sp"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/cognome"
-        android:id="@+id/prftvsurname"
-        android:layout_below="@+id/prftvname"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -29,7 +22,15 @@
         android:layout_height="wrap_content"
         android:text="@string/mobile"
         android:id="@+id/prftvmobile"
-        android:layout_below="@+id/prftvsurname"
+        android:layout_below="@+id/prftvnamesurname"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="E-Mail"
+        android:id="@+id/prftvmail"
+        android:layout_below="@+id/prftvmobile"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -37,8 +38,19 @@
         android:layout_height="wrap_content"
         android:text="@string/type_id"
         android:id="@+id/prftvtipo"
-        android:layout_below="@+id/prftvmobile"
+        android:layout_below="@+id/prftvmail"
         android:layout_centerHorizontal="true" />
+
+    <RatingBar
+        android:id="@+id/prfrbrating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/prftvtipo"
+        android:layout_centerHorizontal="true"
+        android:numStars="5"
+        android:stepSize="1"
+        android:theme="@style/RatingBar"
+        android:visibility="visible" />
 
     <ImageView
         android:layout_width="match_parent"
@@ -46,7 +58,7 @@
         android:id="@+id/prfivprofileimage"
         android:src="@drawable/ic_user"
         android:layout_marginBottom="53dp"
-        android:layout_above="@+id/prftvname"
+        android:layout_above="@+id/prftvnamesurname"
         android:layout_centerHorizontal="true"
         android:layout_margin="75dp"
         android:contentDescription="@string/immagine_profilo_utente" />
@@ -57,8 +69,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/prfivprofileimage"
-        android:layout_toRightOf="@+id/prftvname"
-        android:layout_toEndOf="@+id/prftvname"
+        android:layout_toRightOf="@+id/prftvmobile"
+        android:layout_toEndOf="@+id/prftvmobile"
         android:id="@+id/prffabedit" />
 
 </RelativeLayout>

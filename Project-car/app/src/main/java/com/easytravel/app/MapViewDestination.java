@@ -226,7 +226,7 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
             List<Address> addresses;
             geocoder = new Geocoder(context, Locale.getDefault());
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-            Toast.makeText(context,addresses.get(0).getAddressLine(0),Toast.LENGTH_LONG).show();
+            Toast.makeText(context,addresses.get(0).getAddressLine(0),Toast.LENGTH_SHORT).show();
             Dest = addresses.get(0).getAddressLine(0);
         }catch (Exception e) {}
     }

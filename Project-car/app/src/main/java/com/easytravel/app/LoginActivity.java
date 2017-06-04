@@ -217,9 +217,11 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                     loggato = new Autostoppista(obj2.getString("Name"),
                             obj2.getString("Surname"),
                             obj2.getString("Mobile"),
+                            obj2.getString("Mail"),
                             null,
                             Integer.parseInt(obj2.getString("Range")),
-                            propic);
+                            propic,
+                            Integer.parseInt(obj2.getString("Rating")));
                     if(stato == 0) {
                         if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()){
                             SharedPreferences settings = getSharedPreferences("UserData", 0);
@@ -263,9 +265,11 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                     loggato = new Autostoppista(obj2.getString("Name"),
                             obj2.getString("Surname"),
                             obj2.getString("Mobile"),
+                            obj2.getString("Mail"),
                             null,
                             Integer.parseInt(obj2.getString("Range")),
-                            propic);
+                            propic,
+                            Integer.parseInt(obj2.getString("Rating")));
                     stato = 20;
                     h.postDelayed(new Runnable() {
                         @Override

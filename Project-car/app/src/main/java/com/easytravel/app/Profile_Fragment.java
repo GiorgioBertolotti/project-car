@@ -10,13 +10,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import java.io.InputStream;
+
+import static com.easytravel.app.MainActivity.mDrawerToggle;
 
 public class Profile_Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
@@ -42,10 +47,12 @@ public class Profile_Fragment extends Fragment {
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        if(MainActivity.stato == 20||MainActivity.stato == 22){
-            ((TextView) view.findViewById(R.id.prftvname)).setText(MainActivity.loggato.getName());
-            ((TextView) view.findViewById(R.id.prftvsurname)).setText(MainActivity.loggato.getSurname());
+        if(MainActivity.stato == 20){
+            ((TextView) view.findViewById(R.id.prftvnamesurname)).setText(MainActivity.loggato.getName()+" "+MainActivity.loggato.getSurname());
+            ((TextView) view.findViewById(R.id.prftvmail)).setText(MainActivity.loggato.getMail());
             ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.loggato.getMobile());
+            ((RatingBar) view.findViewById(R.id.prfrbrating)).setRating(MainActivity.loggato.getRating());
+            ((RatingBar) view.findViewById(R.id.prfrbrating)).setEnabled(true);
             ((TextView) view.findViewById(R.id.prftvtipo)).setVisibility(View.INVISIBLE);
             if(MainActivity.loggato.getImg()!=null)
                 ((ImageView) view.findViewById(R.id.prfivprofileimage)).setImageDrawable(new BitmapDrawable(getResources(), MainActivity.loggato.getImg()));
@@ -67,9 +74,10 @@ public class Profile_Fragment extends Fragment {
             });
         }
         if(MainActivity.stato == 42||MainActivity.stato == 45||MainActivity.stato == 52){
-            ((TextView) view.findViewById(R.id.prftvname)).setText(MainActivity.selected.getName());
-            ((TextView) view.findViewById(R.id.prftvsurname)).setText(MainActivity.selected.getSurname());
+            ((TextView) view.findViewById(R.id.prftvnamesurname)).setText(MainActivity.selected.getName()+" "+MainActivity.selected.getSurname());
+            ((TextView) view.findViewById(R.id.prftvmail)).setText(MainActivity.selected.getMail());
             ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.selected.getMobile());
+            ((RatingBar) view.findViewById(R.id.prfrbrating)).setRating(MainActivity.selected.getRating());
             if(MainActivity.selected.getImg()!=null)
                 ((ImageView) view.findViewById(R.id.prfivprofileimage)).setImageDrawable(new BitmapDrawable(getResources(), MainActivity.selected.getImg()));
             ((FloatingActionButton) view.findViewById(R.id.prffabedit)).setVisibility(View.INVISIBLE);
@@ -78,7 +86,29 @@ public class Profile_Fragment extends Fragment {
                 ((TextView) view.findViewById(R.id.prftvtipo)).setText("Autostoppista");
             else
                 ((TextView) view.findViewById(R.id.prftvtipo)).setText("Autista");
+            DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+            mDrawerToggle.setDrawerIndicatorEnabled(false);
+            ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            getActivity().findViewById(R.id.tlbbtnsettings).setVisibility(View.INVISIBLE);
+            mDrawerToggle.syncState();
+            mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().onBackPressed();
+                    ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    mDrawerToggle.setDrawerIndicatorEnabled(true);
+                    mDrawerToggle.setToolbarNavigationClickListener(null);
+                    DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    getActivity().findViewById(R.id.tlbbtnsettings).setVisibility(View.VISIBLE);
+                    mDrawerToggle.syncState();
+                }
+            });
         }
+        getActivity().findViewById(R.id.prfrbrating).setEnabled(false);
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

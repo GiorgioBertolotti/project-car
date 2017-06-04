@@ -31,8 +31,8 @@ public class Autostoppista extends User {
     }
     public Double getDestlat(){return destlat;}
     public Double getDestlon(){return destlon;}
-    public Autostoppista(String n, String s, String m, Integer t, Integer r, Bitmap i, Double destla, Double destlo, Double la, Double lo, Date d){
-        super(n,s,m,t,r,lo,la,d,i);
+    public Autostoppista(String n, String s, String m, String ma, Integer t, Integer r, Bitmap i, Double destla, Double destlo, Double la, Double lo, Date d,int rating){
+        super(n,s,m,ma,t,r,lo,la,d,i,rating);
         if(setDestlat(destla).equals("")||setDestlon(destlo).equals(""))
             return;
         Geocoder geoCoder = new Geocoder(MainActivity.context);
@@ -51,8 +51,8 @@ public class Autostoppista extends User {
         }else
             toString = this.getName()+" "+this.getSurname()+" ["+this.getDestlat()+","+this.getDestlon()+"]";
     }
-    public Autostoppista(String n, String s, String m, Integer t, Integer r, Bitmap i){
-        super(n,s,m,t,r,i);
+    public Autostoppista(String n, String s, String m, String ma, Integer t, Integer r, Bitmap i,int rating){
+        super(n,s,m,ma,t,r,i,rating);
         toString = this.getName()+" "+this.getSurname();
     }
     @Override

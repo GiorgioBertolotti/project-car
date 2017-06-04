@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <group android:id="@+id/authentication"
-        android:checkableBehavior="single">
-        <item
-            android:id="@+id/logout"
-            android:icon="@drawable/ic_login"
-            android:title="Logout" />
-    </group>
-
     <group android:id="@+id/transport"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/home"
+            android:icon="@drawable/ic_home"
+            android:title="Homepage" />
         <item
             android:id="@+id/autostoppista"
             android:icon="@drawable/ic_thumb_up"
@@ -24,5 +19,11 @@
             android:icon="@drawable/ic_map"
             android:title="Mappa" />
     </group>
-
+    <group android:id="@+id/authentication"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/logout"
+            android:icon="@drawable/ic_login"
+            android:title="Logout" />
+    </group>
 </menu>

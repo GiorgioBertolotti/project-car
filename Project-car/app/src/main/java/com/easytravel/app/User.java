@@ -97,12 +97,12 @@ public class User {
     public int getRange(){return range;}
     public Bitmap getImg(){return img;}
     public int getRating(){return rating;}
-    public User(String n, String s, String m, Integer t, Integer r, Bitmap i){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setImage(i).equals(""))
+    public User(String n, String s, String m,String ma, Integer t, Integer r, Bitmap i, int rating){
+        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setMail(ma).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setImage(i).equals("")||setRating(rating).equals(""))
             return;
     }
-    public User(String n,String s,String m,Integer t,Integer r,Double lo,Double la,Date d,Bitmap i){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals("")||setImage(i).equals(""))
+    public User(String n,String s,String m,String ma, Integer t,Integer r,Double lo,Double la,Date d,Bitmap i,int rating){
+        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setMail(ma).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals("")||setImage(i).equals("")||setRating(rating).equals(""))
             return;
     }
 }

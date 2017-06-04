@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static ArrayAdapter<User> usersAdapter;
     public static ArrayList<Autostoppista> Autostoppisti;
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
-    public static String ipServer = "http://172.22.20.107:8081/pcws/index.php";
+    public static String ipServer = "http://192.168.200.160:8080/pcws/index.php";
     public static String lat,lon,img,notifications = "Ci sono nuovi autostoppisti!";
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
@@ -123,15 +123,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .replace(R.id.RelativeLayout, new Settings_Fragment())
                         .commit();
                 getSupportActionBar().setTitle("Impostazioni");
-                break;
-            }
-            case 22:{
-                rl.removeAllViews();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new Profile_Fragment())
-                        .addToBackStack(null)
-                        .commit();
-                getSupportActionBar().setTitle("EasyTravel");
                 break;
             }
             case 30:{
@@ -230,6 +221,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            if(stato == 42||stato == 45||stato == 52||stato == 31){
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                mDrawerToggle.setDrawerIndicatorEnabled(true);
+                mDrawerToggle.setToolbarNavigationClickListener(null);
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_UNLOCKED);
+                findViewById(R.id.tlbbtnsettings).setVisibility(View.VISIBLE);
+                mDrawerToggle.syncState();
+            }
             switch (stato){
                 case 0: {
                     if (doubleBackToExitPressedOnce) {
@@ -280,25 +280,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     changeUI();
                     break;
                 }
-                case 22:{
-                    if (doubleBackToExitPressedOnce) {
-                        android.os.Process.killProcess(android.os.Process.myPid());
-                        System.exit(1);
-                        break;
-                    }
-                    this.doubleBackToExitPressedOnce = true;
-                    Toast.makeText(this, "Click back again to exit", Toast.LENGTH_SHORT).show();
-                    new Handler().postDelayed(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            doubleBackToExitPressedOnce=false;
-                        }
-                    }, 2000);
-                    break;
-                }
                 case 30:{
-                    stato = 22;
+                    stato = 20;
                     changeUI();
                     break;
                 }
@@ -311,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 case 40:{
                     funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
-                    stato = 22;
+                    stato = 20;
                     changeUI();
                     break;
                 }
@@ -336,12 +319,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case 50:{
-                    stato = 22;
+                    stato = 20;
                     changeUI();
                     break;
                 }
                 case 51:{
-                    stato = 22;
+                    stato = 20;
                     changeUI();
                     break;
                 }
@@ -360,6 +343,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         switch (id) {
+            case R.id.home: {
+                funcPHP("removeUser_Type",String.format("{\"mobile\":\"%s\"}",loggato.getMobile()));
+                stato = 20;
+                changeUI();
+                break;
+            }
             case R.id.autostoppista: {
                 stato = 30;
                 changeUI();
@@ -401,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             JSONObject obj = new JSONObject(output);
             if(obj.getBoolean("IsError")) {
-                if(obj.getString("Message").equals("Errore nella query"))
+                if(obj.getString("Message").equals("Errore nella query")||(stato==20&&obj.getString("Message").equals("Nessun autostoppista")))
                     return;
                 Toast.makeText(this, obj.getString("Message"), Toast.LENGTH_LONG).show();
                 return;
@@ -440,10 +429,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 20:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
+                                byte[] data = Base64.decode((new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image")).replace("data:image/jpeg;base64,",""),Base64.DEFAULT);
                                 Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mail"),
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
@@ -451,32 +441,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
-                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
                             }
                             final Handler notifications = new Handler();
                             notifications.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
                                     if(stato>=20) {
-                                        funcPHP("getAS2", String.format("{\"mobile\":\"%s\",\"lat\":\"%s\",\"lon\":\"%s\",\"range\":\"%s\"}",
-                                                loggato.getMobile(), lat, lon, range));
                                         notifications.postDelayed(this, 60000);
                                     }else{
                                         notifications.removeCallbacks(this);
                                     }
                                 }
                             },60000);
-
-                            stato = 22;
+                            stato = 20;
                             break;
                         }
                         case 40:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
+                                byte[] data = Base64.decode((new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image")).replace("data:image/jpeg;base64,",""),Base64.DEFAULT);
                                 Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mail"),
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
@@ -484,18 +473,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
-                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
                             }
-                            changeUI();
+                             changeUI();
                             break;
                         }
                         case 43:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
+                                byte[] data = Base64.decode((new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image")).replace("data:image/jpeg;base64,",""),Base64.DEFAULT);
                                 Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mail"),
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
@@ -503,7 +494,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
-                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
                             }
                             changeUI();
                             stato = 44;
@@ -512,10 +504,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 44:{
                             Autostoppisti.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
+                                byte[] data = Base64.decode((new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image")).replace("data:image/jpeg;base64,",""),Base64.DEFAULT);
                                 Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mail"),
                                         1,
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
@@ -523,7 +516,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
-                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
+                                        new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
                                 if(selected!=null&&selected.getMobile().equals(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"))){
                                     selected.setLatitude(Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")));
                                     selected.setLongitude(Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")));
@@ -534,67 +528,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     break;
                 }
-                case "getAS2":{
-                    ArrayList<Autostoppista> TmpAutostoppisti = new ArrayList<Autostoppista>();
-                    for(int x = 0; x< obj.getJSONArray("Message").length();x++){
-                        byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
-                        TmpAutostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
-                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
-                                new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
-                                1,
-                                Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
-                                BitmapFactory.decodeByteArray(data,0,data.length),
-                                Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlat")),
-                                Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Destlon")),
-                                Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
-                                Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
-                                new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date"))));
-                    }
-                    boolean aresame=true;
-                    if(TmpAutostoppisti.size()==Autostoppisti.size()) {
-                        for (Autostoppista a : TmpAutostoppisti){
-                            boolean check = false;
-                            for (Autostoppista b:Autostoppisti){
-                                if(a.getMobile().equals(b.getMobile())){
-                                    check = true;
-                                }
-                            }
-                            if(!check){
-                                aresame = false;
-                                break;
-                            }
-                        }
-                    }
-                    else {
-                        if(TmpAutostoppisti.size()<Autostoppisti.size()){
-                            Autostoppisti = (ArrayList<Autostoppista>)TmpAutostoppisti.clone();
-                            aresame = true;
-                        }else{
-                            aresame = false;
-                        }
-                    }
-                    if(!aresame){
-                        notifica();
-                        Autostoppisti = (ArrayList<Autostoppista>)TmpAutostoppisti.clone();
-                    }
-                    break;
-                }
                 case "getActiveUsers": {
                     switch(stato){
                         case 50:{
                             ActiveUsers.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                byte[] data = Base64.decode((new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image")).replace("data:image/jpeg;base64,",""),Base64.DEFAULT);
                                 User u = new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mail"),
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
-                                        null);
-                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
-                                u.setImage(BitmapFactory.decodeByteArray(data,0,data.length));
+                                        BitmapFactory.decodeByteArray(data,0,data.length),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating")));
                                 ActiveUsers.add(u);
                             }
                             changeUI();
@@ -604,17 +554,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case 51:{
                             ActiveUsers.clear();
                             for(int x = 0; x< obj.getJSONArray("Message").length();x++){
+                                byte[] data = Base64.decode((new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image")).replace("data:image/jpeg;base64,",""),Base64.DEFAULT);
                                 User u = new User(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                         new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
+                                        new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mail"),
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type_id")),
                                         Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Range")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
-                                        null);
-                                byte[] data = Base64.decode(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image"),Base64.DEFAULT);
-                                u.setImage(BitmapFactory.decodeByteArray(data,0,data.length));
+                                        BitmapFactory.decodeByteArray(data,0,data.length),
+                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating")));
                                 ActiveUsers.add(u);
                             }
                             break;
@@ -740,9 +691,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         if(item.getTitle().equals("Visualizza profilo")){
             for(Autostoppista a : Autostoppisti){
-                String m = a.getMobile();
-                String t= Autostoppisti.get(info.position).getMobile();
-                if(m.equals(t)) {
+                if(a.getMobile().equals(Autostoppisti.get(info.position).getMobile())) {
                     MainActivity.selected = a;
                     break;
                 }
