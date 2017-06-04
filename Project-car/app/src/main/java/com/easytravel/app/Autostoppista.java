@@ -31,7 +31,7 @@ public class Autostoppista extends User {
     }
     public Double getDestlat(){return destlat;}
     public Double getDestlon(){return destlon;}
-    public Autostoppista(String n, String s, String m, String ma, Integer t, Integer r, Bitmap i, Double destla, Double destlo, Double la, Double lo, Date d,int rating){
+    public Autostoppista(String n, String s, String m, String ma, Integer t, Integer r, Bitmap i, Double destla, Double destlo, Double la, Double lo, Date d,Double rating){
         super(n,s,m,ma,t,r,lo,la,d,i,rating);
         if(setDestlat(destla).equals("")||setDestlon(destlo).equals(""))
             return;
@@ -51,7 +51,7 @@ public class Autostoppista extends User {
         }else
             toString = this.getName()+" "+this.getSurname()+" ["+this.getDestlat()+","+this.getDestlon()+"]";
     }
-    public Autostoppista(String n, String s, String m, String ma, Integer t, Integer r, Bitmap i,int rating){
+    public Autostoppista(String n, String s, String m, String ma, Integer t, Integer r, Bitmap i,Double rating){
         super(n,s,m,ma,t,r,i,rating);
         toString = this.getName()+" "+this.getSurname();
     }

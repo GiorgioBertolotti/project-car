@@ -16,7 +16,7 @@ public class User {
     private Integer type_id;
     private int range;
     private Bitmap img;
-    private int rating;
+    private Double rating;
     private Double latitude;
     private Double longitude;
     private Date date;
@@ -76,7 +76,7 @@ public class User {
         img = value;
         return "ok";
     }
-    public String setRating(int value){
+    public String setRating(Double value){
         if(value>5||value<0)
             return "";
         rating = value;
@@ -96,13 +96,13 @@ public class User {
     public Date getDate(){return date;}
     public int getRange(){return range;}
     public Bitmap getImg(){return img;}
-    public int getRating(){return rating;}
-    public User(String n, String s, String m,String ma, Integer t, Integer r, Bitmap i, int rating){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setMail(ma).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setImage(i).equals("")||setRating(rating).equals(""))
+    public Double getRating(){return rating;}
+    public User(String n, String s, String m,String ma, Integer t, Integer r, Bitmap i, Double rating){
+        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setMail(ma).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setRating(rating).equals("")||setImage(i).equals(""))
             return;
     }
-    public User(String n,String s,String m,String ma, Integer t,Integer r,Double lo,Double la,Date d,Bitmap i,int rating){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setMail(ma).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals("")||setImage(i).equals("")||setRating(rating).equals(""))
+    public User(String n,String s,String m,String ma, Integer t,Integer r,Double lo,Double la,Date d,Bitmap i,Double rating){
+        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setMail(ma).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals("")||setRating(rating).equals("")||setImage(i).equals(""))
             return;
     }
 }

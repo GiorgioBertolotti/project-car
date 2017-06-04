@@ -442,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
-                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
                             }
                             final Handler notifications = new Handler();
                             notifications.postDelayed(new Runnable() {
@@ -474,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
-                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
                             }
                              changeUI();
                             break;
@@ -495,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
-                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
                             }
                             changeUI();
                             stato = 44;
@@ -517,7 +517,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
-                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
                                 if(selected!=null&&selected.getMobile().equals(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"))){
                                     selected.setLatitude(Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")));
                                     selected.setLongitude(Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")));
@@ -544,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
-                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating")));
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating")));
                                 ActiveUsers.add(u);
                             }
                             changeUI();
@@ -565,7 +565,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Latitude")),
                                         new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
                                         BitmapFactory.decodeByteArray(data,0,data.length),
-                                        Integer.parseInt(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating")));
+                                        Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating")));
                                 ActiveUsers.add(u);
                             }
                             break;

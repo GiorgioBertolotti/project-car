@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,7 +18,11 @@ import android.widget.TextView;
 import com.daasuu.ahp.AnimateHorizontalProgressBar;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -115,6 +120,26 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             if(!mGoogleApiClient.isConnected())
                 mGoogleApiClient.connect();
         }
+        PlaceAutocompleteFragment fragment = new PlaceAutocompleteFragment();
+        getActivity().getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
+        fragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                ZOOM = getMap().getCameraPosition().zoom;
+                BEARING = getMap().getCameraPosition().bearing;
+                TILT = getMap().getCameraPosition().tilt;
+                mCurrentLocation.setLatitude(place.getLatLng().latitude);
+                mCurrentLocation.setLongitude(place.getLatLng().longitude);
+                initCamera(mCurrentLocation);
+                Log.i("Place", "Place: " + place.getName());
+            }
+            @Override
+            public void onError(Status status) {
+                Log.i("Error", "An error occurred: " + status);
+            }
+        });
     }
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {

@@ -221,7 +221,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                             null,
                             Integer.parseInt(obj2.getString("Range")),
                             propic,
-                            Integer.parseInt(obj2.getString("Rating")));
+                            Double.parseDouble(obj2.getString("Rating")));
                     if(stato == 0) {
                         if (((CheckBox) findViewById(R.id.lgnchkrestaloggato)).isChecked()){
                             SharedPreferences settings = getSharedPreferences("UserData", 0);
@@ -269,7 +269,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
                             null,
                             Integer.parseInt(obj2.getString("Range")),
                             propic,
-                            Integer.parseInt(obj2.getString("Rating")));
+                            Double.parseDouble(obj2.getString("Rating")));
                     stato = 20;
                     h.postDelayed(new Runnable() {
                         @Override

@@ -51,8 +51,7 @@ public class Profile_Fragment extends Fragment {
             ((TextView) view.findViewById(R.id.prftvnamesurname)).setText(MainActivity.loggato.getName()+" "+MainActivity.loggato.getSurname());
             ((TextView) view.findViewById(R.id.prftvmail)).setText(MainActivity.loggato.getMail());
             ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.loggato.getMobile());
-            ((RatingBar) view.findViewById(R.id.prfrbrating)).setRating(MainActivity.loggato.getRating());
-            ((RatingBar) view.findViewById(R.id.prfrbrating)).setEnabled(true);
+            ((RatingBar) view.findViewById(R.id.prfrbrating)).setRating(MainActivity.loggato.getRating().floatValue());
             ((TextView) view.findViewById(R.id.prftvtipo)).setVisibility(View.INVISIBLE);
             if(MainActivity.loggato.getImg()!=null)
                 ((ImageView) view.findViewById(R.id.prfivprofileimage)).setImageDrawable(new BitmapDrawable(getResources(), MainActivity.loggato.getImg()));
@@ -77,7 +76,7 @@ public class Profile_Fragment extends Fragment {
             ((TextView) view.findViewById(R.id.prftvnamesurname)).setText(MainActivity.selected.getName()+" "+MainActivity.selected.getSurname());
             ((TextView) view.findViewById(R.id.prftvmail)).setText(MainActivity.selected.getMail());
             ((TextView) view.findViewById(R.id.prftvmobile)).setText(MainActivity.selected.getMobile());
-            ((RatingBar) view.findViewById(R.id.prfrbrating)).setRating(MainActivity.selected.getRating());
+            ((RatingBar) view.findViewById(R.id.prfrbrating)).setRating(MainActivity.selected.getRating().floatValue());
             if(MainActivity.selected.getImg()!=null)
                 ((ImageView) view.findViewById(R.id.prfivprofileimage)).setImageDrawable(new BitmapDrawable(getResources(), MainActivity.selected.getImg()));
             ((FloatingActionButton) view.findViewById(R.id.prffabedit)).setVisibility(View.INVISIBLE);
