@@ -49,6 +49,9 @@ public class Wait_Fragment extends Fragment {
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         getActivity().findViewById(R.id.tlbbtnsettings).setVisibility(View.INVISIBLE);
+        MainActivity.notificationsVisibility = getActivity().findViewById(R.id.notification).getVisibility();
+        getActivity().findViewById(R.id.notification).setVisibility(View.INVISIBLE);
+        getActivity().findViewById(R.id.tlbbtnnotifications).setVisibility(View.INVISIBLE);
         mDrawerToggle.syncState();
         mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
@@ -61,6 +64,8 @@ public class Wait_Fragment extends Fragment {
                 drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_UNLOCKED);
                 getActivity().findViewById(R.id.tlbbtnsettings).setVisibility(View.VISIBLE);
+                getActivity().findViewById(R.id.notification).setVisibility(MainActivity.notificationsVisibility);
+                getActivity().findViewById(R.id.tlbbtnnotifications).setVisibility(View.VISIBLE);
                 mDrawerToggle.syncState();
             }
         });

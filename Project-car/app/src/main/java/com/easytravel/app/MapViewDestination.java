@@ -207,7 +207,7 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
         asyncTask.execute(ipServer,"User_Type", String.format("{\"mobile\":\"%s\",\"type\":\"autostoppista\"}",loggato.getMobile()));
         CallAPI asyncTask2 = new CallAPI();
         asyncTask2.delegate = this;
-        asyncTask2.execute(ipServer,"User_Destination", String.format("{\"mobile\":\"%s\",\"Latitude\":\"%s\",\"Longitude\":\"%s\"}",loggato.getMobile(), lat, lon));
+        asyncTask2.execute(ipServer,"User_Destination", String.format("{\"mobile\":\"%s\",\"Latitude\":\"%s\",\"Longitude\":\"%s\"}",loggato.getMobile(), marker.getPosition().latitude, marker.getPosition().longitude));
         return true;
     }
     @Override

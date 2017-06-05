@@ -1,5 +1,4 @@
 package com.easytravel.app;
-
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,19 +6,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 public class User_Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     public User_Fragment() {}
-    public static User_Fragment newInstance(int someInt) {
-        User_Fragment myFragment = new User_Fragment();
-
-        Bundle args = new Bundle();
-        args.putInt("someInt", someInt);
-        myFragment.setArguments(args);
-
-        return myFragment;
-    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

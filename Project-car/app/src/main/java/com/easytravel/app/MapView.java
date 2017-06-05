@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -39,6 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import static com.easytravel.app.MainActivity.MY_PERMISSION_REQUEST_READ_FINE_LOCATION;
+import static com.easytravel.app.MainActivity.mDrawerToggle;
 import static com.easytravel.app.MainActivity.selectedOnMap;
 import static com.easytravel.app.MainActivity.stato;
 
@@ -140,6 +143,34 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                 Log.i("Error", "An error occurred: " + status);
             }
         });
+        if(stato==43||stato==44){
+            DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+            mDrawerToggle.setDrawerIndicatorEnabled(false);
+            ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            getActivity().findViewById(R.id.tlbbtnsettings).setVisibility(View.INVISIBLE);
+            MainActivity.notificationsVisibility = getActivity().findViewById(R.id.notification).getVisibility();
+            getActivity().findViewById(R.id.notification).setVisibility(View.INVISIBLE);
+            getActivity().findViewById(R.id.tlbbtnnotifications).setVisibility(View.INVISIBLE);
+            mDrawerToggle.syncState();
+            mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().onBackPressed();
+                    ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    mDrawerToggle.setDrawerIndicatorEnabled(true);
+                    mDrawerToggle.setToolbarNavigationClickListener(null);
+                    DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    mDrawerToggle.onDrawerStateChanged(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    getActivity().findViewById(R.id.tlbbtnsettings).setVisibility(View.VISIBLE);
+                    getActivity().findViewById(R.id.notification).setVisibility(MainActivity.notificationsVisibility);
+                    getActivity().findViewById(R.id.tlbbtnnotifications).setVisibility(View.VISIBLE);
+                    mDrawerToggle.syncState();
+                }
+            });
+        }
     }
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
