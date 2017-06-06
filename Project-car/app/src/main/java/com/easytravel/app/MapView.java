@@ -475,6 +475,8 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.RelativeLayout, new Profile_Fragment())
                 .commit();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Profilo utente");
+        ((TextView) getActivity().findViewById(R.id.tlbtxttitle)).setText("Profilo utente");
     }
     @Override
     public void onConnectionSuspended(int i) {}

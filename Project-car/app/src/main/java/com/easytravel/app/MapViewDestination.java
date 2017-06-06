@@ -269,6 +269,7 @@ public class MapViewDestination extends SupportMapFragment implements GoogleApiC
                             .replace(R.id.RelativeLayout, new Wait_Fragment())
                             .commit();
                     ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Attesa");
+                    ((TextView) getActivity().findViewById(R.id.tlbtxttitle)).setText("Attesa");
                 }
             }
         }

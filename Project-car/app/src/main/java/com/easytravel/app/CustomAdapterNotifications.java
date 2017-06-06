@@ -1,7 +1,9 @@
 package com.easytravel.app;
 
 import android.content.Context;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import static com.easytravel.app.MainActivity.context;
 import static com.easytravel.app.MainActivity.ipServer;
 import static com.easytravel.app.MainActivity.loggato;
+import static com.easytravel.app.MainActivity.notifications;
 
 public class CustomAdapterNotifications extends ArrayAdapter<Notification> implements View.OnClickListener,AsyncResponse,RatingBar.OnRatingBarChangeListener{
     private ArrayList<Notification> dataSet;
@@ -40,7 +43,7 @@ public class CustomAdapterNotifications extends ArrayAdapter<Notification> imple
             }
         }
         catch (Exception e){
-            String a = e.getMessage();
+            Log.e("Errore",e.getMessage());
         }
     }
     private static class ViewHolder {
@@ -61,7 +64,7 @@ public class CustomAdapterNotifications extends ArrayAdapter<Notification> imple
         Notification notification=(Notification)object;
         switch (v.getId())
         {
-            case R.id.btndeletecontact:
+            case R.id.btndeletecontact:{
                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String finaldate = sdf.format(notification.getDatetime());
                 funcPHP("deleteContact", String.format("{\"caller\":\"%s\",\"receiver\":\"%s\",\"datetime\":\"%s\"}", notification.getMobile(),loggato.getMobile(), finaldate));
@@ -70,6 +73,7 @@ public class CustomAdapterNotifications extends ArrayAdapter<Notification> imple
                 Snackbar.make(v, "Contatto eliminato", Snackbar.LENGTH_LONG)
                         .setAction("No action", null).show();
                 break;
+            }
         }
     }
     @Override

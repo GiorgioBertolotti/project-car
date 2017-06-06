@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -160,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Profile_Fragment())
                         .commit();
-                getSupportActionBar().setTitle("Profilo pubblico");
-                ((TextView) findViewById(R.id.tlbtxttitle)).setText("Profilo pubblico");
+                getSupportActionBar().setTitle("Profilo utente");
+                ((TextView) findViewById(R.id.tlbtxttitle)).setText("Profilo utente");
                 break;
             }
             case 43: {
@@ -187,8 +188,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.RelativeLayout, new Profile_Fragment())
                         .commit();
-                getSupportActionBar().setTitle("Profilo pubblico");
-                ((TextView) findViewById(R.id.tlbtxttitle)).setText("Profilo pubblico");
+                getSupportActionBar().setTitle("Profilo utente");
+                ((TextView) findViewById(R.id.tlbtxttitle)).setText("Profilo utente");
                 break;
             }
         }
@@ -563,7 +564,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Datetime")),
                                 new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Type")));
                     }
-                    changeUI();
+                    if(notifications.size()>0) {
+                        if (stato == 22)
+                            return;
+                        prec = stato;
+                        stato = 22;
+                        changeUI();
+                    }
                     break;
                 }
             }
@@ -604,12 +611,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void onClickNotifications(View v) {
-        if (stato == 22)
-            return;
-        prec = stato;
-        stato = 22;
         funcPHP("getContacts", String.format("{\"mobile\":\"%s\"}", loggato.getMobile()));
         (findViewById(R.id.notification)).setVisibility(View.INVISIBLE);
+    }
+
+    public void onClickDeleteAll(View v){
+        for(com.easytravel.app.Notification noti : notifications){
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String finaldate = sdf.format(noti.getDatetime());
+            funcPHP("deleteContact", String.format("{\"caller\":\"%s\",\"receiver\":\"%s\",\"datetime\":\"%s\"}", noti.getMobile(),loggato.getMobile(), finaldate));
+        }
+        Snackbar.make(v, "Eliminati tutti i contatti", Snackbar.LENGTH_LONG)
+                .setAction("No action", null).show();
+        onBackPressed();
     }
 
     public void onFragmentInteraction(Uri uri) {
