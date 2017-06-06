@@ -37,6 +37,7 @@ public class CustomAdapterAutostoppisti extends ArrayAdapter<Autostoppista> impl
         TextView txtFrom;
         TextView txtTo;
         ImageView options;
+        RatingBar rbrating;
     }
     public CustomAdapterAutostoppisti(ArrayList<Autostoppista> data, Context context) {
         super(context, R.layout.row_item_autostoppista, data);
@@ -70,6 +71,7 @@ public class CustomAdapterAutostoppisti extends ArrayAdapter<Autostoppista> impl
             viewHolder.txtFrom = (TextView) convertView.findViewById(R.id.txtfrom);
             viewHolder.txtTo = (TextView) convertView.findViewById(R.id.txtto);
             viewHolder.options = (ImageView) convertView.findViewById(R.id.btnoptions);
+            viewHolder.rbrating = (RatingBar) convertView.findViewById(R.id.listrbrating);
             result=convertView;
             convertView.setTag(viewHolder);
         } else {
@@ -80,20 +82,11 @@ public class CustomAdapterAutostoppisti extends ArrayAdapter<Autostoppista> impl
         result.startAnimation(animation);
         lastPosition = position;
         viewHolder.txtName.setText(dataModel.getName()+" "+dataModel.getSurname());
-        Geocoder geocoder;
-        List<Address> addresses;
-        try {
-            geocoder = new Geocoder(context, Locale.getDefault());
-            addresses = geocoder.getFromLocation(dataModel.getLatitude(), dataModel.getLongitude(), 1);
-            viewHolder.txtFrom.setText("Da: "+addresses.get(0).getAddressLine(0));
-            geocoder = new Geocoder(context, Locale.getDefault());
-            addresses = geocoder.getFromLocation(dataModel.getDestlat(), dataModel.getDestlon(), 1);
-            viewHolder.txtTo.setText("A: "+addresses.get(0).getAddressLine(0));
-        }catch (Exception e){
-            Log.e("Error",e.getMessage());
-        }
+        viewHolder.txtFrom.setText("Da: "+dataModel.getPosition());
+        viewHolder.txtTo.setText("A: "+dataModel.getDest());
         viewHolder.options.setOnClickListener(this);
         viewHolder.options.setTag(position);
+        viewHolder.rbrating.setRating(dataModel.getRating().floatValue());
         return convertView;
     }
 }

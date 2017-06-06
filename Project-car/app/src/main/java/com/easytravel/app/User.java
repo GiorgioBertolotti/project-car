@@ -2,8 +2,15 @@ package com.easytravel.app;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
+import android.util.Log;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import static com.easytravel.app.MainActivity.context;
 
 /**
  * Created by bertolottig on 22/06/2016.
@@ -19,6 +26,7 @@ public class User {
     private Double rating;
     private Double latitude;
     private Double longitude;
+    private String position;
     private Date date;
     private String setName(String value){
         if(value.isEmpty()||value.equals(""))
@@ -82,6 +90,19 @@ public class User {
         rating = value;
         return "ok";
     }
+    public String setPosition(Double lat,Double lon){
+        Geocoder geocoder;
+        List<Address> addresses;
+        try {
+            geocoder = new Geocoder(context, Locale.getDefault());
+            addresses = geocoder.getFromLocation(lat, lon, 1);
+            position = addresses.get(0).getAddressLine(0);
+        }catch (Exception e){
+            Log.e("Error",e.getMessage());
+            return "";
+        }
+        return "ok";
+    }
     public String getName(){
         return name;
     }
@@ -97,13 +118,30 @@ public class User {
     public int getRange(){return range;}
     public Bitmap getImg(){return img;}
     public Double getRating(){return rating;}
+    public String getPosition(){return position;}
     public User(String n, String s, String m,String ma, Integer t, Integer r, Bitmap i, Double rating){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setMail(ma).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setRating(rating).equals("")||setImage(i).equals(""))
-            return;
+        setName(n);
+        setSurname(s);
+        setMobile(m);
+        setMail(ma);
+        setType_id(t);
+        setRange(r);
+        setRating(rating);
+        setImage(i);
     }
     public User(String n,String s,String m,String ma, Integer t,Integer r,Double lo,Double la,Date d,Bitmap i,Double rating){
-        if(setName(n).equals("")||setSurname(s).equals("")||setMobile(m).equals("")||setMail(ma).equals("")||setType_id(t).equals("")||setRange(r).equals("")||setLatitude(la).equals("")||setLongitude(lo).equals("")||setDate(d).equals("")||setRating(rating).equals("")||setImage(i).equals(""))
-            return;
+        setName(n);
+        setSurname(s);
+        setMobile(m);
+        setMail(ma);
+        setType_id(t);
+        setRange(r);
+        setLatitude(la);
+        setLongitude(lo);
+        setDate(d);
+        setRating(rating);
+        setImage(i);
+        setPosition(this.getLatitude(),this.getLongitude());
     }
 }
 

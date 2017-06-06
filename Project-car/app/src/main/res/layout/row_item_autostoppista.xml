@@ -36,4 +36,16 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="@android:drawable/ic_menu_more" />
+    <RatingBar
+        android:id="@+id/listrbrating"
+        style="@style/Widget.AppCompat.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="1"
+        android:theme="@style/RatingBar"
+        android:visibility="visible"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/btnoptions"
+        android:layout_marginEnd="33dp" />
 </RelativeLayout>

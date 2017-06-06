@@ -466,10 +466,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
                 case "getAS": {
-                    Autostoppisti.clear();
+                    //Autostoppisti.clear();
+                    ArrayList<Autostoppista> tmp = new ArrayList<>();
                     for (int x = 0; x < obj.getJSONArray("Message").length(); x++) {
                         byte[] data = Base64.decode((new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Image")).replace("data:image/jpeg;base64,", ""), Base64.DEFAULT);
-                        Autostoppisti.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
+                        tmp.add(new Autostoppista(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Name"),
                                 new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Surname"),
                                 new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mobile"),
                                 new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Mail"),
@@ -482,6 +483,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Longitude")),
                                 new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Date")),
                                 Double.parseDouble(new JSONObject(obj.getJSONArray("Message").getString(x)).getString("Rating"))));
+                    }
+                    for (Autostoppista a : tmp){
+                        boolean found = false;
+                        for (Autostoppista b : Autostoppisti){
+                            if(!found) {
+                                if (a.getMobile().equals(b.getMobile())) {
+                                    found = true;
+                                    if (!a.getPosition().equals(b.getPosition())) {
+                                        b.setLatitude(a.getLatitude());
+                                        b.setLongitude(a.getLongitude());
+                                        b.setPosition(a.getLatitude(), a.getLongitude());
+                                    }
+                                    if (!a.getDest().equals(b.getDest())) {
+                                        b.setDestlat(a.getDestlat());
+                                        b.setDestlon(a.getDestlon());
+                                        b.setDestination(a.getDestlat(), a.getDestlon());
+                                    }
+                                    b.setDate(a.getDate());
+                                    b.setRating(a.getRating());
+                                    b.setRange(a.getRange());
+                                }
+                            }
+                        }
+                        if(!found){
+                            Autostoppisti.add(a);
+                        }
+                    }
+                    for (Autostoppista a : Autostoppisti){
+                        boolean found = false;
+                        for (Autostoppista b : tmp) {
+                            if(a.getMobile().equals(b.getMobile()))
+                                found = true;
+                        }
+                        if(!found)
+                            Autostoppisti.remove(a);
                     }
                     switch (stato) {
                         case 40: {
@@ -642,7 +678,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 });
                 registerForContextMenu(listView);
-//
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        activity.openContextMenu(view);
+                    }
+                });
 //                final ListView listView = (ListView) findViewById(R.id.listUsers);
 //                assert listView != null;
 //                listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<String>()));
