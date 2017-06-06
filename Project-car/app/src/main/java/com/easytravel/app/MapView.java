@@ -63,6 +63,7 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
             switch (stato) {
                 case 50:
                 case 51: {
+                    (myContentsView.findViewById(R.id.infivprofile)).setVisibility(View.VISIBLE);
                     for(User a:MainActivity.ActiveUsers){
                         if(a.getMobile().equals(marker.getTitle())&&a.getImg()!=null){
                             ((ImageView) myContentsView.findViewById(R.id.infivprofile)).setImageBitmap(Bitmap.createScaledBitmap(a.getImg(), 64, 64, false));
@@ -70,16 +71,12 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                             ((ImageView) myContentsView.findViewById(R.id.infivprofile)).setImageResource(R.drawable.ic_user);
                         }
                     }
+                    break;
                 }
                 case 43:
                 case 44: {
-                    for(Autostoppista a:MainActivity.Autostoppisti){
-                        if(a.getMobile().equals(marker.getTitle())&&a.getImg()!=null){
-                            ((ImageView) myContentsView.findViewById(R.id.infivprofile)).setImageBitmap(Bitmap.createScaledBitmap(a.getImg(), 64, 64, false));
-                        }else{
-                            ((ImageView) myContentsView.findViewById(R.id.infivprofile)).setImageResource(R.drawable.ic_user);
-                        }
-                    }
+                    (myContentsView.findViewById(R.id.infivprofile)).setVisibility(View.INVISIBLE);
+                    break;
                 }
             }
             return myContentsView;
@@ -222,12 +219,23 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
     }
     @Override
     public void onConnected(Bundle bundle) {
+        progressBar = (AnimateHorizontalProgressBar) this.getActivity().findViewById(R.id.animate_progress_bar);
+        progressBar.setMax(60);
+        progressBar.setProgress(0);
+        r2 = new Runnable() {
+            @Override
+            public void run() {
+                if(progressBar.getProgress()==60)
+                    progressBar.setProgress(1);
+                else
+                    progressBar.setProgress(progressBar.getProgress()+1);
+                timer.postDelayed(this,1000);
+            }
+        };
+        timer.postDelayed(r2,1000);
         switch (stato){
             case 50:
             case 51:{
-                progressBar = (AnimateHorizontalProgressBar) this.getActivity().findViewById(R.id.animate_progress_bar);
-                progressBar.setMax(60);
-                progressBar.setProgress(0);
                 try{mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);}
                 catch (SecurityException e){return;}
                 initUsers(MainActivity.ActiveUsers,mCurrentLocation);
@@ -242,55 +250,47 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                     }
                 };
                 handler.postDelayed(r, 60000 );
-                r2 = new Runnable() {
-                    @Override
-                    public void run() {
-                        if(progressBar.getProgress()==60)
-                            progressBar.setProgress(1);
-                        else
-                            progressBar.setProgress(progressBar.getProgress()+1);
-                        timer.postDelayed(this,1000);
-                    }
-                };
-                timer.postDelayed(r2,1000);
                 break;
             }
             case 43:
             case 44:{
-                progressBar = (AnimateHorizontalProgressBar) this.getActivity().findViewById(R.id.animate_progress_bar);
-                progressBar.setMax(60);
-                progressBar.setProgress(0);
                 try{
                     mCurrentLocation = new Location("");
                     mCurrentLocation.setLongitude(MainActivity.selectedOnMap.getLongitude());
                     mCurrentLocation.setLatitude(MainActivity.selectedOnMap.getLatitude());
                 }
                 catch (SecurityException e){return;}
-                initUsers(MainActivity.Autostoppisti,mCurrentLocation);
+                Marker marker = getMap().addMarker(new MarkerOptions()
+                        .position(new LatLng(selectedOnMap.getLatitude(), selectedOnMap.getLongitude()))
+                        .title(selectedOnMap.getMobile())
+                        .snippet(String.format("%s\n(%s, %s)", getAddressFromLatLng(new LatLng(selectedOnMap.getLatitude(), selectedOnMap.getLongitude())), selectedOnMap.getLatitude(), selectedOnMap.getLongitude()))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                if(selectedOnMap.getMobile().equals(mobilecl))
+                    marker.showInfoWindow();
+                marker = getMap().addMarker(new MarkerOptions()
+                        .position(new LatLng(selectedOnMap.getDestlat(), selectedOnMap.getDestlon()))
+                        .title(selectedOnMap.getMobile())
+                        .snippet(String.format("%s\n(%s, %s)", getAddressFromLatLng(new LatLng(selectedOnMap.getDestlat(), selectedOnMap.getDestlon())), selectedOnMap.getDestlat(), selectedOnMap.getDestlon()))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                if(selectedOnMap.getMobile().equals(mobilecl))
+                marker.showInfoWindow();
+                getMap().addCircle(new CircleOptions()
+                        .center(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                        .radius(MainActivity.selectedOnMap.getRange()*1000)
+                        .strokeColor(Color.RED));
+                connectAsyncTask task = new connectAsyncTask(makeURL(selectedOnMap.getLatitude(),selectedOnMap.getLongitude(),selectedOnMap.getDestlat(),selectedOnMap.getDestlon()));
+                task.execute();
                 initCamera(mCurrentLocation);
                 isrunning = true;
                 r = new Runnable(){
                     @Override
                     public void run() {
-                        getMap().clear();
                         mCurrentLocation.setLongitude(MainActivity.selectedOnMap.getLongitude());
                         mCurrentLocation.setLatitude(MainActivity.selectedOnMap.getLatitude());
-                        initUsers(MainActivity.Autostoppisti,mCurrentLocation);
                         handler.postDelayed(this,60000);
                     }
                 };
                 handler.postDelayed(r, 60000 );
-                r2 = new Runnable() {
-                    @Override
-                    public void run() {
-                        if(progressBar.getProgress()==60)
-                            progressBar.setProgress(1);
-                        else
-                            progressBar.setProgress(progressBar.getProgress()+1);
-                        timer.postDelayed(this,1000);
-                    }
-                };
-                timer.postDelayed(r2,1000);
                 break;
             }
         }
@@ -346,50 +346,6 @@ public class MapView extends SupportMapFragment implements GoogleApiClient.Conne
                             .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
                             .radius(MainActivity.loggato.getRange()*1000)
                             .strokeColor(Color.RED));
-                }
-                break;
-            }
-            case 43:{
-                for(Object b : attivi) {
-                    Autostoppista a = (Autostoppista) b;
-                    if (a.getMobile().equals(MainActivity.selectedOnMap.getMobile())) {
-                        SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
-                        Marker marker = getMap().addMarker(new MarkerOptions()
-                                .position(new LatLng(a.getLatitude(), a.getLongitude()))
-                                .title(a.getMobile())
-                                .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
-                                .icon(BitmapDescriptorFactory.defaultMarker()));
-                        marker.showInfoWindow();
-                        getMap().addCircle(new CircleOptions()
-                                .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
-                                .radius(MainActivity.selectedOnMap.getRange()*1000)
-                                .strokeColor(Color.RED));
-                        connectAsyncTask task = new connectAsyncTask(makeURL(selectedOnMap.getLatitude(),selectedOnMap.getLongitude(),selectedOnMap.getDestlat(),selectedOnMap.getDestlon()));
-                        task.execute();
-                    }
-                }
-                break;
-            }
-            case 44:{
-                for(Object b : attivi) {
-                    Autostoppista a = (Autostoppista) b;
-                    SimpleDateFormat dt = new SimpleDateFormat("HH:mm dd MMM yyyy");
-                    Marker marker = getMap().addMarker(new MarkerOptions()
-                            .position(new LatLng(a.getLatitude(), a.getLongitude()))
-                            .title(a.getMobile())
-                            .snippet(String.format("%s %s\n%s,%s\n%s\n%s", a.getName(), a.getSurname(), a.getLatitude(), a.getLongitude(), dt.format(a.getDate()).toString(), getAddressFromLatLng(new LatLng(a.getLatitude(), a.getLongitude()))))
-                            .icon(BitmapDescriptorFactory.defaultMarker()));
-                    if (a.getMobile().equals(MainActivity.selectedOnMap.getMobile())) {
-                        getMap().addCircle(new CircleOptions()
-                                .center(new LatLng(currentloc.getLatitude(), currentloc.getLongitude()))
-                                .radius(MainActivity.selectedOnMap.getRange()*1000)
-                                .strokeColor(Color.RED));
-                        connectAsyncTask task = new connectAsyncTask(makeURL(selectedOnMap.getLatitude(),selectedOnMap.getLongitude(),selectedOnMap.getDestlat(),selectedOnMap.getDestlon()));
-                        task.execute();
-                    }
-                    if(a.getMobile().equals(mobilecl)) {
-                        marker.showInfoWindow();
-                    }
                 }
                 break;
             }

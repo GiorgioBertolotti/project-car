@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Register_Fragment.OnFragmentInteractionListener,
         Profile_Fragment.OnFragmentInteractionListener,
         Destination_Fragment.OnFragmentInteractionListener,
-        User_Fragment.OnFragmentInteractionListener,
+        Autostoppisti_Fragment.OnFragmentInteractionListener,
         Wait_Fragment.OnFragmentInteractionListener,
         Map_Fragment.OnFragmentInteractionListener,
         Settings_Fragment.OnFragmentInteractionListener,
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static ArrayAdapter<Autostoppista> autostoppistiAdapter;
     public static ArrayList<com.easytravel.app.Notification> notifications;
     public static CustomAdapterNotifications adapter;
-    public static String ipServer = "http://192.168.200.160/pcws/index.php";
+    public static String ipServer = "http://bertolotti.ddns.net/pcws/index.php";
     public static String lat, lon, img;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static boolean isFirstMapOpen = true, isFirstMapOpen2 = true, doubleBackToExitPressedOnce = false;
     public static Context context;
     public static ActionBarDrawerToggle mDrawerToggle;
-
+    public static AppCompatActivity activity;
     public void changeUI() {
         switch (stato) {
             case 20: {
@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case 40: {
                 rl.removeAllViews();
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.RelativeLayout, new User_Fragment())
+                        .replace(R.id.RelativeLayout, new Autostoppisti_Fragment())
                         .commit();
                 getSupportActionBar().setTitle("Scelta autostoppista");
                 ((TextView) findViewById(R.id.tlbtxttitle)).setText("Scelta autostoppista");
@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActiveUsers = new ArrayList<>();
         usersAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, ActiveUsers);
         Autostoppisti = new ArrayList<>();
-        autostoppistiAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Autostoppisti);
+        autostoppistiAdapter = new CustomAdapterAutostoppisti(Autostoppisti, getApplicationContext());
         notifications = new ArrayList<>();
         adapter = new CustomAdapterNotifications(notifications, getApplicationContext());
         range = 10;
@@ -243,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }, 10000);
+        activity = this;
     }
 
     @Override
@@ -632,23 +633,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case 40: {
-                final ListView listView = (ListView) findViewById(R.id.listUsers);
-                assert listView != null;
-                listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<String>()));
+                final ListView listView = (ListView) findViewById(R.id.listAutostoppisti);
                 listView.setAdapter(autostoppistiAdapter);
-                registerForContextMenu(listView);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Object listItem = listView.getItemAtPosition(position);
-                        Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + ((Autostoppista) listItem).getMobile()));
-                        try {
-                            startActivity(i);
-                        } catch (Exception e) {
-                            Toast.makeText(getApplicationContext(), "Errore nella chiamata", Toast.LENGTH_SHORT).show();
-                        }
+                        com.easytravel.app.Notification notification = notifications.get(position);
                     }
                 });
+                registerForContextMenu(listView);
+//
+//                final ListView listView = (ListView) findViewById(R.id.listUsers);
+//                assert listView != null;
+//                listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<String>()));
+//                listView.setAdapter(autostoppistiAdapter);
+//                registerForContextMenu(listView);
+//                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                    @Override
+//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                        Object listItem = listView.getItemAtPosition(position);
+//                        Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + ((Autostoppista) listItem).getMobile()));
+//                        try {
+//                            startActivity(i);
+//                        } catch (Exception e) {
+//                            Toast.makeText(getApplicationContext(), "Errore nella chiamata", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
                 break;
             }
             case 20: {

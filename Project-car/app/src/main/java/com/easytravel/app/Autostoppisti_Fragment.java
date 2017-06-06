@@ -6,18 +6,18 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-public class User_Fragment extends Fragment {
+public class Autostoppisti_Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
-    public User_Fragment() {}
+    public Autostoppisti_Fragment() {
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
-        View view = null;
-        view = inflater.inflate(R.layout.fragment_user_, container, false);
-        return view;
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_autostoppisti_, container, false);
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {

@@ -65,6 +65,8 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse,
         SharedPreferences settings = getSharedPreferences("UserData", 0);
         String token = settings.getString("Token", null);
         ipServer = settings.getString("IP", null);
+        if(ipServer==null)
+            ipServer = "http://bertolotti.ddns.net/pcws/index.php";
         if(token!=null){
             funcPHP("loginWToken",String.format("{\"token\":\"%s\"}",token));
         }
