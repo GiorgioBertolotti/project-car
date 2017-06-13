@@ -96,7 +96,10 @@ public class User {
         try {
             geocoder = new Geocoder(context, Locale.getDefault());
             addresses = geocoder.getFromLocation(lat, lon, 1);
-            position = addresses.get(0).getAddressLine(0);
+            if(addresses.get(0).getAddressLine(0)!=null&&addresses.get(0).getAddressLine(1)!=null)
+                position = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getAddressLine(1);
+            else
+                position = addresses.get(0).getAddressLine(0);
         }catch (Exception e){
             Log.e("Error",e.getMessage());
             return "";
